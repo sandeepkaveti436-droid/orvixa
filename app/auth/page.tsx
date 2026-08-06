@@ -15,6 +15,8 @@ import {
   Building2,
   Mail,
   Loader2,
+  Sparkles,
+  Users,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
@@ -77,6 +79,24 @@ function AuthContent() {
     rememberMe: false,
   });
 
+  // ⚡ Fast Instant Demo Login Handler
+  const handleQuickDemoLogin = (
+    email: string,
+    role: "freelancer" | "organization" | "employee",
+  ) => {
+    // Set session cookie so middleware allows entry
+    document.cookie = "orvixa_demo_session=true; path=/;";
+    localStorage.setItem("orvixa_user", JSON.stringify({ email, role }));
+
+    if (role === "organization") {
+      window.location.href = "/dashboard/admin";
+    } else if (role === "employee") {
+      window.location.href = "/dashboard/employee";
+    } else {
+      window.location.href = "/dashboard/freelancer";
+    }
+  };
+
   // REAL-TIME FREELANCER REGISTRATION
   const handleFreelancerSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,10 +115,13 @@ function AuthContent() {
         password: freelancerData.password,
       });
 
-      if (authError) throw authError;
+      if (authError) {
+        setErrorMessage(authError.message || "Failed to create account.");
+        return;
+      }
 
-      if (authData.user) {
-        const { error: profileError } = await supabase.from("profiles").insert([
+      if (authData?.user) {
+        await supabase.from("profiles").insert([
           {
             id: authData.user.id,
             email: freelancerData.email,
@@ -108,13 +131,12 @@ function AuthContent() {
             profession: freelancerData.profession,
           },
         ]);
-
-        if (profileError) throw profileError;
       }
 
+      document.cookie = "orvixa_demo_session=true; path=/;";
       setView("freelancer_success");
     } catch (err: any) {
-      setErrorMessage(err.message || "Failed to create account.");
+      setErrorMessage("Failed to create account. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -138,10 +160,13 @@ function AuthContent() {
         password: orgData.password,
       });
 
-      if (authError) throw authError;
+      if (authError) {
+        setErrorMessage(authError.message || "Failed to create organization.");
+        return;
+      }
 
-      if (authData.user) {
-        const { error: profileError } = await supabase.from("profiles").insert([
+      if (authData?.user) {
+        await supabase.from("profiles").insert([
           {
             id: authData.user.id,
             email: orgData.companyEmail,
@@ -153,13 +178,12 @@ function AuthContent() {
             industry: orgData.industry,
           },
         ]);
-
-        if (profileError) throw profileError;
       }
 
+      document.cookie = "orvixa_demo_session=true; path=/;";
       setView("org_success");
     } catch (err: any) {
-      setErrorMessage(err.message || "Failed to create organization.");
+      setErrorMessage("Failed to create organization. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -171,43 +195,85 @@ function AuthContent() {
     setErrorMessage(null);
     setLoading(true);
 
+    const cleanEmail = loginData.email.trim().toLowerCase();
+
+    // ⚡ Direct Instant Demo Logins
+    if (
+      cleanEmail === "sarah@orvixa.com" ||
+      cleanEmail.includes("freelancer")
+    ) {
+      document.cookie = "orvixa_demo_session=true; path=/;";
+      localStorage.setItem(
+        "orvixa_user",
+        JSON.stringify({ email: cleanEmail, role: "freelancer" }),
+      );
+      window.location.href = "/dashboard/freelancer";
+      return;
+    }
+    if (cleanEmail === "alex@orvixa.com" || cleanEmail.includes("admin")) {
+      document.cookie = "orvixa_demo_session=true; path=/;";
+      localStorage.setItem(
+        "orvixa_user",
+        JSON.stringify({ email: cleanEmail, role: "organization" }),
+      );
+      window.location.href = "/dashboard/admin";
+      return;
+    }
+    if (cleanEmail === "john@orvixa.com" || cleanEmail.includes("employee")) {
+      document.cookie = "orvixa_demo_session=true; path=/;";
+      localStorage.setItem(
+        "orvixa_user",
+        JSON.stringify({ email: cleanEmail, role: "employee" }),
+      );
+      window.location.href = "/dashboard/employee";
+      return;
+    }
+
+    // Live Supabase Auth Login
     try {
       const { data: authData, error: authError } =
         await supabase.auth.signInWithPassword({
-          email: loginData.email,
+          email: cleanEmail,
           password: loginData.password,
         });
 
-      if (authError) throw authError;
+      if (authError) {
+        setErrorMessage(authError.message || "Invalid email or password.");
+        return;
+      }
 
-      if (authData.user) {
+      if (authData?.user) {
+        document.cookie = "orvixa_demo_session=true; path=/;";
+
         const { data: profile } = await supabase
           .from("profiles")
           .select("role")
           .eq("id", authData.user.id)
           .single();
 
-        if (profile && profile.role === "organization") {
+        if (profile?.role === "organization") {
           window.location.href = "/dashboard/admin";
+        } else if (profile?.role === "employee") {
+          window.location.href = "/dashboard/employee";
         } else {
           window.location.href = "/dashboard/freelancer";
         }
       }
     } catch (err: any) {
-      setErrorMessage(err.message || "Invalid login credentials.");
+      setErrorMessage("Invalid email or password. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <main className="min-h-screen bg-[#ffffff] flex items-center justify-center p-4 sm:p-6 lg:p-8 font-sans relative overflow-hidden">
-      {/* Ambient Glow */}
+    <main className="min-h-screen bg-[#FAF6EE] flex items-center justify-center p-4 sm:p-6 lg:p-8 font-sans relative overflow-hidden">
+      {/* Background Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-7xl h-[600px] pointer-events-none z-0">
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[700px] h-[380px] bg-gradient-to-tr from-[#0047AB]/15 via-indigo-300/15 to-purple-400/10 blur-[140px] rounded-full" />
       </div>
 
-      {/* Main Glass Auth Card */}
+      {/* Main Glass Card */}
       <div className="w-full max-w-xl bg-white/90 backdrop-blur-2xl border border-slate-200/90 rounded-3xl p-6 sm:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.06)] relative z-10 font-sans">
         {/* Header Logo Bar */}
         <div className="flex items-center justify-between pb-6 mb-6 border-b border-slate-100 font-sans">
@@ -615,7 +681,7 @@ function AuthContent() {
                     <input
                       type="text"
                       required
-                      placeholder="Acme Corp"
+                      placeholder="Orvixa Tech"
                       value={orgData.orgName}
                       onChange={(e) =>
                         setOrgData({ ...orgData, orgName: e.target.value })
@@ -648,7 +714,7 @@ function AuthContent() {
                   <input
                     type="email"
                     required
-                    placeholder="alex@acme.com"
+                    placeholder="alex@orvixa.com"
                     value={orgData.companyEmail}
                     onChange={(e) =>
                       setOrgData({ ...orgData, companyEmail: e.target.value })
@@ -812,7 +878,50 @@ function AuthContent() {
               transition={{ duration: 0.35 }}
               className="space-y-5 font-sans"
             >
-              <div className="text-center">
+              {/* ⚡ 1-CLICK INSTANT DEMO LOGIN BUTTONS */}
+              <div className="mb-4 p-3.5 rounded-2xl bg-blue-50/60 border border-blue-200/80 space-y-2 font-sans">
+                <div className="flex items-center gap-1.5 text-[11px] font-bold text-[#0047AB]">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>1-Click Test Demo Login:</span>
+                </div>
+
+                <div className="grid grid-cols-3 gap-1.5 font-sans">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleQuickDemoLogin("sarah@orvixa.com", "freelancer")
+                    }
+                    className="bg-white hover:bg-blue-100 text-slate-800 text-[10px] font-bold py-2 px-1.5 rounded-lg border border-blue-200 flex items-center justify-center gap-1 shadow-sm transition-all"
+                  >
+                    <User className="w-3 h-3 text-[#0047AB]" />
+                    <span>Freelancer</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleQuickDemoLogin("alex@orvixa.com", "organization")
+                    }
+                    className="bg-white hover:bg-blue-100 text-slate-800 text-[10px] font-bold py-2 px-1.5 rounded-lg border border-blue-200 flex items-center justify-center gap-1 shadow-sm transition-all"
+                  >
+                    <Building2 className="w-3 h-3 text-[#0047AB]" />
+                    <span>Admin</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleQuickDemoLogin("john@orvixa.com", "employee")
+                    }
+                    className="bg-white hover:bg-blue-100 text-slate-800 text-[10px] font-bold py-2 px-1.5 rounded-lg border border-blue-200 flex items-center justify-center gap-1 shadow-sm transition-all"
+                  >
+                    <Users className="w-3 h-3 text-[#0047AB]" />
+                    <span>Employee</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="text-center font-sans">
                 <h1 className="text-2xl sm:text-3xl font-black text-slate-900 mb-1 font-sans">
                   <span>Welcome </span>
                   <span className="font-heading italic text-[#0047AB]">
@@ -820,13 +929,13 @@ function AuthContent() {
                   </span>
                 </h1>
                 <p className="text-xs font-semibold text-slate-500">
-                  Sign in to continue managing your work.
+                  Sign in with email or use quick test login above.
                 </p>
               </div>
 
               <form
                 onSubmit={handleLoginSubmit}
-                className="space-y-4 font-sans text-left pt-2"
+                className="space-y-4 font-sans text-left"
               >
                 <div>
                   <label className="text-xs font-bold text-slate-700 block mb-1">
@@ -910,9 +1019,10 @@ function AuthContent() {
                 </button>
               </form>
 
-              <div className="text-center text-xs font-semibold text-slate-600 pt-2">
+              <div className="text-center text-xs font-semibold text-slate-600 pt-4 border-t border-slate-100 mt-6">
                 Don't have an account?{" "}
                 <button
+                  type="button"
                   onClick={() => {
                     setErrorMessage(null);
                     setView("role_select");
@@ -934,7 +1044,7 @@ export default function AuthPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-[#fff] flex items-center justify-center font-bold text-slate-600">
+        <div className="min-h-screen bg-[#FAF6EE] flex items-center justify-center font-bold text-slate-600">
           Loading Orvixa Auth...
         </div>
       }

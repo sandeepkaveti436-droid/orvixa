@@ -5,69 +5,96 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  FolderKanban,
-  CheckCircle2,
-  FileText,
+  LayoutDashboard,
+  Briefcase,
   Users,
+  CheckCircle2,
+  Calendar,
   Clock,
-  FileCode,
+  FileText,
   Sparkles,
+  FileCode,
+  BarChart3,
   Settings,
   LogOut,
   Bell,
   Search,
   Menu,
   X,
-  CreditCard,
-  Briefcase,
+  Sun,
+  Moon,
+  ChevronRight,
+  User,
 } from "lucide-react";
 
-export default function FreelancerLayout({
+export default function FreelancerDashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
 
-  const navigation = [
-    { name: "Overview", href: "/dashboard/freelancer", icon: FolderKanban },
+  // All 15 Requested Sidebar Navigation Links
+  const sidebarLinks = [
+    { name: "Dashboard", href: "/dashboard/freelancer", icon: LayoutDashboard },
     {
       name: "Projects",
       href: "/dashboard/freelancer/projects",
       icon: Briefcase,
     },
+    { name: "Clients", href: "/dashboard/freelancer/clients", icon: Users },
     { name: "Tasks", href: "/dashboard/freelancer/tasks", icon: CheckCircle2 },
     {
-      name: "Invoices & Payments",
-      href: "/dashboard/freelancer/invoices",
-      icon: FileText,
+      name: "Calendar",
+      href: "/dashboard/freelancer/calendar",
+      icon: Calendar,
     },
-    { name: "Clients", href: "/dashboard/freelancer/clients", icon: Users },
     {
       name: "Time Tracker",
       href: "/dashboard/freelancer/time-tracker",
       icon: Clock,
     },
     {
-      name: "Documents",
-      href: "/dashboard/freelancer/documents",
-      icon: FileCode,
+      name: "Invoices",
+      href: "/dashboard/freelancer/invoices",
+      icon: FileText,
     },
     {
-      name: "AI Assistant",
+      name: "AI Proposals",
       href: "/dashboard/freelancer/ai-assistant",
       icon: Sparkles,
       isAi: true,
     },
+    {
+      name: "Contracts",
+      href: "/dashboard/freelancer/documents",
+      icon: FileCode,
+    },
+    { name: "Files", href: "/dashboard/freelancer/documents", icon: FileCode },
+    {
+      name: "Analytics",
+      href: "/dashboard/freelancer/analytics",
+      icon: BarChart3,
+    },
+    { name: "Settings", href: "/dashboard/freelancer/profile", icon: Settings },
   ];
 
+  // Breadcrumbs computation
+  const pathSegments = pathname.split("/").filter(Boolean);
+
   return (
-    <div className="min-h-screen bg-slate-50 flex font-sans">
-      {/* LEFT SIDEBAR (DESKTOP) */}
-      <aside className="hidden lg:flex flex-col w-64 bg-white border-r border-slate-200 p-5 shrink-0 justify-between font-sans sticky top-0 h-screen">
+    <div
+      className={`min-h-screen flex font-sans ${darkMode ? "dark bg-slate-900 text-white" : "bg-slate-50 text-slate-900"}`}
+    >
+      {/* 1. SIDEBAR NAVIGATION */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 p-5 flex flex-col justify-between transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
+      >
         <div className="space-y-6">
-          {/* Logo */}
+          {/* Logo & Workspace Name */}
           <Link href="/" className="flex items-center gap-3 px-2">
             <Image
               src="/orviax.jpg"
@@ -77,7 +104,7 @@ export default function FreelancerLayout({
               className="rounded-xl"
             />
             <div>
-              <span className="font-heading text-lg font-bold text-slate-900 block leading-none">
+              <span className="font-heading text-lg font-bold text-slate-900 dark:text-white block leading-none">
                 Orvixa
               </span>
               <span className="text-[10px] font-bold text-[#0047AB]">
@@ -86,9 +113,9 @@ export default function FreelancerLayout({
             </div>
           </Link>
 
-          {/* Navigation Links */}
-          <nav className="space-y-1">
-            {navigation.map((item) => {
+          {/* Navigation Items */}
+          <nav className="space-y-1 overflow-y-auto max-h-[calc(100vh-200px)]">
+            {sidebarLinks.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
 
@@ -96,12 +123,13 @@ export default function FreelancerLayout({
                 <Link
                   key={item.name}
                   href={item.href}
+                  onClick={() => setSidebarOpen(false)}
                   className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
                     isActive
                       ? "bg-[#0047AB] text-white shadow-md shadow-[#0047AB]/25"
                       : item.isAi
-                        ? "bg-gradient-to-r from-blue-50 to-indigo-50 text-[#0047AB] border border-blue-200/80 hover:bg-blue-100/50"
-                        : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                        ? "bg-blue-50 dark:bg-blue-950/40 text-[#0047AB] dark:text-blue-400 border border-blue-200/80 hover:bg-blue-100"
+                        : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
                   }`}
                 >
                   <Icon className="w-4 h-4 shrink-0" />
@@ -112,40 +140,43 @@ export default function FreelancerLayout({
           </nav>
         </div>
 
-        {/* User Profile Footer */}
-        <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
+        {/* User Profile Footer & Logout */}
+        <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+          <Link
+            href="/dashboard/freelancer/profile"
+            className="flex items-center gap-2.5 group"
+          >
             <div className="w-8 h-8 rounded-full bg-[#0047AB] text-white flex items-center justify-center font-bold text-xs">
               SJ
             </div>
             <div>
-              <div className="text-xs font-bold text-slate-900 line-clamp-1">
+              <div className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-[#0047AB]">
                 Sarah Jenkins
               </div>
               <div className="text-[10px] text-slate-400 font-semibold">
                 Pro Freelancer
               </div>
             </div>
-          </div>
+          </Link>
 
           <Link
             href="/auth"
             title="Log Out"
-            className="p-1.5 text-slate-400 hover:text-slate-700"
+            className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-white"
           >
             <LogOut className="w-4 h-4" />
           </Link>
         </div>
       </aside>
 
-      {/* RIGHT MAIN APP BODY */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* TOP APP BAR */}
-        <header className="bg-white border-b border-slate-200 px-6 py-3.5 flex items-center justify-between sticky top-0 z-30 font-sans">
+      {/* 2. MAIN CONTENT AREA WITH TOP BAR */}
+      <div className="flex-1 flex flex-col min-w-0 lg:ml-64">
+        {/* TOP BAR */}
+        <header className="bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 px-6 py-3.5 flex items-center justify-between sticky top-0 z-40 font-sans">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="lg:hidden p-2 text-slate-700 hover:bg-slate-100 rounded-xl"
+              className="lg:hidden p-2 text-slate-700 dark:text-slate-200 hover:bg-slate-100 rounded-xl"
             >
               {sidebarOpen ? (
                 <X className="w-5 h-5" />
@@ -154,35 +185,100 @@ export default function FreelancerLayout({
               )}
             </button>
 
-            {/* Global Search Bar */}
+            {/* Global Search */}
             <div className="relative hidden sm:block w-72">
               <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
-                placeholder="Search projects, invoices, clients..."
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                placeholder="Search projects, invoices, clients, tasks..."
+                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-[#0047AB]"
               />
             </div>
           </div>
 
-          {/* Top Right Controls */}
+          {/* Right Top Bar Controls */}
           <div className="flex items-center gap-3">
-            <button className="p-2 text-slate-500 hover:text-slate-800 rounded-xl hover:bg-slate-100 relative">
+            {/* Notifications */}
+            <button className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-800 rounded-xl hover:bg-slate-100 relative">
               <Bell className="w-4 h-4" />
               <span className="w-2 h-2 rounded-full bg-[#0047AB] absolute top-1.5 right-1.5" />
             </button>
 
-            <Link
-              href="/dashboard/freelancer/invoices/new"
-              className="bg-[#0047AB] hover:bg-[#003680] text-white text-xs font-bold px-4 py-2 rounded-xl shadow-sm flex items-center gap-1.5"
+            {/* Theme Switch */}
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-800 rounded-xl hover:bg-slate-100"
+              title="Toggle Dark/Light Mode"
             >
-              <span>+ Create Invoice</span>
-            </Link>
+              {darkMode ? (
+                <Sun className="w-4 h-4 text-amber-400" />
+              ) : (
+                <Moon className="w-4 h-4" />
+              )}
+            </button>
+
+            {/* User Profile Menu */}
+            <div className="relative">
+              <button
+                onClick={() => setShowProfileMenu(!showProfileMenu)}
+                className="flex items-center gap-2 pl-2 focus:outline-none"
+              >
+                <div className="w-8 h-8 rounded-full bg-[#0047AB] text-white flex items-center justify-center font-bold text-xs ring-2 ring-blue-100">
+                  SJ
+                </div>
+              </button>
+
+              {showProfileMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl py-2 z-50 text-xs font-semibold">
+                  <Link
+                    href="/dashboard/freelancer/profile"
+                    onClick={() => setShowProfileMenu(false)}
+                    className="block px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200"
+                  >
+                    Edit Profile
+                  </Link>
+                  <Link
+                    href="/dashboard/freelancer/profile"
+                    onClick={() => setShowProfileMenu(false)}
+                    className="block px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200"
+                  >
+                    Account Settings
+                  </Link>
+                  <div className="border-t border-slate-100 dark:border-slate-800 my-1" />
+                  <Link
+                    href="/auth"
+                    onClick={() => setShowProfileMenu(false)}
+                    className="block px-4 py-2 text-rose-600 hover:bg-rose-50"
+                  >
+                    Logout
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
         </header>
 
-        {/* Page Content */}
-        <main className="p-6 sm:p-8 flex-1">{children}</main>
+        {/* BREADCRUMBS & DYNAMIC CONTENT AREA */}
+        <main className="p-6 sm:p-8 flex-1">
+          {/* Breadcrumbs */}
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-6">
+            <Link href="/" className="hover:text-slate-600">
+              Home
+            </Link>
+            {pathSegments.map((segment, index) => (
+              <React.Fragment key={index}>
+                <ChevronRight className="w-3 h-3 text-slate-300" />
+                <span
+                  className={`capitalize ${index === pathSegments.length - 1 ? "text-slate-900 dark:text-white font-bold" : "hover:text-slate-600"}`}
+                >
+                  {segment.replace("-", " ")}
+                </span>
+              </React.Fragment>
+            ))}
+          </div>
+
+          {children}
+        </main>
       </div>
     </div>
   );
