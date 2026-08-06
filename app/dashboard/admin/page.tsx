@@ -3,235 +3,198 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
-  Users,
-  UserPlus,
   Building2,
-  Activity,
-  BarChart3,
+  Users,
   ShieldCheck,
+  Users2,
+  FolderKanban,
   CheckCircle2,
-  Copy,
-  LogOut,
+  Activity,
+  Megaphone,
+  BarChart3,
   Sparkles,
+  CreditCard,
+  FileCode,
+  Settings,
+  LogOut,
+  Bell,
+  Search,
+  Menu,
   X,
-  Mail,
+  UserPlus,
 } from "lucide-react";
 
-export default function AdminDashboard() {
-  const [showInviteModal, setShowInviteModal] = useState(false);
-  const [inviteEmail, setInviteEmail] = useState("");
-  const [copied, setCopied] = useState(false);
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const pathname = usePathname();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const [employees, setEmployees] = useState([
-    { id: 1, name: "Sarah Jenkins", email: "sarah@orvixa.com", role: "Product Designer", status: "Active" },
-    { id: 2, name: "Alex Mercer", email: "alex@orvixa.com", role: "Frontend Engineer", status: "Active" },
-    { id: 3, name: "David Kim", email: "david@orvixa.com", role: "DevOps Engineer", status: "Invited" },
-  ]);
-
-  const generateInviteLink = () => {
-    return `http://localhost:3000/invite?org=Orvixa%20Workspace&email=${encodeURIComponent(inviteEmail || "employee@orvixa.com")}`;
-  };
-
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(generateInviteLink());
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleSendInvite = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (inviteEmail) {
-      setEmployees([
-        ...employees,
-        {
-          id: Date.now(),
-          name: inviteEmail.split("@")[0],
-          email: inviteEmail,
-          role: "Team Member",
-          status: "Invited",
-        },
-      ]);
-      alert(`Invitation sent to ${inviteEmail}! Link copied.`);
-      handleCopyLink();
-      setInviteEmail("");
-      setShowInviteModal(false);
-    }
-  };
+  const navigation = [
+    { name: "Command Center", href: "/dashboard/admin", icon: Building2 },
+    {
+      name: "Employee Directory",
+      href: "/dashboard/admin/employees",
+      icon: Users,
+    },
+    {
+      name: "Roles & Permissions",
+      href: "/dashboard/admin/roles",
+      icon: ShieldCheck,
+    },
+    { name: "Teams & Leads", href: "/dashboard/admin/teams", icon: Users2 },
+    {
+      name: "Org Projects",
+      href: "/dashboard/admin/projects",
+      icon: FolderKanban,
+    },
+    {
+      name: "Task Allocation",
+      href: "/dashboard/admin/tasks",
+      icon: CheckCircle2,
+    },
+    {
+      name: "Activity & Attendance",
+      href: "/dashboard/admin/activity",
+      icon: Activity,
+    },
+    {
+      name: "Announcements & Chat",
+      href: "/dashboard/admin/announcements",
+      icon: Megaphone,
+    },
+    {
+      name: "AI Reports & Analytics",
+      href: "/dashboard/admin/reports",
+      icon: BarChart3,
+    },
+    {
+      name: "Billing & Licenses",
+      href: "/dashboard/admin/billing",
+      icon: CreditCard,
+    },
+    { name: "Audit Logs", href: "/dashboard/admin/audit-logs", icon: FileCode },
+    { name: "Org Settings", href: "/dashboard/admin/settings", icon: Settings },
+  ];
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans">
-      {/* Top Admin Navbar */}
-      <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between sticky top-0 z-40">
-        <div className="flex items-center gap-3">
-          <Image src="/orviax.jpg" alt="Orvixa" width={32} height={32} className="rounded-xl" />
-          <span className="font-heading text-xl font-bold text-slate-900">Orvixa Admin</span>
-          <span className="text-xs font-bold bg-indigo-50 text-indigo-600 px-2.5 py-0.5 rounded-full border border-indigo-200">
-            Orvixa Workspace
-          </span>
+    <div className="min-h-screen bg-slate-50 flex font-sans">
+      {/* SIDEBAR (DESKTOP) */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 p-5 flex flex-col justify-between transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
+      >
+        <div className="space-y-6">
+          <Link href="/" className="flex items-center gap-3 px-2">
+            <Image
+              src="/orviax.jpg"
+              alt="Orvixa"
+              width={32}
+              height={32}
+              className="rounded-xl"
+            />
+            <div>
+              <span className="font-heading text-lg font-bold text-slate-900 block leading-none">
+                Orvixa Admin
+              </span>
+              <span className="text-[10px] font-bold text-[#0047AB]">
+                Organization OS
+              </span>
+            </div>
+          </Link>
+
+          <nav className="space-y-1 overflow-y-auto max-h-[calc(100vh-180px)]">
+            {navigation.map((item) => {
+              const Icon = item.icon;
+              const isActive = pathname === item.href;
+
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  onClick={() => setSidebarOpen(false)}
+                  className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                    isActive
+                      ? "bg-[#0047AB] text-white shadow-md shadow-[#0047AB]/25"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                  }`}
+                >
+                  <Icon className="w-4 h-4 shrink-0" />
+                  <span>{item.name}</span>
+                </Link>
+              );
+            })}
+          </nav>
         </div>
 
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setShowInviteModal(true)}
-            className="bg-[#0047AB] hover:bg-[#003680] text-white text-xs font-bold px-4 py-2 rounded-xl shadow-sm flex items-center gap-1.5"
-          >
-            <UserPlus className="w-4 h-4" />
-            <span>Invite Employee</span>
-          </button>
+        <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-full bg-[#0047AB] text-white flex items-center justify-center font-bold text-xs">
+              AM
+            </div>
+            <div>
+              <div className="text-xs font-bold text-slate-900 line-clamp-1">
+                Alex Mercer
+              </div>
+              <div className="text-[10px] text-slate-400 font-semibold">
+                Super Admin
+              </div>
+            </div>
+          </div>
 
           <Link
             href="/auth"
-            className="p-2 text-slate-500 hover:text-slate-800 rounded-xl hover:bg-slate-100"
             title="Log Out"
+            className="p-1.5 text-slate-400 hover:text-slate-700"
           >
             <LogOut className="w-4 h-4" />
           </Link>
         </div>
-      </header>
+      </aside>
 
-      {/* Main Dashboard Body */}
-      <main className="max-w-7xl mx-auto p-6 sm:p-8 space-y-8">
-        
-        {/* Header Pitch */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900">
-              Organization Command Center
-            </h1>
-            <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
-              Oversee team members, activity, permissions, and AI sprint reports.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border border-slate-200 text-xs font-bold text-[#0047AB] shadow-sm">
-            <Sparkles className="w-4 h-4" />
-            <span>AI Auto-Pilot Sync Active</span>
-          </div>
-        </div>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-            <span className="text-xs font-bold uppercase text-slate-400">Total Employees</span>
-            <div className="text-3xl font-black text-slate-900 mt-1">{employees.length}</div>
-            <span className="text-xs text-emerald-600 font-bold mt-2 block">✓ 3 Active, 1 Pending</span>
-          </div>
-
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-            <span className="text-xs font-bold uppercase text-slate-400">Sprint Execution</span>
-            <div className="text-3xl font-black text-[#0047AB] mt-1">94.8%</div>
-            <span className="text-xs text-slate-500 font-semibold mt-2 block">+12% faster than last week</span>
-          </div>
-
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-            <span className="text-xs font-bold uppercase text-slate-400">Security & RBAC</span>
-            <div className="text-3xl font-black text-slate-900 mt-1">SOC2</div>
-            <span className="text-xs text-emerald-600 font-bold mt-2 block">✓ All Accounts Encrypted</span>
-          </div>
-        </div>
-
-        {/* Employee Directory Table */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="p-5 border-b border-slate-100 flex items-center justify-between">
-            <h2 className="font-bold text-base text-slate-900 flex items-center gap-2">
-              <Users className="w-4 h-4 text-[#0047AB]" />
-              <span>Employee Roster</span>
-            </h2>
-
+      {/* MAIN BODY */}
+      <div className="flex-1 flex flex-col min-w-0 lg:ml-64">
+        <header className="bg-white border-b border-slate-200 px-6 py-3.5 flex items-center justify-between sticky top-0 z-40 font-sans">
+          <div className="flex items-center gap-3">
             <button
-              onClick={() => setShowInviteModal(true)}
-              className="text-xs font-bold text-[#0047AB] hover:underline"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="lg:hidden p-2 text-slate-700 hover:bg-slate-100 rounded-xl"
             >
-              + Add Member
-            </button>
-          </div>
-
-          <div className="divide-y divide-slate-100">
-            {employees.map((emp) => (
-              <div key={emp.id} className="p-4 flex items-center justify-between hover:bg-slate-50 text-xs font-semibold">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-[#0047AB] text-white flex items-center justify-center font-bold">
-                    {emp.name.substring(0, 2).toUpperCase()}
-                  </div>
-                  <div>
-                    <div className="font-bold text-slate-900">{emp.name}</div>
-                    <div className="text-slate-400">{emp.email}</div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4">
-                  <span className="text-slate-600 font-medium">{emp.role}</span>
-                  <span className={`px-2.5 py-0.5 rounded-full font-bold ${
-                    emp.status === "Active" ? "bg-emerald-50 text-emerald-600 border border-emerald-200" : "bg-amber-50 text-amber-600 border border-amber-200"
-                  }`}>
-                    {emp.status}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-      </main>
-
-      {/* INVITE EMPLOYEE MODAL */}
-      {showInviteModal && (
-        <div className="fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-2xl max-w-md w-full font-sans">
-            <div className="flex justify-between items-center pb-4 mb-4 border-b border-slate-100">
-              <h3 className="font-bold text-lg text-slate-900 flex items-center gap-2">
-                <UserPlus className="w-5 h-5 text-[#0047AB]" />
-                <span>Invite Employee to Team</span>
-              </h3>
-              <button onClick={() => setShowInviteModal(false)} className="text-slate-400 hover:text-slate-600">
+              {sidebarOpen ? (
                 <X className="w-5 h-5" />
-              </button>
+              ) : (
+                <Menu className="w-5 h-5" />
+              )}
+            </button>
+            <div className="relative hidden sm:block w-72">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Search organization workspace..."
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+              />
             </div>
-
-            <form onSubmit={handleSendInvite} className="space-y-4">
-              <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">Employee Email Address</label>
-                <input
-                  type="email"
-                  required
-                  placeholder="employee@orvixa.com"
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">Generated Invite Link</label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    readOnly
-                    value={generateInviteLink()}
-                    className="bg-slate-100 border border-slate-200 text-[11px] font-mono text-slate-600 px-3 py-2 rounded-xl w-full"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleCopyLink}
-                    className="bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold px-3 py-2 rounded-xl shrink-0 flex items-center gap-1"
-                  >
-                    <Copy className="w-3.5 h-3.5" />
-                    <span>{copied ? "Copied!" : "Copy"}</span>
-                  </button>
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                className="w-full bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs py-3.5 px-4 rounded-xl shadow-md shadow-[#0047AB]/25"
-              >
-                Send Invite Email
-              </button>
-            </form>
           </div>
-        </div>
-      )}
+
+          <div className="flex items-center gap-3">
+            <span className="hidden sm:inline-flex text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full">
+              ● 32 Members Online
+            </span>
+            <Link
+              href="/dashboard/admin/employees"
+              className="bg-[#0047AB] hover:bg-[#003680] text-white text-xs font-bold px-4 py-2 rounded-xl shadow-sm flex items-center gap-1.5"
+            >
+              <UserPlus className="w-4 h-4" />
+              <span>+ Invite Employee</span>
+            </Link>
+          </div>
+        </header>
+
+        <main className="p-6 sm:p-8 flex-1">{children}</main>
+      </div>
     </div>
   );
 }
