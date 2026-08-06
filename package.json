@@ -9,13 +9,19 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "2.2.0",
     "@supabase/server": "^1.4.1",
-    "@supabase/supabase-js": "^2.112.0",
+    "@supabase/supabase-js": "^2.112.1",
+    "expo-notifications": "^57.0.8",
     "framer-motion": "^12.43.0",
     "lucide-react": "^1.28.0",
+    "lucide-react-native": "^1.28.0",
+    "nativewind": "^4.2.6",
     "next": "16.3.0",
-    "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-native-gesture-handler": "~2.32.0",
+    "react-native-reanimated": "4.5.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -24,7 +30,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.0",
-    "tailwindcss": "^4",
+    "tailwindcss": "^4.3.3",
     "typescript": "^5"
   }
 }
