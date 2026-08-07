@@ -1,75 +1,87 @@
 "use client";
 
-import React, { useState } from "react";
-import {
-  CheckCircle2,
-  Clock,
-  Calendar,
-  Search,
-  Filter,
-  MessageSquare,
-  Paperclip,
-} from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { CheckCircle2, Search, Loader2 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 export default function EmployeeTasksPage() {
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [tasks, setTasks] = useState<any[]>([]);
 
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      title: "Implement UI Animation for FAQ Accordion",
-      project: "Next.js Web App",
-      assignedBy: "Alex Mercer",
-      dueDate: "Today",
-      priority: "High",
-      completed: false,
-    },
-    {
-      id: 2,
-      title: "Review Pull Request #42 for Next.js App",
-      project: "Engineering Sprint",
-      assignedBy: "AI Copilot Triage",
-      dueDate: "Today",
-      priority: "Urgent",
-      completed: false,
-    },
-    {
-      id: 3,
-      title: "Update Figma Design System Color Tokens",
-      project: "Design System",
-      assignedBy: "Sarah Jenkins",
-      dueDate: "Tomorrow",
-      priority: "Medium",
-      completed: false,
-    },
-    {
-      id: 4,
-      title: "Audit Database RLS Security Policies",
-      project: "Security Audit",
-      assignedBy: "Alex Mercer",
-      dueDate: "Aug 10",
-      priority: "High",
-      completed: true,
-    },
-  ]);
+  useEffect(() => {
+    async function fetchMyRealTasks() {
+      try {
+        const { data: authData } = await supabase.auth.getUser();
+        const user = authData?.user;
 
-  const toggleTask = (id: number) => {
+        if (user) {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("full_name")
+            .eq("id", user.id)
+            .single();
+
+          const myName = profile?.full_name || user.email?.split("@")[0];
+
+          // Fetch tasks where assignee matches my name
+          const { data: myTasks } = await supabase
+            .from("organization_tasks")
+            .select("*")
+            .ilike("assignee", `%${myName}%`)
+            .order("created_at", { ascending: false });
+
+          if (myTasks) setTasks(myTasks);
+        }
+      } catch (error) {
+        console.error("Error fetching tasks");
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchMyRealTasks();
+  }, []);
+
+  const toggleTask = async (id: string, currentStatus: string) => {
+    const nextStatus =
+      currentStatus === "Completed" ? "In Progress" : "Completed";
+
+    // Optimistic UI Update
     setTasks(
-      tasks.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t)),
+      tasks.map((t) => (t.id === id ? { ...t, status: nextStatus } : t)),
     );
+
+    try {
+      await supabase
+        .from("organization_tasks")
+        .update({ status: nextStatus })
+        .eq("id", id);
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const filteredTasks = tasks.filter((t) => {
+    const isCompleted = t.status === "Completed";
     const matchesFilter =
       filter === "all" ||
-      (filter === "pending" && !t.completed) ||
-      (filter === "completed" && t.completed);
+      (filter === "pending" && !isCompleted) ||
+      (filter === "completed" && isCompleted);
     const matchesSearch =
-      t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.project.toLowerCase().includes(searchQuery.toLowerCase());
+      (t.title || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (t.department || "").toLowerCase().includes(searchQuery.toLowerCase());
     return matchesFilter && matchesSearch;
   });
+
+  if (loading) {
+    return (
+      <div className="min-h-[400px] flex items-center justify-center font-bold text-slate-500 font-sans">
+        <Loader2 className="w-6 h-6 animate-spin text-[#0047AB] mr-2" />
+        <span>Loading Your Real Tasks...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 font-sans">
@@ -122,69 +134,72 @@ export default function EmployeeTasksPage() {
           </h2>
         </div>
 
-        <div className="divide-y divide-slate-100 font-sans">
-          {filteredTasks.map((task) => (
-            <div
-              key={task.id}
-              onClick={() => toggleTask(task.id)}
-              className="p-4 sm:p-5 flex items-center justify-between gap-4 hover:bg-slate-50 transition-colors cursor-pointer font-sans"
-            >
-              <div className="flex items-start gap-3 font-sans">
+        {filteredTasks.length > 0 ? (
+          <div className="divide-y divide-slate-100 font-sans">
+            {filteredTasks.map((task) => {
+              const isCompleted = task.status === "Completed";
+              return (
                 <div
-                  className={`mt-0.5 w-5 h-5 rounded-lg border flex items-center justify-center shrink-0 transition-colors ${
-                    task.completed
-                      ? "bg-emerald-600 border-emerald-600 text-white"
-                      : "border-slate-300 bg-white"
-                  }`}
+                  key={task.id}
+                  onClick={() => toggleTask(task.id, task.status)}
+                  className="p-4 sm:p-5 flex items-center justify-between gap-4 hover:bg-slate-50 transition-colors cursor-pointer font-sans"
                 >
-                  {task.completed && <CheckCircle2 className="w-3.5 h-3.5" />}
-                </div>
+                  <div className="flex items-start gap-3 font-sans">
+                    <div
+                      className={`mt-0.5 w-5 h-5 rounded-lg border flex items-center justify-center shrink-0 transition-colors ${
+                        isCompleted
+                          ? "bg-emerald-600 border-emerald-600 text-white"
+                          : "border-slate-300 bg-white"
+                      }`}
+                    >
+                      {isCompleted && <CheckCircle2 className="w-3.5 h-3.5" />}
+                    </div>
 
-                <div>
-                  <h3
-                    className={`font-bold text-sm font-sans ${task.completed ? "line-through text-slate-400" : "text-slate-900"}`}
-                  >
-                    {task.title}
-                  </h3>
-                  <div className="flex items-center gap-3 text-xs font-semibold text-slate-400 mt-1 font-sans">
-                    <span>
-                      Project:{" "}
-                      <strong className="text-slate-700 font-sans">
-                        {task.project}
-                      </strong>
-                    </span>
-                    <span>•</span>
-                    <span>
-                      Assigned by:{" "}
-                      <strong className="text-slate-700 font-sans">
-                        {task.assignedBy}
-                      </strong>
-                    </span>
-                    <span>•</span>
-                    <span>
-                      Due:{" "}
-                      <strong className="text-slate-700 font-sans">
-                        {task.dueDate}
-                      </strong>
-                    </span>
+                    <div>
+                      <h3
+                        className={`font-bold text-sm font-sans ${isCompleted ? "line-through text-slate-400" : "text-slate-900"}`}
+                      >
+                        {task.title}
+                      </h3>
+                      <div className="flex items-center gap-3 text-xs font-semibold text-slate-400 mt-1 font-sans">
+                        <span>
+                          Dept:{" "}
+                          <strong className="text-slate-700 font-sans">
+                            {task.department || "General"}
+                          </strong>
+                        </span>
+                        <span>•</span>
+                        <span>
+                          Assigned by:{" "}
+                          <strong className="text-slate-700 font-sans">
+                            Manager
+                          </strong>
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
 
-              <span
-                className={`px-3 py-1 rounded-full text-xs font-bold font-sans ${
-                  task.priority === "Urgent"
-                    ? "bg-rose-50 text-rose-600 border border-rose-200"
-                    : task.priority === "High"
-                      ? "bg-amber-50 text-amber-600 border border-amber-200"
-                      : "bg-blue-50 text-[#0047AB] border border-blue-200"
-                }`}
-              >
-                {task.priority}
-              </span>
-            </div>
-          ))}
-        </div>
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-bold font-sans ${
+                      task.priority === "Urgent"
+                        ? "bg-rose-50 text-rose-600 border border-rose-200"
+                        : task.priority === "High"
+                          ? "bg-amber-50 text-amber-600 border border-amber-200"
+                          : "bg-blue-50 text-[#0047AB] border border-blue-200"
+                    }`}
+                  >
+                    {task.priority || "Medium"}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="text-center py-12 text-slate-400 font-sans">
+            <CheckCircle2 className="w-8 h-8 mx-auto text-slate-300 mb-2" />
+            <p className="text-xs font-semibold">No assigned tasks found.</p>
+          </div>
+        )}
       </div>
     </div>
   );

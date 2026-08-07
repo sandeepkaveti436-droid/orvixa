@@ -6,96 +6,114 @@ import {
   FolderKanban,
   CheckCircle2,
   Clock,
-  MessageSquare,
   Sparkles,
-  Calendar,
-  ArrowRight,
-  Coffee,
   Play,
-  Square,
-  Check,
+  Coffee,
+  Calendar,
+  MessageSquare,
+  Megaphone,
+  Loader2,
 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
-export default function EmployeeDashboardPage() {
-  const [clockedIn, setClockedIn] = useState(false); // Starts OFF shift when logging in!
+export default function EmployeeDashboard() {
+  const [loading, setLoading] = useState(true);
+  const [userName, setUserName] = useState("Employee");
+  const [userRole, setUserRole] = useState("Team Member");
+
+  // Real Database Data
+  const [tasks, setTasks] = useState<any[]>([]);
+  const [projects, setProjects] = useState<any[]>([]);
+  const [announcements, setAnnouncements] = useState<any[]>([]);
+  const [attendanceLogs, setAttendanceLogs] = useState<any[]>([]);
+
+  // Live Timer State
+  const [clockedIn, setClockedIn] = useState(false);
   const [isOnBreak, setIsOnBreak] = useState(false);
-  const [seconds, setSeconds] = useState(0); // Starts at 0 seconds
+  const [seconds, setSeconds] = useState(0);
+  const [activeAttendanceId, setActiveAttendanceId] = useState<string | null>(
+    null,
+  );
+
   const [filter, setFilter] = useState("all");
 
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      title: "Implement UI Animation for FAQ Accordion",
-      project: "Next.js Web App",
-      assignedBy: "Alex Mercer",
-      dueDate: "Today",
-      status: "In Progress",
-      priority: "High",
-      completed: false,
-    },
-    {
-      id: 2,
-      title: "Review Pull Request #42 for Next.js App",
-      project: "Engineering Sprint",
-      assignedBy: "AI Copilot Triage",
-      dueDate: "Today",
-      status: "In Progress",
-      priority: "Urgent",
-      completed: false,
-    },
-    {
-      id: 3,
-      title: "Update Figma Design System Color Tokens",
-      project: "Design System",
-      assignedBy: "Sarah Jenkins",
-      dueDate: "Tomorrow",
-      status: "To Do",
-      priority: "Medium",
-      completed: false,
-    },
-    {
-      id: 4,
-      title: "Audit Database RLS Security Policies",
-      project: "Security Audit",
-      assignedBy: "Alex Mercer",
-      dueDate: "Aug 10",
-      status: "Completed",
-      priority: "High",
-      completed: true,
-    },
-  ]);
+  useEffect(() => {
+    async function fetchRealEmployeeData() {
+      try {
+        const { data: authData } = await supabase.auth.getUser();
+        const user = authData?.user;
+        let currentName = "Employee";
 
-  const [timesheetLogs, setTimesheetLogs] = useState([
-    {
-      day: "Monday, Aug 03",
-      clockIn: "09:00 AM",
-      clockOut: "05:15 PM",
-      total: "08h 15m",
-      status: "Verified",
-    },
-    {
-      day: "Tuesday, Aug 04",
-      clockIn: "08:55 AM",
-      clockOut: "05:00 PM",
-      total: "08h 05m",
-      status: "Verified",
-    },
-    {
-      day: "Wednesday, Aug 05",
-      clockIn: "09:02 AM",
-      clockOut: "05:30 PM",
-      total: "08h 28m",
-      status: "Verified",
-    },
-  ]);
+        if (user) {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("full_name, profession")
+            .eq("id", user.id)
+            .single();
 
-  // Punch In Timer
+          if (profile) {
+            currentName =
+              profile.full_name || user.email?.split("@")[0] || "Employee";
+            setUserName(currentName);
+            if (profile.profession) setUserRole(profile.profession);
+          }
+        }
+
+        // Fetch Live DB Data Concurrent
+        const [taskRes, projRes, annRes, attRes] = await Promise.all([
+          supabase
+            .from("organization_tasks")
+            .select("*")
+            .eq("assignee", currentName)
+            .order("created_at", { ascending: false }),
+          supabase
+            .from("organization_projects")
+            .select("*")
+            .order("created_at", { ascending: false }),
+          supabase
+            .from("announcements")
+            .select("*")
+            .order("created_at", { ascending: false })
+            .limit(3),
+          supabase
+            .from("attendance")
+            .select("*")
+            .eq("user_name", currentName)
+            .order("clock_in", { ascending: false }),
+        ]);
+
+        if (taskRes.data) setTasks(taskRes.data);
+        if (projRes.data) setProjects(projRes.data);
+        if (annRes.data) setAnnouncements(annRes.data);
+
+        if (attRes.data) {
+          setAttendanceLogs(attRes.data);
+          // Check if currently clocked in
+          const activeLog = attRes.data.find((log) => !log.clock_out);
+          if (activeLog) {
+            setClockedIn(true);
+            setActiveAttendanceId(activeLog.id);
+            // Calculate seconds elapsed since clock in
+            const startTime = new Date(activeLog.clock_in).getTime();
+            const now = new Date().getTime();
+            setSeconds(Math.floor((now - startTime) / 1000));
+          }
+        }
+      } catch (err) {
+        console.error("Error loading workspace data");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchRealEmployeeData();
+  }, []);
+
+  // Live Ticker
   useEffect(() => {
     let interval: any = null;
     if (clockedIn && !isOnBreak) {
-      interval = setInterval(() => {
-        setSeconds((s) => s + 1);
-      }, 1000);
+      interval = setInterval(() => setSeconds((s) => s + 1), 1000);
     }
     return () => clearInterval(interval);
   }, [clockedIn, isOnBreak]);
@@ -107,58 +125,109 @@ export default function EmployeeDashboardPage() {
     return `${hrs.toString().padStart(2, "0")}h ${mins.toString().padStart(2, "0")}m ${secs.toString().padStart(2, "0")}s`;
   };
 
-  // Punch In / Punch Out Handler
-  const handlePunchToggle = () => {
+  // REAL SUPABASE PUNCH IN/OUT HANDLER
+  const handlePunchToggle = async () => {
     if (!clockedIn) {
-      // Punch In
-      setClockedIn(true);
-      setIsOnBreak(false);
-      if (seconds === 0) setSeconds(1);
+      // Punch In (Create new log)
+      try {
+        const { data } = await supabase
+          .from("attendance")
+          .insert([{ user_name: userName, status: "Active" }])
+          .select()
+          .single();
+
+        if (data) {
+          setClockedIn(true);
+          setIsOnBreak(false);
+          setSeconds(1);
+          setActiveAttendanceId(data.id);
+          setAttendanceLogs([data, ...attendanceLogs]);
+        }
+      } catch (err) {
+        alert("Failed to clock in.");
+      }
     } else {
-      // Punch Out
+      // Punch Out (Update existing log)
       if (
         confirm("Are you sure you want to Punch Out and log today's shift?")
       ) {
-        setTimesheetLogs([
-          {
-            day: "Today (Thursday)",
-            clockIn: "09:00 AM",
-            clockOut: "Just Now",
-            total: formatTime(seconds),
-            status: "Verified",
-          },
-          ...timesheetLogs,
-        ]);
-        setClockedIn(false);
-        setIsOnBreak(false);
-        setSeconds(0);
+        try {
+          if (activeAttendanceId) {
+            await supabase
+              .from("attendance")
+              .update({
+                clock_out: new Date().toISOString(),
+                status: "Completed",
+              })
+              .eq("id", activeAttendanceId);
+          }
+          setClockedIn(false);
+          setIsOnBreak(false);
+          setSeconds(0);
+          setActiveAttendanceId(null);
+          alert("Shift logged successfully!");
+          window.location.reload(); // Quick refresh to update tables
+        } catch (err) {
+          alert("Failed to log out.");
+        }
       }
     }
   };
 
-  const toggleTask = (id: number) => {
+  const toggleTask = async (id: string | number) => {
+    // Optimistic UI
     setTasks(
       tasks.map((t) =>
         t.id === id
           ? {
               ...t,
-              completed: !t.completed,
-              status: !t.completed ? "Completed" : "In Progress",
+              status: t.status === "Completed" ? "In Progress" : "Completed",
             }
           : t,
       ),
     );
+
+    // DB Sync
+    try {
+      const task = tasks.find((t) => t.id === id);
+      if (task) {
+        const nextStatus =
+          task.status === "Completed" ? "In Progress" : "Completed";
+        await supabase
+          .from("organization_tasks")
+          .update({ status: nextStatus })
+          .eq("id", id);
+      }
+    } catch (e) {
+      console.log("Synced task state");
+    }
   };
 
   const filteredTasks = tasks.filter((t) => {
-    if (filter === "pending") return !t.completed;
-    if (filter === "completed") return t.completed;
+    if (filter === "pending") return t.status !== "Completed";
+    if (filter === "completed") return t.status === "Completed";
     return true;
   });
 
+  const pendingTasksCount = tasks.filter(
+    (t) => t.status !== "Completed",
+  ).length;
+  const completedTasksCount = tasks.filter(
+    (t) => t.status === "Completed",
+  ).length;
+
+  if (loading) {
+    return (
+      <div className="min-h-[400px] flex items-center justify-center font-bold text-slate-500 font-sans">
+        <Loader2 className="w-6 h-6 animate-spin text-[#0047AB] mr-2" />
+        <span>Loading Workspace Data...</span>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-8 font-sans">
-      {/* 1. GREETING & PUNCH IN / PUNCH OUT BAR */}
+    <div className="space-y-8 font-sans pb-16">
+      {/* 1. GREETING & SHIFT CONTROLS */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 font-sans">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0047AB]/10 text-[#0047AB] text-xs font-bold mb-2 font-sans">
@@ -172,16 +241,16 @@ export default function EmployeeDashboardPage() {
             </span>
           </div>
           <h1 className="text-2xl sm:text-4xl font-black text-slate-900 font-sans">
-            Welcome Back, John 👋
+            Welcome Back, {userName.split(" ")[0]} 👋
           </h1>
-          <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1 font-sans">
-            Senior Frontend Engineer • Orvixa Engineering Team
+          <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1 font-sans capitalize">
+            {userRole} • Orvixa Workspace
           </p>
         </div>
 
         {/* PUNCH IN / PUNCH OUT CONTROL CONSOLE */}
         <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center gap-4 font-sans">
-          <div className="text-left font-sans pr-3 border-r border-slate-100">
+          <div className="text-left font-sans pr-3 border-r border-slate-100 hidden sm:block">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block font-sans">
               Shift Timer
             </span>
@@ -239,10 +308,10 @@ export default function EmployeeDashboardPage() {
             Pending Tasks
           </span>
           <div className="text-2xl font-black text-[#0047AB] font-sans">
-            {tasks.filter((t) => !t.completed).length} Tasks
+            {pendingTasksCount} Tasks
           </div>
           <span className="text-xs text-slate-500 font-semibold block font-sans">
-            2 Due Today
+            Assigned to you
           </span>
         </div>
 
@@ -251,10 +320,10 @@ export default function EmployeeDashboardPage() {
             Completed Today
           </span>
           <div className="text-2xl font-black text-emerald-600 font-sans">
-            {tasks.filter((t) => t.completed).length} Completed
+            {completedTasksCount} Tasks
           </div>
           <span className="text-xs text-emerald-600 font-bold block font-sans">
-            ✓ 100% Quality Pass
+            ✓ Quality pass
           </span>
         </div>
 
@@ -263,45 +332,40 @@ export default function EmployeeDashboardPage() {
             Weekly Hours
           </span>
           <div className="text-2xl font-black text-slate-900 font-sans">
-            32h 45m
+            {attendanceLogs.length * 8}h 0m
           </div>
           <span className="text-xs text-slate-500 font-semibold block font-sans">
-            On track for 40h goal
+            Tracked log count
           </span>
         </div>
       </div>
 
       {/* 3. AI COPILOT PRIORITY BANNER */}
-      <div className="bg-gradient-to-r from-blue-50 via-indigo-50/50 to-white p-5 sm:p-6 rounded-2xl border border-blue-200/80 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 font-sans">
-        <div className="flex items-center gap-3 text-left font-sans">
-          <div className="w-10 h-10 rounded-xl bg-[#0047AB] text-white flex items-center justify-center shrink-0 shadow-md shadow-[#0047AB]/25">
-            <Sparkles className="w-5 h-5" />
-          </div>
-          <div>
-            <h3 className="font-bold text-sm text-slate-900 font-sans">
-              AI Daily Task Priority
-            </h3>
-            <p className="text-xs text-slate-600 font-medium mt-0.5 font-sans">
-              "Review Pull Request #42 has been auto-prioritized based on
-              today's engineering sprint release deadline."
-            </p>
+      {pendingTasksCount > 0 && (
+        <div className="bg-gradient-to-r from-blue-50 via-indigo-50/50 to-white p-5 sm:p-6 rounded-2xl border border-blue-200/80 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 font-sans">
+          <div className="flex items-center gap-3 text-left font-sans">
+            <div className="w-10 h-10 rounded-xl bg-[#0047AB] text-white flex items-center justify-center shrink-0 shadow-md shadow-[#0047AB]/25">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="font-bold text-sm text-slate-900 font-sans">
+                AI Daily Task Priority
+              </h3>
+              <p className="text-xs text-slate-600 font-medium mt-0.5 font-sans">
+                "You have {pendingTasksCount} urgent tasks assigned. Starting
+                them now is recommended to stay on schedule."
+              </p>
+            </div>
           </div>
         </div>
+      )}
 
-        <Link
-          href="/dashboard/employee/tasks"
-          className="bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition-all shrink-0 font-sans"
-        >
-          Start Priority Task →
-        </Link>
-      </div>
-
-      {/* 4. MY ASSIGNED TASKS CHECKLIST */}
+      {/* 4. REAL ASSIGNED TASKS CHECKLIST */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-5 font-sans">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 font-sans">
           <h2 className="font-bold text-base text-slate-900 flex items-center gap-2 font-sans">
             <CheckCircle2 className="w-4 h-4 text-[#0047AB]" />
-            <span>My Assigned Tasks ({filteredTasks.length})</span>
+            <span>My Assigned Tasks ({pendingTasksCount} Pending)</span>
           </h2>
 
           <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-bold font-sans">
@@ -316,7 +380,7 @@ export default function EmployeeDashboardPage() {
                 className={`px-3 py-1 rounded-lg transition-all font-sans ${
                   filter === tab.id
                     ? "bg-white text-[#0047AB] shadow-sm"
-                    : "text-slate-600"
+                    : "text-slate-600 hover:bg-slate-200"
                 }`}
               >
                 {tab.label}
@@ -325,109 +389,154 @@ export default function EmployeeDashboardPage() {
           </div>
         </div>
 
-        <div className="space-y-3 font-sans">
-          {filteredTasks.map((task) => (
-            <div
-              key={task.id}
-              onClick={() => toggleTask(task.id)}
-              className="p-4 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between gap-4 cursor-pointer hover:bg-slate-100/60 transition-colors font-sans"
-            >
-              <div className="flex items-start gap-3 font-sans">
-                <div
-                  className={`mt-0.5 w-5 h-5 rounded-lg border flex items-center justify-center shrink-0 transition-colors ${
-                    task.completed
-                      ? "bg-emerald-600 border-emerald-600 text-white"
-                      : "border-slate-300 bg-white"
-                  }`}
-                >
-                  {task.completed && <CheckCircle2 className="w-3.5 h-3.5" />}
-                </div>
-
-                <div>
-                  <h3
-                    className={`font-bold text-sm font-sans ${
-                      task.completed
-                        ? "line-through text-slate-400"
-                        : "text-slate-900"
+        {filteredTasks.length > 0 ? (
+          <div className="space-y-3 font-sans">
+            {filteredTasks.map((task) => (
+              <div
+                key={task.id}
+                onClick={() => toggleTask(task.id)}
+                className="p-4 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between gap-4 cursor-pointer hover:bg-slate-100/60 transition-colors font-sans"
+              >
+                <div className="flex items-start gap-3 font-sans">
+                  <div
+                    className={`mt-0.5 w-5 h-5 rounded-lg border flex items-center justify-center shrink-0 transition-colors ${
+                      task.status === "Completed"
+                        ? "bg-emerald-600 border-emerald-600 text-white"
+                        : "border-slate-300 bg-white"
                     }`}
                   >
-                    {task.title}
-                  </h3>
-                  <div className="flex items-center gap-3 text-xs font-semibold text-slate-400 mt-1 font-sans">
-                    <span>
-                      Project:{" "}
-                      <strong className="text-slate-700 font-sans">
-                        {task.project}
-                      </strong>
-                    </span>
-                    <span>•</span>
-                    <span>
-                      Assigned by:{" "}
-                      <strong className="text-slate-700 font-sans">
-                        {task.assignedBy}
-                      </strong>
-                    </span>
-                    <span>•</span>
-                    <span>
-                      Due:{" "}
-                      <strong className="text-slate-700 font-sans">
-                        {task.dueDate}
-                      </strong>
-                    </span>
+                    {task.status === "Completed" && (
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                    )}
+                  </div>
+
+                  <div>
+                    <h3
+                      className={`font-bold text-sm font-sans ${task.status === "Completed" ? "line-through text-slate-400" : "text-slate-900"}`}
+                    >
+                      {task.title}
+                    </h3>
+                    <div className="flex items-center gap-3 text-xs font-semibold text-slate-400 mt-1 font-sans">
+                      <span>
+                        Project:{" "}
+                        <strong className="text-slate-700 font-sans">
+                          {task.department || "General"}
+                        </strong>
+                      </span>
+                      <span>•</span>
+                      <span>
+                        Priority:{" "}
+                        <strong className="text-slate-700 font-sans">
+                          {task.priority}
+                        </strong>
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <span
-                className={`px-3 py-1 rounded-full text-xs font-bold shrink-0 font-sans ${
-                  task.priority === "Urgent"
-                    ? "bg-rose-50 text-rose-600 border border-rose-200"
-                    : task.priority === "High"
-                      ? "bg-amber-50 text-amber-600 border border-amber-200"
-                      : "bg-blue-50 text-[#0047AB] border border-blue-200"
-                }`}
-              >
-                {task.priority}
-              </span>
-            </div>
-          ))}
-        </div>
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-bold shrink-0 font-sans ${
+                    task.priority === "Urgent"
+                      ? "bg-rose-50 text-rose-600 border border-rose-200"
+                      : task.priority === "High"
+                        ? "bg-amber-50 text-amber-600 border border-amber-200"
+                        : "bg-blue-50 text-[#0047AB] border border-blue-200"
+                  }`}
+                >
+                  {task.priority}
+                </span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-10 text-slate-400 font-sans">
+            <CheckCircle2 className="w-8 h-8 mx-auto text-slate-300 mb-2" />
+            <p className="text-xs font-semibold">
+              No assigned tasks right now. Great job!
+            </p>
+          </div>
+        )}
       </div>
 
-      {/* 5. WEEKLY TIMESHEETS LOGS */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden font-sans">
-        <div className="p-5 border-b border-slate-100 flex items-center justify-between font-sans">
-          <h2 className="font-bold text-base text-slate-900 flex items-center gap-2 font-sans">
-            <Clock className="w-4 h-4 text-[#0047AB]" />
-            <span>Weekly Punch-In Timesheet Logs</span>
-          </h2>
+      {/* 5. REAL ORG PROJECTS & COMPANY ANNOUNCEMENTS */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 font-sans">
+        {/* Left: Real Org Projects Progress (7 Cols) */}
+        <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4 font-sans">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100 font-sans">
+            <h2 className="font-bold text-base text-slate-900 flex items-center gap-2 font-sans">
+              <FolderKanban className="w-4 h-4 text-[#0047AB]" />
+              <span>Active Org Projects</span>
+            </h2>
+          </div>
+
+          {projects.length > 0 ? (
+            <div className="space-y-3.5 font-sans">
+              {projects.map((p) => (
+                <div
+                  key={p.id}
+                  className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-2 font-sans"
+                >
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-xs text-slate-900 font-sans">
+                      {p.name}
+                    </span>
+                    <span className="text-xs font-black text-[#0047AB] font-sans">
+                      {p.progress}% Done
+                    </span>
+                  </div>
+                  <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                    <div
+                      style={{ width: `${p.progress}%` }}
+                      className="bg-[#0047AB] h-full rounded-full"
+                    />
+                  </div>
+                  <span className="text-[10px] font-semibold text-slate-400 block font-sans">
+                    Dept: {p.department}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-slate-400 font-sans text-xs font-semibold">
+              No active projects to display.
+            </div>
+          )}
         </div>
 
-        <div className="divide-y divide-slate-100 font-sans">
-          {timesheetLogs.map((log) => (
-            <div
-              key={log.day}
-              className="p-4 sm:p-5 flex items-center justify-between hover:bg-slate-50 text-xs font-semibold font-sans"
-            >
-              <div>
-                <div className="font-bold text-sm text-slate-900 font-sans">
-                  {log.day}
-                </div>
-                <div className="text-slate-400 font-sans">
-                  Clock In: {log.clockIn} • Clock Out: {log.clockOut}
-                </div>
-              </div>
+        {/* Right: Real Company Announcements (5 Cols) */}
+        <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4 font-sans">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100 font-sans">
+            <h2 className="font-bold text-base text-slate-900 flex items-center gap-2 font-sans">
+              <Megaphone className="w-4 h-4 text-[#0047AB]" />
+              <span>Announcements</span>
+            </h2>
+          </div>
 
-              <div className="flex items-center gap-4 font-sans">
-                <span className="font-mono font-bold text-sm text-slate-900 font-sans">
-                  {log.total}
-                </span>
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-200">
-                  {log.status}
-                </span>
-              </div>
+          {announcements.length > 0 ? (
+            <div className="space-y-3 font-sans">
+              {announcements.map((a) => (
+                <div
+                  key={a.id}
+                  className="p-3.5 rounded-xl bg-slate-50 border border-slate-100 space-y-1 font-sans"
+                >
+                  <div className="flex justify-between items-center text-[10px] font-bold text-slate-400 font-sans">
+                    <span>From: {a.author}</span>
+                    <span>{new Date(a.created_at).toLocaleDateString()}</span>
+                  </div>
+                  <h4 className="font-bold text-xs text-slate-900 font-sans">
+                    {a.title}
+                  </h4>
+                  <p className="text-[11px] text-slate-600 font-medium font-sans leading-relaxed">
+                    {a.body}
+                  </p>
+                </div>
+              ))}
             </div>
-          ))}
+          ) : (
+            <div className="text-center py-8 text-slate-400 font-sans text-xs font-semibold">
+              No recent announcements.
+            </div>
+          )}
         </div>
       </div>
     </div>
