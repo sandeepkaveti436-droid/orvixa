@@ -4,8 +4,14 @@ import React, { useState, Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { motion } from "framer-motion";
-import { Building2, CheckCircle2, ArrowRight, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
+import {
+  Building2,
+  CheckCircle2,
+  ArrowRight,
+  Eye,
+  EyeOff,
+  Loader2,
+} from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 function InviteContent() {
@@ -46,7 +52,7 @@ function InviteContent() {
       setJoined(true);
     } catch (err: any) {
       alert(err.message || "Failed to accept invite.");
-    } font-sans finally {
+    } finally {
       setLoading(false);
     }
   };
@@ -54,7 +60,6 @@ function InviteContent() {
   return (
     <main className="min-h-screen bg-[#FAF6EE] flex items-center justify-center p-4 sm:p-6 lg:p-8 font-sans relative overflow-hidden">
       <div className="w-full max-w-md bg-white/90 backdrop-blur-2xl border border-slate-200/90 rounded-3xl p-6 sm:p-10 shadow-xl relative z-10 font-sans">
-        
         <div className="flex items-center justify-between pb-6 mb-6 border-b border-slate-100 font-sans">
           <Link href="/" className="flex items-center gap-2.5">
             <Image
@@ -83,7 +88,9 @@ function InviteContent() {
             <div>
               <h1 className="text-2xl font-black text-slate-900 mb-1 font-sans">
                 <span>Joined </span>
-                <span className="font-heading italic text-[#0047AB]">{orgName}!</span>
+                <span className="font-heading italic text-[#0047AB]">
+                  {orgName}!
+                </span>
               </h1>
               <p className="text-xs font-bold text-slate-500 font-sans">
                 Your employee account is created and synced.
@@ -107,16 +114,24 @@ function InviteContent() {
               </div>
               <h1 className="text-2xl font-black text-slate-900 mb-1 font-sans">
                 <span>Accept Team </span>
-                <span className="font-heading italic text-[#0047AB]">Invitation</span>
+                <span className="font-heading italic text-[#0047AB]">
+                  Invitation
+                </span>
               </h1>
               <p className="text-xs font-semibold text-slate-500">
-                Set up your password to join <strong className="text-slate-800">{email}</strong>.
+                Set up your password to join{" "}
+                <strong className="text-slate-800">{email}</strong>.
               </p>
             </div>
 
-            <form onSubmit={handleAcceptInvite} className="space-y-4 font-sans text-left">
+            <form
+              onSubmit={handleAcceptInvite}
+              className="space-y-4 font-sans text-left"
+            >
               <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">Full Name</label>
+                <label className="text-xs font-bold text-slate-700 block mb-1">
+                  Full Name
+                </label>
                 <input
                   type="text"
                   required
@@ -128,7 +143,9 @@ function InviteContent() {
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">Create Password</label>
+                <label className="text-xs font-bold text-slate-700 block mb-1">
+                  Create Password
+                </label>
                 <div className="relative">
                   <input
                     type={showPassword ? "text" : "password"}
@@ -143,7 +160,11 @@ function InviteContent() {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                   >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showPassword ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
                   </button>
                 </div>
               </div>
@@ -153,12 +174,15 @@ function InviteContent() {
                 disabled={loading}
                 className="w-full bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-sm py-3.5 px-4 rounded-xl transition-all shadow-md shadow-[#0047AB]/25 flex items-center justify-center gap-2"
               >
-                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <span>Accept & Join Team</span>}
+                {loading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <span>Accept & Join Team</span>
+                )}
               </button>
             </form>
           </div>
         )}
-
       </div>
     </main>
   );
@@ -166,7 +190,13 @@ function InviteContent() {
 
 export default function InvitePage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#FAF6EE] flex items-center justify-center font-bold text-slate-600">Loading Invitation...</div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#FAF6EE] flex items-center justify-center font-bold text-slate-600">
+          Loading Invitation...
+        </div>
+      }
+    >
       <InviteContent />
     </Suspense>
   );

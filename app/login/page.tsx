@@ -3,16 +3,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  Eye,
-  EyeOff,
-  Loader2,
-  ArrowLeft,
-  User,
-  Building2,
-  Users,
-  Sparkles,
-} from "lucide-react";
+import { Eye, EyeOff, Loader2, ArrowLeft } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 export default function LoginPage() {
@@ -26,23 +17,6 @@ export default function LoginPage() {
     rememberMe: false,
   });
 
-  // ⚡ 1-Click Instant Demo Login Handler
-  const handleQuickDemoLogin = (
-    email: string,
-    role: "freelancer" | "organization" | "employee",
-  ) => {
-    localStorage.setItem("orvixa_user", JSON.stringify({ email, role }));
-
-    if (role === "organization") {
-      window.location.href = "/dashboard/admin";
-    } else if (role === "employee") {
-      window.location.href = "/dashboard/employee";
-    } else {
-      window.location.href = "/dashboard/freelancer";
-    }
-  };
-
-  // Main Form Submit Handler
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
@@ -50,37 +24,8 @@ export default function LoginPage() {
 
     const cleanEmail = loginData.email.trim().toLowerCase();
 
-    // 1. Direct Instant Demo Logins (Bypasses any Auth setup issues)
-    if (
-      cleanEmail === "sarah@orvixa.com" ||
-      cleanEmail.includes("freelancer")
-    ) {
-      localStorage.setItem(
-        "orvixa_user",
-        JSON.stringify({ email: cleanEmail, role: "freelancer" }),
-      );
-      window.location.href = "/dashboard/freelancer";
-      return;
-    }
-    if (cleanEmail === "alex@orvixa.com" || cleanEmail.includes("admin")) {
-      localStorage.setItem(
-        "orvixa_user",
-        JSON.stringify({ email: cleanEmail, role: "organization" }),
-      );
-      window.location.href = "/dashboard/admin";
-      return;
-    }
-    if (cleanEmail === "john@orvixa.com" || cleanEmail.includes("employee")) {
-      localStorage.setItem(
-        "orvixa_user",
-        JSON.stringify({ email: cleanEmail, role: "employee" }),
-      );
-      window.location.href = "/dashboard/employee";
-      return;
-    }
-
-    // 2. Live Supabase Auth Login
     try {
+      // Real Supabase Authentication
       const { data: authData, error: authError } =
         await supabase.auth.signInWithPassword({
           email: cleanEmail,
@@ -93,6 +38,10 @@ export default function LoginPage() {
       }
 
       if (authData?.user) {
+        // Set session cookie
+        document.cookie = "orvixa_demo_session=true; path=/;";
+
+        // Fetch User Profile Role from Database
         const { data: profile } = await supabase
           .from("profiles")
           .select("role")
@@ -116,7 +65,7 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen bg-[#FAF6EE] flex items-center justify-center p-4 sm:p-6 lg:p-8 font-sans relative overflow-hidden">
-      {/* Background Glow */}
+      {/* Background Ambient Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-7xl h-[600px] pointer-events-none z-0">
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[700px] h-[380px] bg-gradient-to-tr from-[#0047AB]/15 via-indigo-300/15 to-purple-400/10 blur-[140px] rounded-full" />
       </div>
@@ -144,48 +93,8 @@ export default function LoginPage() {
             className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-[#0047AB] transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Back</span>
+            <span>Home</span>
           </Link>
-        </div>
-
-        {/* ⚡ 1-CLICK INSTANT DEMO LOGIN BUTTONS */}
-        <div className="mb-6 p-3.5 rounded-2xl bg-blue-50/60 border border-blue-200/80 space-y-2">
-          <div className="flex items-center gap-1.5 text-[11px] font-bold text-[#0047AB]">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>1-Click Test Demo Login:</span>
-          </div>
-
-          <div className="grid grid-cols-3 gap-1.5">
-            <button
-              onClick={() =>
-                handleQuickDemoLogin("sarah@orvixa.com", "freelancer")
-              }
-              className="bg-white hover:bg-blue-100 text-slate-800 text-[10px] font-bold py-2 px-1.5 rounded-lg border border-blue-200 flex items-center justify-center gap-1 shadow-sm transition-all"
-            >
-              <User className="w-3 h-3 text-[#0047AB]" />
-              <span>Freelancer</span>
-            </button>
-
-            <button
-              onClick={() =>
-                handleQuickDemoLogin("alex@orvixa.com", "organization")
-              }
-              className="bg-white hover:bg-blue-100 text-slate-800 text-[10px] font-bold py-2 px-1.5 rounded-lg border border-blue-200 flex items-center justify-center gap-1 shadow-sm transition-all"
-            >
-              <Building2 className="w-3 h-3 text-[#0047AB]" />
-              <span>Admin</span>
-            </button>
-
-            <button
-              onClick={() =>
-                handleQuickDemoLogin("john@orvixa.com", "employee")
-              }
-              className="bg-white hover:bg-blue-100 text-slate-800 text-[10px] font-bold py-2 px-1.5 rounded-lg border border-blue-200 flex items-center justify-center gap-1 shadow-sm transition-all"
-            >
-              <Users className="w-3 h-3 text-[#0047AB]" />
-              <span>Employee</span>
-            </button>
-          </div>
         </div>
 
         {/* Title */}
@@ -195,7 +104,7 @@ export default function LoginPage() {
             <span className="font-heading italic text-[#0047AB]">Back</span>
           </h1>
           <p className="text-xs font-semibold text-slate-500">
-            Sign in with email or use quick test login above.
+            Sign in to continue to your workspace.
           </p>
         </div>
 
@@ -218,7 +127,7 @@ export default function LoginPage() {
             <input
               type="email"
               required
-              placeholder="alex@orvixa.com"
+              placeholder="you@domain.com"
               value={loginData.email}
               onChange={(e) =>
                 setLoginData({ ...loginData, email: e.target.value })
