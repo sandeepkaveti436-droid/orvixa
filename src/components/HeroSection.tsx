@@ -11,14 +11,12 @@ export default function HeroSection() {
 
   return (
     <section className="relative min-h-screen pt-32 sm:pt-40 pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden bg-slate-50 font-sans">
-      
       {/* Background Ambient Glows */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[600px] pointer-events-none z-0">
         <div className="absolute top-[-80px] left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-gradient-to-tr from-[#0047AB]/20 via-indigo-400/20 to-purple-500/20 blur-[130px] rounded-full" />
       </div>
 
       <div className="max-w-6xl mx-auto relative z-10 flex flex-col items-center text-center">
-        
         {/* ================= 1. BADGE ================= */}
         <div className="animate-blur-1 mb-8">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/90 backdrop-blur-md border border-[#0047AB]/20 shadow-sm">
@@ -37,7 +35,7 @@ export default function HeroSection() {
           <span className="block font-sans font-black tracking-tight">
             Organize everything.
           </span>
-          
+
           {/* The Season Italic Font for Line 3 */}
           <span className="block font-heading italic font-bold pr-2 pb-1 bg-clip-text text-transparent bg-gradient-to-r from-[#0047AB] via-indigo-600 to-purple-600">
             Scale without limits.
@@ -93,20 +91,22 @@ export default function HeroSection() {
         {/* ================= 5. TRUST BADGES ================= */}
         <div className="animate-blur-5 flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-xs sm:text-sm font-semibold text-slate-600 mb-16">
           <div className="flex items-center gap-1.5">
-            <span className="text-[#0047AB] font-bold">✓</span> No credit card required
+            <span className="text-[#0047AB] font-bold">✓</span> No credit card
+            required
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="text-[#0047AB] font-bold">✓</span> 14-day free trial
+            <span className="text-[#0047AB] font-bold">✓</span> 3-Month Free
+            Trial (Launch Offer)
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="text-[#0047AB] font-bold">✓</span> Setup in 2 minutes
+            <span className="text-[#0047AB] font-bold">✓</span> Setup in 2
+            minutes
           </div>
         </div>
 
         {/* ================= 6. HERO STATS BAR ================= */}
         <div className="animate-blur-5 w-full max-w-5xl mb-12">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 bg-white/80 backdrop-blur-xl border border-slate-200/80 rounded-2xl p-6 sm:p-8 shadow-xl shadow-slate-900/5">
-            
             <div className="flex flex-col items-center justify-center p-2 border-r border-slate-100 last:border-r-0 md:border-r">
               <span className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#0047AB]">
                 50K+
@@ -142,7 +142,6 @@ export default function HeroSection() {
                 Countries
               </span>
             </div>
-
           </div>
         </div>
 
@@ -163,15 +162,21 @@ export default function HeroSection() {
                 <div className="w-3 h-3 rounded-full bg-rose-500" />
                 <div className="w-3 h-3 rounded-full bg-amber-500" />
                 <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                <span className={`ml-2 text-xs font-bold tracking-wide ${themeMode === "dark" ? "text-slate-400" : "text-slate-500"}`}>
+                <span
+                  className={`ml-2 text-xs font-bold tracking-wide ${themeMode === "dark" ? "text-slate-400" : "text-slate-500"}`}
+                >
                   app.orvixa.com / workspace
                 </span>
               </div>
 
               {/* Theme Toggle */}
               <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold opacity-75 mr-1">Preview Theme:</span>
-                <div className={`flex items-center p-1 rounded-xl border ${themeMode === "dark" ? "bg-slate-900 border-slate-800" : "bg-slate-100 border-slate-200"}`}>
+                <span className="text-xs font-semibold opacity-75 mr-1">
+                  Preview Theme:
+                </span>
+                <div
+                  className={`flex items-center p-1 rounded-xl border ${themeMode === "dark" ? "bg-slate-900 border-slate-800" : "bg-slate-100 border-slate-200"}`}
+                >
                   <button
                     onClick={() => setThemeMode("light")}
                     className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
@@ -198,9 +203,13 @@ export default function HeroSection() {
 
             {/* Content Tabs */}
             <div className="grid grid-cols-1 md:grid-cols-12 gap-5 text-left">
-              <div className={`md:col-span-3 p-2 rounded-xl flex flex-row md:flex-col overflow-x-auto gap-1 border ${
-                themeMode === "dark" ? "bg-slate-900/60 border-slate-800/80" : "bg-slate-50 border-slate-200/80"
-              }`}>
+              <div
+                className={`md:col-span-3 p-2 rounded-xl flex flex-row md:flex-col overflow-x-auto gap-1 border ${
+                  themeMode === "dark"
+                    ? "bg-slate-900/60 border-slate-800/80"
+                    : "bg-slate-50 border-slate-200/80"
+                }`}
+              >
                 {[
                   { id: "projects", label: "Projects", icon: "📁" },
                   { id: "calendar", label: "Calendar", icon: "📅" },
@@ -216,8 +225,8 @@ export default function HeroSection() {
                       activeTab === tab.id
                         ? "bg-[#0047AB] text-white shadow-md shadow-[#0047AB]/20"
                         : themeMode === "dark"
-                        ? "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"
-                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/60"
+                          ? "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"
+                          : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/60"
                     }`}
                   >
                     <span>{tab.icon}</span>
@@ -230,27 +239,41 @@ export default function HeroSection() {
                 {activeTab === "projects" && (
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-heading text-lg font-bold">Active Sprint Projects</h3>
+                      <h3 className="font-heading text-lg font-bold">
+                        Active Sprint Projects
+                      </h3>
                       <span className="text-xs bg-[#0047AB]/15 text-[#0047AB] px-3 py-1 rounded-full font-bold">
                         4 In Progress
                       </span>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div className={`p-4 rounded-xl border ${themeMode === "dark" ? "bg-slate-900/80 border-slate-800" : "bg-slate-50 border-slate-200"}`}>
+                      <div
+                        className={`p-4 rounded-xl border ${themeMode === "dark" ? "bg-slate-900/80 border-slate-800" : "bg-slate-50 border-slate-200"}`}
+                      >
                         <div className="flex justify-between items-center mb-2">
-                          <span className="font-bold text-sm">Orvixa AI Engine v2.0</span>
-                          <span className="text-[10px] bg-emerald-500/15 text-emerald-500 font-bold px-2 py-0.5 rounded">92% Done</span>
+                          <span className="font-bold text-sm">
+                            Orvixa AI Engine v2.0
+                          </span>
+                          <span className="text-[10px] bg-emerald-500/15 text-emerald-500 font-bold px-2 py-0.5 rounded">
+                            92% Done
+                          </span>
                         </div>
                         <div className="w-full bg-slate-200/20 h-2 rounded-full overflow-hidden mt-3">
                           <div className="bg-[#0047AB] h-full w-[92%]" />
                         </div>
                       </div>
 
-                      <div className={`p-4 rounded-xl border ${themeMode === "dark" ? "bg-slate-900/80 border-slate-800" : "bg-slate-50 border-slate-200"}`}>
+                      <div
+                        className={`p-4 rounded-xl border ${themeMode === "dark" ? "bg-slate-900/80 border-slate-800" : "bg-slate-50 border-slate-200"}`}
+                      >
                         <div className="flex justify-between items-center mb-2">
-                          <span className="font-bold text-sm">Mobile iOS Redesign</span>
-                          <span className="text-[10px] bg-indigo-500/15 text-indigo-400 font-bold px-2 py-0.5 rounded">64% Done</span>
+                          <span className="font-bold text-sm">
+                            Mobile iOS Redesign
+                          </span>
+                          <span className="text-[10px] bg-indigo-500/15 text-indigo-400 font-bold px-2 py-0.5 rounded">
+                            64% Done
+                          </span>
                         </div>
                         <div className="w-full bg-slate-200/20 h-2 rounded-full overflow-hidden mt-3">
                           <div className="bg-indigo-500 h-full w-[64%]" />
@@ -263,33 +286,64 @@ export default function HeroSection() {
                 {activeTab === "calendar" && (
                   <div className="space-y-3">
                     <div className="flex justify-between items-center mb-2">
-                      <h3 className="font-heading text-lg font-bold">Today's AI Schedule</h3>
-                      <span className="text-xs text-slate-400">Wednesday, Aug 5</span>
+                      <h3 className="font-heading text-lg font-bold">
+                        Today's AI Schedule
+                      </h3>
+                      <span className="text-xs text-slate-400">
+                        Wednesday, Aug 5
+                      </span>
                     </div>
-                    <div className={`p-3 rounded-xl border flex items-center justify-between ${themeMode === "dark" ? "bg-slate-900/80 border-slate-800" : "bg-slate-50 border-slate-200"}`}>
+                    <div
+                      className={`p-3 rounded-xl border flex items-center justify-between ${themeMode === "dark" ? "bg-slate-900/80 border-slate-800" : "bg-slate-50 border-slate-200"}`}
+                    >
                       <div className="flex items-center gap-3">
                         <div className="w-2 h-8 bg-[#0047AB] rounded-full" />
                         <div>
-                          <div className="text-xs font-bold">Product Strategy & AI Roadmap</div>
-                          <div className="text-[11px] opacity-60">10:00 AM - 11:00 AM • Zoom</div>
+                          <div className="text-xs font-bold">
+                            Product Strategy & AI Roadmap
+                          </div>
+                          <div className="text-[11px] opacity-60">
+                            10:00 AM - 11:00 AM • Zoom
+                          </div>
                         </div>
                       </div>
-                      <span className="text-xs bg-emerald-500/15 text-emerald-500 px-2 py-1 rounded font-bold">Confirmed</span>
+                      <span className="text-xs bg-emerald-500/15 text-emerald-500 px-2 py-1 rounded font-bold">
+                        Confirmed
+                      </span>
                     </div>
                   </div>
                 )}
 
                 {activeTab === "tasks" && (
                   <div className="space-y-2">
-                    <h3 className="font-heading text-lg font-bold mb-3">AI Auto-Prioritized Tasks</h3>
+                    <h3 className="font-heading text-lg font-bold mb-3">
+                      AI Auto-Prioritized Tasks
+                    </h3>
                     {[
-                      { title: "Review Q3 Analytics Export", tag: "High Priority", bg: "bg-rose-500/15 text-rose-500" },
-                      { title: "Approve Figma UI Components", tag: "In Progress", bg: "bg-amber-500/15 text-amber-500" },
-                      { title: "Sync Database Backup Schedule", tag: "Completed", bg: "bg-emerald-500/15 text-emerald-500" },
+                      {
+                        title: "Review Q3 Analytics Export",
+                        tag: "High Priority",
+                        bg: "bg-rose-500/15 text-rose-500",
+                      },
+                      {
+                        title: "Approve Figma UI Components",
+                        tag: "In Progress",
+                        bg: "bg-amber-500/15 text-amber-500",
+                      },
+                      {
+                        title: "Sync Database Backup Schedule",
+                        tag: "Completed",
+                        bg: "bg-emerald-500/15 text-emerald-500",
+                      },
                     ].map((item, idx) => (
-                      <div key={idx} className={`p-3 rounded-xl border flex items-center justify-between ${themeMode === "dark" ? "bg-slate-900/80 border-slate-800" : "bg-slate-50 border-slate-200"}`}>
+                      <div
+                        key={idx}
+                        className={`p-3 rounded-xl border flex items-center justify-between ${themeMode === "dark" ? "bg-slate-900/80 border-slate-800" : "bg-slate-50 border-slate-200"}`}
+                      >
                         <span className="text-xs font-bold">{item.title}</span>
-                        <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold ${item.bg}`}>
+                        <span
+                          className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold ${item.bg}`}
+                        >
                           {item.tag}
                         </span>
                       </div>
@@ -299,15 +353,26 @@ export default function HeroSection() {
 
                 {activeTab === "messages" && (
                   <div className="space-y-3">
-                    <h3 className="font-heading text-lg font-bold mb-2">Team Communication</h3>
-                    <div className={`p-3 rounded-xl border flex gap-3 ${themeMode === "dark" ? "bg-slate-900/80 border-slate-800" : "bg-slate-50 border-slate-200"}`}>
-                      <div className="w-8 h-8 rounded-full bg-[#0047AB] text-white flex items-center justify-center font-bold text-xs shrink-0">JD</div>
+                    <h3 className="font-heading text-lg font-bold mb-2">
+                      Team Communication
+                    </h3>
+                    <div
+                      className={`p-3 rounded-xl border flex gap-3 ${themeMode === "dark" ? "bg-slate-900/80 border-slate-800" : "bg-slate-50 border-slate-200"}`}
+                    >
+                      <div className="w-8 h-8 rounded-full bg-[#0047AB] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                        JD
+                      </div>
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-bold">Jane Doe</span>
-                          <span className="text-[10px] opacity-50">10:42 AM</span>
+                          <span className="text-[10px] opacity-50">
+                            10:42 AM
+                          </span>
                         </div>
-                        <p className="text-xs mt-1 opacity-80">Orvixa AI just auto-generated our sprint retrospective report! Check it out in Analytics.</p>
+                        <p className="text-xs mt-1 opacity-80">
+                          Orvixa AI just auto-generated our sprint retrospective
+                          report! Check it out in Analytics.
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -316,14 +381,26 @@ export default function HeroSection() {
                 {activeTab === "analytics" && (
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <h3 className="font-heading text-lg font-bold">Real-time Performance</h3>
-                      <span className="text-xs font-bold text-[#0047AB]">+48.2% Growth</span>
+                      <h3 className="font-heading text-lg font-bold">
+                        Real-time Performance
+                      </h3>
+                      <span className="text-xs font-bold text-[#0047AB]">
+                        +48.2% Growth
+                      </span>
                     </div>
-                    <div className={`p-4 rounded-xl border flex flex-col justify-end h-28 ${themeMode === "dark" ? "bg-slate-900/80 border-slate-800" : "bg-slate-50 border-slate-200"}`}>
+                    <div
+                      className={`p-4 rounded-xl border flex flex-col justify-end h-28 ${themeMode === "dark" ? "bg-slate-900/80 border-slate-800" : "bg-slate-50 border-slate-200"}`}
+                    >
                       <div className="flex items-end justify-between gap-2 h-full pt-4">
                         {[40, 65, 50, 85, 70, 95, 100].map((h, i) => (
-                          <div key={i} className="w-full bg-slate-200/20 rounded-t h-full flex items-end">
-                            <div style={{ height: `${h}%` }} className="w-full bg-[#0047AB] rounded-t transition-all" />
+                          <div
+                            key={i}
+                            className="w-full bg-slate-200/20 rounded-t h-full flex items-end"
+                          >
+                            <div
+                              style={{ height: `${h}%` }}
+                              className="w-full bg-[#0047AB] rounded-t transition-all"
+                            />
                           </div>
                         ))}
                       </div>
@@ -332,13 +409,17 @@ export default function HeroSection() {
                 )}
 
                 {activeTab === "ai" && (
-                  <div className={`p-4 rounded-xl border space-y-3 ${themeMode === "dark" ? "bg-gradient-to-r from-indigo-950/60 to-slate-900 border-indigo-800/50" : "bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200"}`}>
+                  <div
+                    className={`p-4 rounded-xl border space-y-3 ${themeMode === "dark" ? "bg-gradient-to-r from-indigo-950/60 to-slate-900 border-indigo-800/50" : "bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200"}`}
+                  >
                     <div className="flex items-center gap-2 text-xs font-bold text-[#0047AB]">
                       <span>✨</span>
                       <span>Orvixa AI Copilot</span>
                     </div>
                     <p className="text-xs font-semibold leading-relaxed">
-                      "I've re-prioritized 12 backlog tasks and assigned them based on current team bandwidth. Efficiency score is up by 34%."
+                      "I've re-prioritized 12 backlog tasks and assigned them
+                      based on current team bandwidth. Efficiency score is up by
+                      34%."
                     </p>
                     <div className="flex gap-2 pt-1">
                       <button className="bg-[#0047AB] text-white text-[11px] font-bold px-3 py-1.5 rounded-lg shadow-sm">
@@ -351,11 +432,13 @@ export default function HeroSection() {
                   </div>
                 )}
 
-                <div className={`p-3 rounded-xl border flex items-center justify-between shadow-lg ${
-                  themeMode === "dark"
-                    ? "bg-slate-900/90 border-slate-800 text-slate-200"
-                    : "bg-white border-slate-200 text-slate-800"
-                }`}>
+                <div
+                  className={`p-3 rounded-xl border flex items-center justify-between shadow-lg ${
+                    themeMode === "dark"
+                      ? "bg-slate-900/90 border-slate-800 text-slate-200"
+                      : "bg-white border-slate-200 text-slate-800"
+                  }`}
+                >
                   <div className="flex items-center gap-2.5">
                     <div className="w-6 h-6 rounded-lg bg-[#0047AB] text-white flex items-center justify-center text-xs font-bold">
                       ✨
@@ -370,10 +453,8 @@ export default function HeroSection() {
                 </div>
               </div>
             </div>
-
           </div>
         </div>
-
       </div>
     </section>
   );

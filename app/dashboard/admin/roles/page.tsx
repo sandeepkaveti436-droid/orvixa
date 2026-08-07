@@ -1,42 +1,80 @@
 "use client";
 
-import React, { useState } from "react";
-import { ShieldCheck, Check } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { ShieldCheck, Check, Loader2 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 export default function RolesPage() {
-  const [roles] = useState([
-    {
-      name: "Super Admin",
-      members: 2,
-      permissions: [
-        "View/Edit Projects",
-        "Assign Tasks",
-        "Manage Employees",
-        "Access Reports",
-        "Billing Access",
-      ],
-    },
-    {
-      name: "Manager",
-      members: 6,
-      permissions: [
-        "View/Edit Projects",
-        "Assign Tasks",
-        "Manage Employees",
-        "Access Reports",
-      ],
-    },
-    {
-      name: "Team Lead",
-      members: 8,
-      permissions: ["View/Edit Projects", "Assign Tasks", "Access Reports"],
-    },
-    {
-      name: "Employee",
-      members: 16,
-      permissions: ["View Projects", "Complete Assigned Tasks"],
-    },
-  ]);
+  const [loading, setLoading] = useState(true);
+  const [roleStats, setRoleStats] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function fetchRealRoles() {
+      try {
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("role");
+        const profList = profiles || [];
+
+        const counts = {
+          "Super Admin": profList.filter(
+            (p) => p.role === "organization" || p.role === "admin",
+          ).length,
+          Manager: profList.filter((p) => p.role === "manager").length,
+          "Team Lead": profList.filter((p) => p.role === "team_lead").length,
+          Employee: profList.filter((p) => p.role === "employee").length,
+        };
+
+        setRoleStats([
+          {
+            name: "Super Admin",
+            members: counts["Super Admin"],
+            permissions: [
+              "View/Edit Projects",
+              "Assign Tasks",
+              "Manage Employees",
+              "Access Reports",
+              "Billing Access",
+            ],
+          },
+          {
+            name: "Manager",
+            members: counts["Manager"],
+            permissions: [
+              "View/Edit Projects",
+              "Assign Tasks",
+              "Manage Employees",
+              "Access Reports",
+            ],
+          },
+          {
+            name: "Team Lead",
+            members: counts["Team Lead"],
+            permissions: ["View Projects", "Assign Tasks", "Access Reports"],
+          },
+          {
+            name: "Employee",
+            members: counts["Employee"],
+            permissions: ["View Projects", "Complete Assigned Tasks"],
+          },
+        ]);
+      } catch (err) {
+        console.error("Error loading roles");
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchRealRoles();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-[400px] flex items-center justify-center font-bold text-slate-500 font-sans">
+        <Loader2 className="w-6 h-6 animate-spin text-[#0047AB] mr-2" />
+        <span>Loading Real RBAC Data...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 font-sans">
@@ -51,13 +89,13 @@ export default function RolesPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 font-sans">
-        {roles.map((role) => (
+        {roleStats.map((role) => (
           <div
             key={role.name}
             className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-4 font-sans"
           >
-            <div className="flex justify-between items-center pb-3 border-b border-slate-100">
-              <div className="flex items-center gap-2.5">
+            <div className="flex justify-between items-center pb-3 border-b border-slate-100 font-sans">
+              <div className="flex items-center gap-2.5 font-sans">
                 <ShieldCheck className="w-5 h-5 text-[#0047AB]" />
                 <h3 className="font-bold text-lg text-slate-900 font-sans">
                   {role.name}
@@ -73,7 +111,7 @@ export default function RolesPage() {
                 Assigned Permissions
               </span>
               <div className="space-y-1.5 font-sans">
-                {role.permissions.map((perm) => (
+                {role.permissions.map((perm: string) => (
                   <div
                     key={perm}
                     className="flex items-center gap-2 text-xs font-semibold text-slate-700 font-sans"

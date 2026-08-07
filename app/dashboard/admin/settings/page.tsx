@@ -1,83 +1,140 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Building2,
   Upload,
-  Globe,
   Save,
   CheckCircle2,
-  Lock,
-  Key,
-  RefreshCw,
-  Copy,
-  Check,
-  ShieldAlert,
   ShieldCheck,
-  Mail,
-  Phone,
+  ShieldAlert,
+  Loader2,
 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 export default function OrgSettingsPage() {
+  const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
-  const [copiedKey, setCopiedKey] = useState(false);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
   const [orgProfile, setOrgProfile] = useState({
-    companyName: "Orvixa Workspace Inc.",
-    industry: "Software & Artificial Intelligence",
-    companyEmail: "admin@orvixa.com",
-    companyPhone: "+1 (800) ORVIXA-AI",
-    country: "United States",
+    companyName: "",
+    industry: "",
+    companyEmail: "",
+    companyPhone: "",
     timezone: "UTC - 05:00 (Eastern Time)",
     currency: "USD ($)",
     enforce2FA: true,
-    sessionTimeout: "30 Minutes",
   });
 
-  const [apiKey, setApiKey] = useState("orvixa_live_pk_9923812938129381923");
+  // Load Real Profile Data from Supabase
+  useEffect(() => {
+    async function loadOrgProfile() {
+      // 1. Instant Cache Load
+      const cachedAvatar = localStorage.getItem("orvixa_admin_avatar");
+      if (cachedAvatar) setLogoPreview(cachedAvatar);
 
+      try {
+        // 2. Fetch from Database
+        const { data: authData } = await supabase.auth.getUser();
+        if (authData?.user) {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("org_name, avatar_url, email")
+            .eq("id", authData.user.id)
+            .single();
+
+          if (profile) {
+            setOrgProfile((prev) => ({
+              ...prev,
+              companyName: profile.org_name || "",
+              companyEmail: profile.email || authData.user.email || "",
+            }));
+
+            if (profile.avatar_url) {
+              setLogoPreview(profile.avatar_url);
+              localStorage.setItem("orvixa_admin_avatar", profile.avatar_url);
+            }
+          }
+        }
+      } catch (e) {
+        console.error("Error loading profile");
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadOrgProfile();
+  }, []);
+
+  // Handle Photo Selection & Cache Immediately
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setLogoPreview(URL.createObjectURL(file));
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64Url = reader.result as string;
+        setLogoPreview(base64Url);
+        // Instantly update sidebar through local storage
+        localStorage.setItem("orvixa_admin_avatar", base64Url);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  const handleRegenerateKey = () => {
-    const newKey = `orvixa_live_pk_${Math.random().toString(36).substring(2, 18)}${Math.random().toString(36).substring(2, 8)}`;
-    setApiKey(newKey);
-    alert("New Developer API Key generated successfully!");
-  };
-
-  const handleCopyKey = () => {
-    navigator.clipboard.writeText(apiKey);
-    setCopiedKey(true);
-    setTimeout(() => setCopiedKey(false), 2000);
-  };
-
-  const handleSave = (e: React.FormEvent) => {
+  // Save Real Profile & Photo to Database
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    try {
+      const { data: authData } = await supabase.auth.getUser();
+      if (authData?.user) {
+        // Update Supabase Database
+        await supabase
+          .from("profiles")
+          .update({
+            org_name: orgProfile.companyName,
+            avatar_url: logoPreview,
+          })
+          .eq("id", authData.user.id);
+      }
+
+      // Sync Local Storage for Sidebar
+      localStorage.setItem("orvixa_admin_org", orgProfile.companyName);
+
+      setSaved(true);
+      setTimeout(() => {
+        setSaved(false);
+        window.location.reload(); // Refresh to update sidebar text globally
+      }, 1000);
+    } catch (err) {
+      alert("Failed to save settings.");
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-[400px] flex items-center justify-center font-bold text-slate-500 font-sans">
+        <Loader2 className="w-6 h-6 animate-spin text-[#0047AB] mr-2" />
+        <span>Loading Organization Settings...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 font-sans">
-      {/* HEADER (NORMAL FONT ONLY) */}
+      {/* HEADER */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-black text-slate-900 font-sans">
           Organization Settings
         </h1>
         <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1 font-sans">
-          Manage company profile, branding, API keys, and security policies.
+          Manage company profile, branding, and security policies.
         </p>
       </div>
 
       {saved && (
         <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold flex items-center gap-2 font-sans">
           <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-          <span>Organization settings saved successfully!</span>
+          <span>Organization settings saved to database successfully!</span>
         </div>
       )}
 
@@ -103,7 +160,7 @@ export default function OrgSettingsPage() {
               )}
             </div>
             <div>
-              <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0047AB] text-white text-xs font-bold shadow-sm hover:bg-[#003680]">
+              <label className="cursor-pointer inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0047AB] text-white text-xs font-bold shadow-sm hover:bg-[#003680]">
                 <Upload className="w-3.5 h-3.5" />
                 <span>Upload Brand Logo</span>
                 <input
@@ -126,6 +183,8 @@ export default function OrgSettingsPage() {
               </label>
               <input
                 type="text"
+                required
+                placeholder="Enter Organization Name"
                 value={orgProfile.companyName}
                 onChange={(e) =>
                   setOrgProfile({ ...orgProfile, companyName: e.target.value })
@@ -140,6 +199,7 @@ export default function OrgSettingsPage() {
               </label>
               <input
                 type="text"
+                placeholder="Software & Technology"
                 value={orgProfile.industry}
                 onChange={(e) =>
                   setOrgProfile({ ...orgProfile, industry: e.target.value })
@@ -154,11 +214,9 @@ export default function OrgSettingsPage() {
               </label>
               <input
                 type="email"
+                readOnly
                 value={orgProfile.companyEmail}
-                onChange={(e) =>
-                  setOrgProfile({ ...orgProfile, companyEmail: e.target.value })
-                }
-                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB] font-sans"
+                className="w-full bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-500 cursor-not-allowed font-sans"
               />
             </div>
 
@@ -168,6 +226,7 @@ export default function OrgSettingsPage() {
               </label>
               <input
                 type="text"
+                placeholder="+1 (800) ORVIXA"
                 value={orgProfile.companyPhone}
                 onChange={(e) =>
                   setOrgProfile({ ...orgProfile, companyPhone: e.target.value })
@@ -227,8 +286,7 @@ export default function OrgSettingsPage() {
                 Enforce Multi-Factor Authentication (2FA)
               </div>
               <p className="text-[11px] text-slate-500 font-medium font-sans">
-                Require all 32 staff members to use 2FA hardware key or
-                authenticator app.
+                Require all staff members to use 2FA authentication.
               </p>
             </div>
 
@@ -251,49 +309,6 @@ export default function OrgSettingsPage() {
           </div>
         </div>
 
-        {/* 3. DEVELOPER API KEYS CARD */}
-        <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-4 font-sans">
-          <h3 className="font-bold text-base text-slate-900 border-b border-slate-100 pb-4 font-sans flex items-center gap-2">
-            <Key className="w-4 h-4 text-[#0047AB]" />
-            <span>Developer API Keys</span>
-          </h3>
-
-          <div>
-            <label className="text-xs font-bold text-slate-700 block mb-1 font-sans">
-              Live Production Key
-            </label>
-            <div className="flex gap-2 font-sans">
-              <input
-                type="text"
-                readOnly
-                value={apiKey}
-                className="w-full bg-slate-100 border border-slate-200 font-mono text-xs text-slate-600 px-3.5 py-2.5 rounded-xl font-sans"
-              />
-              <button
-                type="button"
-                onClick={handleCopyKey}
-                className="bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold px-4 py-2.5 rounded-xl shrink-0 flex items-center gap-1 font-sans"
-              >
-                {copiedKey ? (
-                  <Check className="w-3.5 h-3.5 text-emerald-600" />
-                ) : (
-                  <Copy className="w-3.5 h-3.5" />
-                )}
-                <span>{copiedKey ? "Copied" : "Copy"}</span>
-              </button>
-              <button
-                type="button"
-                onClick={handleRegenerateKey}
-                className="bg-rose-50 border border-rose-200 text-rose-600 hover:bg-rose-100 text-xs font-bold px-3 py-2.5 rounded-xl shrink-0 flex items-center gap-1 font-sans"
-                title="Regenerate API Key"
-              >
-                <RefreshCw className="w-3.5 h-3.5" />
-                <span>Regenerate</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
         {/* SAVE BUTTON */}
         <button
           type="submit"
@@ -304,8 +319,8 @@ export default function OrgSettingsPage() {
         </button>
       </form>
 
-      {/* 4. DANGER ZONE */}
-      <div className="bg-rose-50 border border-rose-200 rounded-3xl p-6 sm:p-8 space-y-3 font-sans">
+      {/* 3. DANGER ZONE */}
+      <div className="bg-rose-50 border border-rose-200 rounded-3xl p-6 sm:p-8 space-y-3 font-sans mt-8">
         <div className="flex items-center gap-2 text-rose-700 font-bold font-sans">
           <ShieldAlert className="w-5 h-5" />
           <span>Danger Zone</span>

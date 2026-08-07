@@ -1,91 +1,154 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Users,
   UserPlus,
   Building2,
-  Activity,
-  BarChart3,
   ShieldCheck,
+  CheckCircle2,
   Sparkles,
+  ArrowUpRight,
   TrendingUp,
   FolderKanban,
-  ArrowRight,
+  Loader2,
 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 export default function AdminDashboardPage() {
-  const [employees] = useState([
-    {
-      id: 1,
-      name: "Sarah Jenkins",
-      email: "sarah@orvixa.com",
-      role: "Product Designer",
-      dept: "Design",
-      status: "Active",
-    },
-    {
-      id: 2,
-      name: "Alex Mercer",
-      email: "alex@orvixa.com",
-      role: "Frontend Lead",
-      dept: "Engineering",
-      status: "Active",
-    },
-    {
-      id: 3,
-      name: "David Kim",
-      email: "david@orvixa.com",
-      role: "DevOps Engineer",
-      dept: "Engineering",
-      status: "Invited",
-    },
-    {
-      id: 4,
-      name: "Priya Sharma",
-      email: "priya@orvixa.com",
-      role: "Marketing Lead",
-      dept: "Growth",
-      status: "Active",
-    },
-  ]);
+  const [loading, setLoading] = useState(true);
 
-  const [tasks] = useState([
-    {
-      id: 1,
-      title: "Review Q3 Marketing Campaign Budget",
-      assignee: "Priya Sharma",
-      dept: "Growth",
-      status: "In Progress",
-      priority: "High",
-    },
-    {
-      id: 2,
-      title: "Implement Next.js App Router Authentication",
-      assignee: "Alex Mercer",
-      dept: "Engineering",
-      status: "Completed",
-      priority: "Urgent",
-    },
-    {
-      id: 3,
-      title: "Design Component System Tokens in Figma",
-      assignee: "Sarah Jenkins",
-      dept: "Design",
-      status: "In Progress",
-      priority: "Medium",
-    },
-  ]);
+  // Real Database State
+  const [adminName, setAdminName] = useState("Admin");
+  const [orgName, setOrgName] = useState("Organization");
+  const [employees, setEmployees] = useState<any[]>([]);
+  const [tasks, setTasks] = useState<any[]>([]);
+  const [projects, setProjects] = useState<any[]>([]);
+  const [deptStats, setDeptStats] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function fetchRealAdminData() {
+      try {
+        const { data: authData } = await supabase.auth.getUser();
+        const currentUser = authData?.user;
+
+        if (currentUser) {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("full_name, org_name")
+            .eq("id", currentUser.id)
+            .single();
+
+          if (profile?.full_name) setAdminName(profile.full_name);
+          if (profile?.org_name) setOrgName(profile.org_name);
+        }
+
+        const [empRes, taskRes, projRes] = await Promise.all([
+          supabase
+            .from("profiles")
+            .select("*")
+            .in("role", [
+              "employee",
+              "organization",
+              "admin",
+              "manager",
+              "team_lead",
+            ]),
+          supabase
+            .from("organization_tasks")
+            .select("*")
+            .neq("status", "Completed")
+            .order("created_at", { ascending: false })
+            .limit(5),
+          supabase.from("organization_projects").select("*"),
+        ]);
+
+        const fetchedEmployees = empRes.data || [];
+        const fetchedProjects = projRes.data || [];
+
+        setEmployees(fetchedEmployees);
+        setTasks(taskRes.data || []);
+        setProjects(fetchedProjects);
+
+        // Dynamically compute Department Statistics based on real projects & employees
+        const deptMap: Record<
+          string,
+          { members: number; progressSum: number; projCount: number }
+        > = {};
+
+        fetchedEmployees.forEach((emp) => {
+          const d = emp.department || "General Team";
+          if (!deptMap[d])
+            deptMap[d] = { members: 0, progressSum: 0, projCount: 0 };
+          deptMap[d].members += 1;
+        });
+
+        fetchedProjects.forEach((proj) => {
+          const d = proj.department || "General Team";
+          if (!deptMap[d])
+            deptMap[d] = { members: 0, progressSum: 0, projCount: 0 };
+          deptMap[d].progressSum += proj.progress || 0;
+          deptMap[d].projCount += 1;
+        });
+
+        const colors = [
+          "bg-[#0047AB]",
+          "bg-indigo-600",
+          "bg-purple-600",
+          "bg-emerald-600",
+          "bg-amber-500",
+        ];
+        const computedStats = Object.keys(deptMap).map((key, i) => {
+          const avgProg =
+            deptMap[key].projCount > 0
+              ? Math.round(deptMap[key].progressSum / deptMap[key].projCount)
+              : 0;
+          return {
+            dept: key,
+            velocity: `${avgProg}%`,
+            progressNum: avgProg,
+            members: `${deptMap[key].members} Members`,
+            color: colors[i % colors.length],
+          };
+        });
+
+        setDeptStats(computedStats);
+      } catch (err) {
+        console.error("Error fetching live org data");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchRealAdminData();
+  }, []);
+
+  const avgVelocity =
+    projects.length > 0
+      ? Math.round(
+          projects.reduce((sum, p) => sum + (p.progress || 0), 0) /
+            projects.length,
+        )
+      : 0;
+
+  if (loading) {
+    return (
+      <div className="min-h-[400px] flex items-center justify-center font-bold text-slate-500 font-sans">
+        <Loader2 className="w-6 h-6 animate-spin text-[#0047AB] mr-2" />
+        <span>Loading Live Command Center...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 font-sans">
-      {/* 1. HEADER (NORMAL FONT ONLY) */}
+      {/* 1. HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 font-sans">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0047AB]/10 text-[#0047AB] text-xs font-bold mb-2 font-sans">
             <span className="w-2 h-2 rounded-full bg-[#0047AB] animate-pulse" />
-            <span>Orvixa Enterprise Hub</span>
+            <span>{orgName} Enterprise Hub</span>
           </div>
 
           <h1 className="text-2xl sm:text-4xl font-black text-slate-900 leading-tight font-sans">
@@ -93,8 +156,8 @@ export default function AdminDashboardPage() {
           </h1>
 
           <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1 font-sans">
-            Oversee team roster, sprint velocity, department activity, and AI
-            reports.
+            Welcome back, {adminName}. Oversee real-time team roster and sprint
+            velocity.
           </p>
         </div>
 
@@ -107,63 +170,61 @@ export default function AdminDashboardPage() {
         </Link>
       </div>
 
-      {/* 2. KPI METRICS CARDS */}
+      {/* 2. REAL KPI METRICS CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 font-sans">
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+        <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-2 font-sans">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase text-slate-400">
               Total Employees
             </span>
             <Users className="w-4 h-4 text-[#0047AB]" />
           </div>
-          <div className="text-3xl font-black text-slate-900 font-sans">
-            32 Members
+          <div className="text-3xl font-black text-slate-900">
+            {employees.length} Members
           </div>
           <span className="text-xs text-emerald-600 font-bold block">
-            ✓ 28 Online Now
+            ✓ Database Synced
           </span>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+        <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-2 font-sans">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase text-slate-400">
-              Sprint Velocity
+              Avg Sprint Velocity
             </span>
             <TrendingUp className="w-4 h-4 text-[#0047AB]" />
           </div>
-          <div className="text-3xl font-black text-[#0047AB] font-sans">
-            94.8%
+          <div className="text-3xl font-black text-[#0047AB]">
+            {avgVelocity}%
           </div>
           <span className="text-xs text-slate-500 font-semibold block">
-            +12% vs last week
+            Across {projects.length} Projects
           </span>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+        <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-2 font-sans">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase text-slate-400">
               Departments Active
             </span>
             <Building2 className="w-4 h-4 text-[#0047AB]" />
           </div>
-          <div className="text-3xl font-black text-slate-900 font-sans">
-            4 Teams
+          <div className="text-3xl font-black text-slate-900">
+            {deptStats.length || 0} Teams
           </div>
           <span className="text-xs text-slate-500 font-semibold block">
-            Engineering, Design, Growth, Sales
+            Org Directory
           </span>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+        <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-2 font-sans">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase text-slate-400">
               Security & RBAC
             </span>
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
           </div>
-          <div className="text-3xl font-black text-[#0047AB] font-sans">
-            SOC2
-          </div>
+          <div className="text-3xl font-black text-[#0047AB]">SOC2</div>
           <span className="text-xs text-emerald-600 font-bold block">
             ✓ AES-256 Encrypted
           </span>
@@ -171,9 +232,9 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* 3. AI COPILOT AUDIT BANNER */}
-      <div className="bg-gradient-to-r from-blue-50 via-indigo-50/50 to-white p-5 sm:p-6 rounded-2xl border border-blue-200/80 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 font-sans">
+      <div className="bg-gradient-to-r from-blue-50 via-indigo-50/50 to-white p-5 sm:p-6 rounded-3xl border border-blue-200/80 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 font-sans">
         <div className="flex items-center gap-3 text-left">
-          <div className="w-10 h-10 rounded-xl bg-[#0047AB] text-white flex items-center justify-center shrink-0 shadow-md shadow-[#0047AB]/25">
+          <div className="w-10 h-10 rounded-2xl bg-[#0047AB] text-white flex items-center justify-center shrink-0 shadow-md shadow-[#0047AB]/25">
             <Sparkles className="w-5 h-5" />
           </div>
           <div>
@@ -181,12 +242,12 @@ export default function AdminDashboardPage() {
               AI Team Performance Audit
             </h3>
             <p className="text-xs text-slate-600 font-medium mt-0.5 font-sans">
-              "Engineering sprint #14 is running 18% ahead of schedule with zero
-              active bottlenecks. Generate weekly report?"
+              "Your organization currently has {tasks.length} pending tasks.
+              Sprint velocity is at {avgVelocity}%. Generate full weekly
+              report?"
             </p>
           </div>
         </div>
-
         <Link
           href="/dashboard/admin/reports"
           className="bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition-all shrink-0 font-sans"
@@ -195,9 +256,10 @@ export default function AdminDashboardPage() {
         </Link>
       </div>
 
-      {/* 4. DEPARTMENT SPRINT VELOCITY & TASKS */}
+      {/* 4. REAL DEPARTMENT VELOCITY & TASKS */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 font-sans">
-        <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4 font-sans">
+        {/* Left: Dynamic Departments */}
+        <div className="lg:col-span-7 bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-4 font-sans">
           <div className="flex justify-between items-center pb-3 border-b border-slate-100">
             <h2 className="font-bold text-base text-slate-900 flex items-center gap-2 font-sans">
               <Building2 className="w-4 h-4 text-[#0047AB]" />
@@ -211,64 +273,49 @@ export default function AdminDashboardPage() {
             </Link>
           </div>
 
-          <div className="space-y-3.5">
-            {[
-              {
-                dept: "Engineering & Dev",
-                velocity: "96%",
-                members: "12 Members",
-                color: "bg-[#0047AB]",
-              },
-              {
-                dept: "Product Design",
-                velocity: "92%",
-                members: "8 Members",
-                color: "bg-indigo-600",
-              },
-              {
-                dept: "Growth & Marketing",
-                velocity: "88%",
-                members: "7 Members",
-                color: "bg-purple-600",
-              },
-              {
-                dept: "Sales & Operations",
-                velocity: "94%",
-                members: "5 Members",
-                color: "bg-emerald-600",
-              },
-            ].map((d) => (
-              <div
-                key={d.dept}
-                className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-2 font-sans"
-              >
-                <div className="flex justify-between items-center">
-                  <span className="font-bold text-xs text-slate-900 font-sans">
-                    {d.dept}
-                  </span>
-                  <span className="text-xs font-black text-[#0047AB] font-sans">
-                    {d.velocity}
+          {deptStats.length > 0 ? (
+            <div className="space-y-3.5 font-sans">
+              {deptStats.map((d) => (
+                <div
+                  key={d.dept}
+                  className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-2 font-sans"
+                >
+                  <div className="flex justify-between items-center font-sans">
+                    <span className="font-bold text-xs text-slate-900 font-sans">
+                      {d.dept}
+                    </span>
+                    <span className="text-xs font-black text-[#0047AB] font-sans">
+                      {d.velocity}
+                    </span>
+                  </div>
+                  <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden font-sans">
+                    <div
+                      style={{ width: d.velocity }}
+                      className={`${d.color} h-full rounded-full font-sans`}
+                    />
+                  </div>
+                  <span className="text-[10px] font-semibold text-slate-400 block font-sans">
+                    {d.members}
                   </span>
                 </div>
-                <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-                  <div
-                    style={{ width: d.velocity }}
-                    className={`${d.color} h-full rounded-full`}
-                  />
-                </div>
-                <span className="text-[10px] font-semibold text-slate-400 block font-sans">
-                  {d.members}
-                </span>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-10 text-slate-400 font-sans space-y-2">
+              <Building2 className="w-8 h-8 mx-auto text-slate-300" />
+              <p className="text-xs font-bold text-slate-500">
+                No departments configured yet.
+              </p>
+            </div>
+          )}
         </div>
 
-        <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4 font-sans">
+        {/* Right: Live Org Tasks */}
+        <div className="lg:col-span-5 bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-4 font-sans">
           <div className="flex justify-between items-center pb-3 border-b border-slate-100">
             <h2 className="font-bold text-base text-slate-900 flex items-center gap-2 font-sans">
               <FolderKanban className="w-4 h-4 text-[#0047AB]" />
-              <span>Active Org Tasks ({tasks.length})</span>
+              <span>Pending Org Tasks ({tasks.length})</span>
             </h2>
             <Link
               href="/dashboard/admin/tasks"
@@ -278,94 +325,46 @@ export default function AdminDashboardPage() {
             </Link>
           </div>
 
-          <div className="space-y-3">
-            {tasks.map((task) => (
-              <div
-                key={task.id}
-                className="p-3.5 rounded-xl bg-slate-50 border border-slate-100 space-y-1.5 font-sans"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-xs text-slate-900 font-sans">
-                    {task.title}
-                  </span>
-                  <span
-                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full font-sans ${
-                      task.priority === "Urgent"
-                        ? "bg-rose-50 text-rose-600 border border-rose-200"
-                        : task.priority === "High"
-                          ? "bg-amber-50 text-amber-600 border border-amber-200"
-                          : "bg-slate-100 text-slate-600"
-                    }`}
-                  >
-                    {task.priority}
-                  </span>
-                </div>
-                <div className="text-[11px] text-slate-500 font-semibold font-sans">
-                  Assignee:{" "}
-                  <strong className="text-slate-800 font-sans">
-                    {task.assignee}
-                  </strong>{" "}
-                  ({task.dept})
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* 5. RECENT EMPLOYEE ROSTER TABLE */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden font-sans">
-        <div className="p-5 border-b border-slate-100 flex items-center justify-between">
-          <h2 className="font-bold text-base text-slate-900 flex items-center gap-2 font-sans">
-            <Users className="w-4 h-4 text-[#0047AB]" />
-            <span>Recent Staff Roster</span>
-          </h2>
-
-          <Link
-            href="/dashboard/admin/employees"
-            className="text-xs font-bold text-[#0047AB] hover:underline flex items-center gap-1 font-sans"
-          >
-            <span>View Full Directory</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-
-        <div className="divide-y divide-slate-100">
-          {employees.map((emp) => (
-            <div
-              key={emp.id}
-              className="p-4 sm:p-5 flex items-center justify-between hover:bg-slate-50 text-xs font-semibold font-sans"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-[#0047AB] text-white flex items-center justify-center font-bold text-xs font-sans">
-                  {emp.name.substring(0, 2).toUpperCase()}
-                </div>
-                <div>
-                  <div className="font-bold text-sm text-slate-900 font-sans">
-                    {emp.name}
-                  </div>
-                  <div className="text-slate-400 font-sans">
-                    {emp.email} • {emp.dept}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4 font-sans">
-                <span className="text-slate-600 font-semibold font-sans">
-                  {emp.role}
-                </span>
-                <span
-                  className={`px-3 py-1 rounded-full text-xs font-bold font-sans ${
-                    emp.status === "Active"
-                      ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
-                      : "bg-amber-50 text-amber-600 border border-amber-200"
-                  }`}
+          {tasks.length > 0 ? (
+            <div className="space-y-3 font-sans">
+              {tasks.map((task) => (
+                <div
+                  key={task.id}
+                  className="p-3.5 rounded-xl bg-slate-50 border border-slate-100 space-y-1.5 font-sans hover:bg-slate-100/50 transition-colors"
                 >
-                  {emp.status}
-                </span>
-              </div>
+                  <div className="flex items-center justify-between font-sans">
+                    <span className="font-bold text-xs text-slate-900 font-sans">
+                      {task.title}
+                    </span>
+                    <span
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full font-sans ${
+                        task.priority === "Urgent"
+                          ? "bg-rose-50 text-rose-600 border border-rose-200"
+                          : task.priority === "High"
+                            ? "bg-amber-50 text-amber-600 border border-amber-200"
+                            : "bg-slate-100 text-slate-600"
+                      }`}
+                    >
+                      {task.priority || "Medium"}
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-slate-500 font-semibold font-sans">
+                    Assignee:{" "}
+                    <strong className="text-slate-800 font-sans">
+                      {task.assignee}
+                    </strong>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
+          ) : (
+            <div className="text-center py-10 text-slate-400 font-sans space-y-2">
+              <CheckCircle2 className="w-8 h-8 mx-auto text-slate-300" />
+              <p className="text-xs font-bold text-slate-500">
+                No pending tasks.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

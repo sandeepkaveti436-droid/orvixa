@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -23,6 +23,7 @@ import {
   X,
   UserPlus,
 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 export default function AdminLayout({
   children,
@@ -31,6 +32,80 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Real Database State
+  const [activeMembersCount, setActiveMembersCount] = useState(0);
+  const [orgDisplayName, setOrgDisplayName] = useState("Loading...");
+  const [adminRole, setAdminRole] = useState("Super Admin");
+  const [orgInitials, setOrgInitials] = useState("OR");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchAdminData() {
+      // 1. Instant check from local storage (Available right after upload/login!)
+      const cachedAvatar = localStorage.getItem("orvixa_admin_avatar");
+      const cachedOrgName = localStorage.getItem("orvixa_admin_org");
+
+      if (cachedAvatar) setAvatarUrl(cachedAvatar);
+      if (cachedOrgName) {
+        setOrgDisplayName(cachedOrgName);
+        setOrgInitials(cachedOrgName.trim().substring(0, 2).toUpperCase());
+      }
+
+      try {
+        // 2. Fetch REAL Logged-in Admin Data from Supabase
+        const { data: authData } = await supabase.auth.getUser();
+        const user = authData?.user;
+
+        if (user) {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("full_name, org_name, role, avatar_url")
+            .eq("id", user.id)
+            .single();
+
+          if (profile) {
+            // PRIORITY: Org Name -> Full Name -> Email
+            const liveName =
+              profile.org_name ||
+              profile.full_name ||
+              user.email?.split("@")[0] ||
+              "Organization";
+
+            setOrgDisplayName(liveName);
+            setOrgInitials(liveName.substring(0, 2).toUpperCase());
+            localStorage.setItem("orvixa_admin_org", liveName);
+
+            setAdminRole(
+              profile.role === "organization" ? "Super Admin" : "Manager",
+            );
+
+            if (profile.avatar_url) {
+              setAvatarUrl(profile.avatar_url);
+              localStorage.setItem("orvixa_admin_avatar", profile.avatar_url);
+            }
+          }
+        }
+
+        // 3. Fetch Real Member Count
+        const { count } = await supabase
+          .from("profiles")
+          .select("*", { count: "exact", head: true })
+          .in("role", [
+            "employee",
+            "organization",
+            "admin",
+            "manager",
+            "team_lead",
+          ]);
+
+        setActiveMembersCount(count || 0);
+      } catch (err) {
+        console.error("Error fetching admin data");
+      }
+    }
+    fetchAdminData();
+  }, []);
 
   const navigation = [
     { name: "Command Center", href: "/dashboard/admin", icon: Building2 },
@@ -79,7 +154,10 @@ export default function AdminLayout({
     { name: "Org Settings", href: "/dashboard/admin/settings", icon: Settings },
   ];
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    localStorage.removeItem("orvixa_admin_avatar");
+    localStorage.removeItem("orvixa_admin_org");
     document.cookie =
       "orvixa_demo_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
     window.location.href = "/auth?mode=login";
@@ -134,22 +212,30 @@ export default function AdminLayout({
           </nav>
         </div>
 
-        {/* BOTTOM LEFT PROFILE BLOCK (WORKING) */}
+        {/* BOTTOM LEFT REAL PROFILE BLOCK */}
         <div className="pt-4 border-t border-slate-100 flex items-center justify-between font-sans">
           <Link
             href="/dashboard/admin/settings"
             className="flex items-center gap-2.5 group hover:opacity-80 transition-opacity"
-            title="View Org Settings & Profile"
+            title="View Org Settings"
           >
-            <div className="w-8 h-8 rounded-full bg-[#0047AB] text-white flex items-center justify-center font-bold text-xs font-sans">
-              AM
+            <div className="w-8 h-8 rounded-full bg-[#0047AB] text-white flex items-center justify-center font-bold text-xs font-sans overflow-hidden shrink-0 shadow-sm ring-1 ring-slate-200">
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt={orgDisplayName}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                orgInitials
+              )}
             </div>
             <div>
               <div className="text-xs font-bold text-slate-900 line-clamp-1 font-sans group-hover:text-[#0047AB]">
-                Alex Mercer
+                {orgDisplayName}
               </div>
-              <div className="text-[10px] text-slate-400 font-semibold font-sans">
-                Super Admin
+              <div className="text-[10px] text-slate-400 font-semibold font-sans capitalize">
+                {adminRole}
               </div>
             </div>
           </Link>
@@ -157,7 +243,7 @@ export default function AdminLayout({
           <button
             onClick={handleLogout}
             title="Log Out"
-            className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 transition-colors"
+            className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors"
           >
             <LogOut className="w-4 h-4" />
           </button>
@@ -190,7 +276,7 @@ export default function AdminLayout({
 
           <div className="flex items-center gap-3 font-sans">
             <span className="hidden sm:inline-flex text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full font-sans">
-              ● 32 Members Online
+              ● {activeMembersCount} Members
             </span>
             <Link
               href="/dashboard/admin/employees"

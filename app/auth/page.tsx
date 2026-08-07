@@ -97,7 +97,7 @@ function AuthContent() {
     }
   };
 
-  // REAL-TIME FREELANCER REGISTRATION
+  // REAL-TIME FREELANCER REGISTRATION (WITH INSTANT PROFILE CACHING)
   const handleFreelancerSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
@@ -110,9 +110,21 @@ function AuthContent() {
     setLoading(true);
 
     try {
+      // 1. Instantly cache details locally for persistent sidebar display
+      localStorage.setItem("orvixa_user_name", freelancerData.fullName);
+      localStorage.setItem("orvixa_user_prof", freelancerData.profession);
+
+      // 2. Sign up in Supabase with User Metadata
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: freelancerData.email,
         password: freelancerData.password,
+        options: {
+          data: {
+            full_name: freelancerData.fullName,
+            profession: freelancerData.profession,
+            role: "freelancer",
+          },
+        },
       });
 
       if (authError) {
@@ -247,9 +259,16 @@ function AuthContent() {
 
         const { data: profile } = await supabase
           .from("profiles")
-          .select("role")
+          .select("role, full_name, profession")
           .eq("id", authData.user.id)
           .single();
+
+        if (profile?.full_name) {
+          localStorage.setItem("orvixa_user_name", profile.full_name);
+        }
+        if (profile?.profession) {
+          localStorage.setItem("orvixa_user_prof", profile.profession);
+        }
 
         if (profile?.role === "organization") {
           window.location.href = "/dashboard/admin";
@@ -331,7 +350,8 @@ function AuthContent() {
                   </span>
                 </h1>
                 <p className="text-xs sm:text-sm font-semibold text-slate-500 font-sans">
-                  Choose how you'd like to continue.
+                  Get your first 3 months completely free. No credit card
+                  required.
                 </p>
               </div>
 
@@ -446,7 +466,8 @@ function AuthContent() {
                   </span>
                 </h1>
                 <p className="text-xs font-semibold text-slate-500">
-                  Fill in your details to set up your solo workspace.
+                  Fill in your details to activate your 3-Month Free Early
+                  Adopter Plan.
                 </p>
               </div>
 
@@ -665,7 +686,8 @@ function AuthContent() {
                   </span>
                 </h1>
                 <p className="text-xs font-semibold text-slate-500">
-                  Fill in your company details to launch your team hub.
+                  Fill in your details to activate your 3-Month Free Early
+                  Adopter Plan.
                 </p>
               </div>
 

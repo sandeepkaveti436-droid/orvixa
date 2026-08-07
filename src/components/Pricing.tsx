@@ -44,7 +44,6 @@ export default function Pricing() {
       </div>
 
       <div className="max-w-7xl mx-auto relative z-10">
-        
         {/* ================= 1. HEADER ================= */}
         <div className="text-center max-w-9xl mx-auto mb-16 sm:mb-24">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/90 border border-[#0047AB]/20 shadow-sm mb-6">
@@ -55,14 +54,17 @@ export default function Pricing() {
           </div>
 
           <h2 className="text-[20px] sm:text-[22px] lg:text-[32px] font-black leading-[1.15] text-slate-900 mb-6 font-sans">
-            <span>Simple, predictable <br/> </span>
+            <span>
+              Simple, predictable <br />{" "}
+            </span>
             <span className="inline-block font-heading italic pr-2 pb-1 bg-clip-text text-transparent bg-gradient-to-r from-[#0047AB] via-indigo-600 to-purple-600">
               plans for everyone.
             </span>
           </h2>
 
           <p className="text-base sm:text-lg font-medium text-slate-600 leading-relaxed text-balance font-sans">
-            Start for free and scale seamlessly as your workflow grows. No hidden fees or lock-in contracts.
+            Start for free and scale seamlessly as your workflow grows. No
+            hidden fees or lock-in contracts.
           </p>
         </div>
 
@@ -74,7 +76,6 @@ export default function Pricing() {
           viewport={{ once: true, margin: "-80px" }}
           className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch font-sans max-w-9xl mx-auto"
         >
-          
           {/* CARD 1: STARTER (FREE) */}
           <motion.div
             variants={cardVariants}
@@ -114,7 +115,10 @@ export default function Pricing() {
                   "AI Assistant (Limited)",
                   "1 Workspace",
                 ].map((item, idx) => (
-                  <div key={idx} className="flex items-center gap-3 text-xs font-bold text-slate-800">
+                  <div
+                    key={idx}
+                    className="flex items-center gap-3 text-xs font-bold text-slate-800"
+                  >
                     <div className="w-5 h-5 rounded-full bg-[#0047AB]/10 text-[#0047AB] flex items-center justify-center shrink-0">
                       <Check className="w-3 h-3 stroke-[3]" />
                     </div>
@@ -158,15 +162,17 @@ export default function Pricing() {
                 Professional
               </h3>
 
-              <div className="mb-4 flex items-baseline gap-1">
+              <div className="mb-2 flex items-baseline gap-1">
                 <span className="font-sans text-4xl sm:text-5xl font-black text-white">
-                  $12
+                  $0
                 </span>
-                <span className="text-sm font-semibold opacity-80">/month</span>
+                <span className="text-sm font-semibold opacity-80">
+                  for 3 months
+                </span>
               </div>
 
               <p className="text-xs font-semibold text-blue-100 mb-8 leading-relaxed">
-                Everything freelancers need.
+                Then $12/mo. Everything freelancers need to scale.
               </p>
 
               {/* Feature List */}
@@ -180,7 +186,10 @@ export default function Pricing() {
                   "Priority Support",
                   "Analytics",
                 ].map((item, idx) => (
-                  <div key={idx} className="flex items-center gap-3 text-xs font-bold text-white">
+                  <div
+                    key={idx}
+                    className="flex items-center gap-3 text-xs font-bold text-white"
+                  >
                     <div className="w-5 h-5 rounded-full bg-white/20 text-white flex items-center justify-center shrink-0">
                       <Check className="w-3 h-3 stroke-[3]" />
                     </div>
@@ -240,7 +249,10 @@ export default function Pricing() {
                   "Dedicated Support",
                   "Single Sign-On",
                 ].map((item, idx) => (
-                  <div key={idx} className="flex items-center gap-3 text-xs font-bold text-slate-800">
+                  <div
+                    key={idx}
+                    className="flex items-center gap-3 text-xs font-bold text-slate-800"
+                  >
                     <div className="w-5 h-5 rounded-full bg-[#0047AB]/10 text-[#0047AB] flex items-center justify-center shrink-0">
                       <Check className="w-3 h-3 stroke-[3]" />
                     </div>
@@ -258,9 +270,7 @@ export default function Pricing() {
               <ArrowRight className="w-4 h-4" />
             </a>
           </motion.div>
-
         </motion.div>
-
       </div>
     </section>
   );

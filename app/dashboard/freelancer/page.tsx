@@ -10,15 +10,10 @@ import {
   Sparkles,
   Plus,
   CheckCircle2,
-  TrendingUp,
   Building,
   ArrowUpRight,
-  Calendar,
-  UserCheck,
   ArrowRight,
   Loader2,
-  Users,
-  Activity,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
@@ -35,12 +30,10 @@ export default function FreelancerDashboardPage() {
   useEffect(() => {
     async function fetchRealUserData() {
       try {
-        // 1. Fetch Logged-in Auth User
         const { data: authData } = await supabase.auth.getUser();
         const currentUser = authData?.user;
 
         if (currentUser) {
-          // 2. Fetch User Profile
           const { data: profile } = await supabase
             .from("profiles")
             .select("full_name")
@@ -54,7 +47,6 @@ export default function FreelancerDashboardPage() {
           }
         }
 
-        // 3. Fetch Real User Data from Supabase Database
         const [projRes, taskRes, invRes, clientRes, timeRes] =
           await Promise.all([
             supabase
@@ -95,7 +87,6 @@ export default function FreelancerDashboardPage() {
   }, []);
 
   const toggleTaskStatus = async (id: string | number) => {
-    // Optimistic UI update
     setTasks(
       tasks.map((t) =>
         t.id === id
@@ -122,7 +113,6 @@ export default function FreelancerDashboardPage() {
     }
   };
 
-  // Calculate Real Metrics
   const totalBilled = invoices
     .filter((i) => i.status === "Paid")
     .reduce((sum, i) => sum + (Number(i.amount) || 0), 0);
@@ -149,22 +139,20 @@ export default function FreelancerDashboardPage() {
 
   return (
     <div className="space-y-8 font-sans">
-      {/* ================= 1. DASHBOARD HEADER ================= */}
+      {/* ================= 1. HEADER (LIGHT MODE LOCK) ================= */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 font-sans">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0047AB]/10 text-[#0047AB] text-xs font-bold mb-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0047AB]/10 text-[#0047AB] text-xs font-bold mb-3 shadow-sm border border-transparent">
             <span className="w-2 h-2 rounded-full bg-[#0047AB] animate-pulse" />
             <span>Orvixa Freelancer OS</span>
           </div>
 
-          <h1 className="text-2xl sm:text-4xl font-black text-slate-900 leading-tight">
+          <h1 className="text-3xl sm:text-5xl font-black text-slate-900 leading-tight font-sans">
             <span>Welcome, {userName} </span>
-            <span className="font-heading italic text-[#0047AB]">
-              Dashboard.
-            </span>
+            <span className="italic text-[#0047AB]">Dashboard.</span>
           </h1>
 
-          <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
+          <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-2">
             Real-time overview of active projects, clients, invoices, time
             tracking, and AI workflows.
           </p>
@@ -173,7 +161,7 @@ export default function FreelancerDashboardPage() {
         <div className="flex items-center gap-3">
           <Link
             href="/dashboard/freelancer/invoices/new"
-            className="bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md shadow-[#0047AB]/25 flex items-center gap-2"
+            className="bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs px-6 py-3.5 rounded-2xl shadow-md flex items-center gap-2 transition-all"
           >
             <Plus className="w-4 h-4" />
             <span>+ New Invoice</span>
@@ -181,56 +169,56 @@ export default function FreelancerDashboardPage() {
         </div>
       </div>
 
-      {/* ================= 2. QUICK ACTIONS BAR (5 BUTTONS) ================= */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center gap-3 font-sans">
+      {/* ================= 2. QUICK ACTIONS BAR ================= */}
+      <div className="bg-white/80 backdrop-blur-2xl p-4 rounded-3xl border border-slate-200 shadow-sm flex flex-wrap items-center gap-3 font-sans">
         <span className="text-xs font-bold uppercase text-slate-400 mr-2">
           Quick Actions:
         </span>
 
         <Link
           href="/dashboard/freelancer/projects"
-          className="bg-[#0047AB] hover:bg-[#003680] text-white text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow-sm transition-all"
+          className="bg-[#0047AB] hover:bg-[#003680] text-white text-xs font-bold px-4 py-2.5 rounded-full shadow-sm transition-all"
         >
-          <Plus className="w-3.5 h-3.5" />
+          <Plus className="w-3.5 h-3.5 inline mr-1" />
           <span>New Project</span>
         </Link>
 
         <Link
           href="/dashboard/freelancer/clients"
-          className="bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition-all"
+          className="bg-slate-100 text-slate-800 border border-transparent hover:bg-slate-200 text-xs font-bold px-4 py-2.5 rounded-full transition-all"
         >
-          <Plus className="w-3.5 h-3.5" />
+          <Plus className="w-3.5 h-3.5 inline mr-1" />
           <span>New Client</span>
         </Link>
 
         <Link
           href="/dashboard/freelancer/tasks"
-          className="bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition-all"
+          className="bg-slate-100 text-slate-800 border border-transparent hover:bg-slate-200 text-xs font-bold px-4 py-2.5 rounded-full transition-all"
         >
-          <Plus className="w-3.5 h-3.5" />
+          <Plus className="w-3.5 h-3.5 inline mr-1" />
           <span>New Task</span>
         </Link>
 
         <Link
           href="/dashboard/freelancer/invoices/new"
-          className="bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition-all"
+          className="bg-slate-100 text-slate-800 border border-transparent hover:bg-slate-200 text-xs font-bold px-4 py-2.5 rounded-full transition-all"
         >
-          <Plus className="w-3.5 h-3.5" />
+          <Plus className="w-3.5 h-3.5 inline mr-1" />
           <span>New Invoice</span>
         </Link>
 
         <Link
           href="/dashboard/freelancer/ai-assistant"
-          className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 text-[#0047AB] text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition-all"
+          className="bg-blue-50 border border-blue-200 text-[#0047AB] hover:bg-blue-100 text-xs font-bold px-4 py-2.5 rounded-full transition-all"
         >
-          <Sparkles className="w-3.5 h-3.5 text-[#0047AB]" />
+          <Sparkles className="w-3.5 h-3.5 inline mr-1" />
           <span>✨ Generate Proposal</span>
         </Link>
       </div>
 
-      {/* ================= 3. 6 REAL KPI CARDS ================= */}
+      {/* ================= 3. 6 KPI CARDS ================= */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 font-sans">
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+        <div className="bg-white/80 backdrop-blur-2xl p-5 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between">
           <span className="text-[11px] font-bold uppercase text-slate-400 block mb-1">
             Active Projects
           </span>
@@ -242,7 +230,7 @@ export default function FreelancerDashboardPage() {
           </span>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+        <div className="bg-white/80 backdrop-blur-2xl p-5 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between">
           <span className="text-[11px] font-bold uppercase text-slate-400 block mb-1">
             Active Clients
           </span>
@@ -254,7 +242,7 @@ export default function FreelancerDashboardPage() {
           </span>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+        <div className="bg-white/80 backdrop-blur-2xl p-5 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between">
           <span className="text-[11px] font-bold uppercase text-slate-400 block mb-1">
             Pending Tasks
           </span>
@@ -266,7 +254,7 @@ export default function FreelancerDashboardPage() {
           </span>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+        <div className="bg-white/80 backdrop-blur-2xl p-5 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between">
           <span className="text-[11px] font-bold uppercase text-slate-400 block mb-1">
             Total Billed
           </span>
@@ -278,7 +266,7 @@ export default function FreelancerDashboardPage() {
           </span>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+        <div className="bg-white/80 backdrop-blur-2xl p-5 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between">
           <span className="text-[11px] font-bold uppercase text-slate-400 block mb-1">
             Pending Invoices
           </span>
@@ -290,7 +278,7 @@ export default function FreelancerDashboardPage() {
           </span>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+        <div className="bg-white/80 backdrop-blur-2xl p-5 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between">
           <span className="text-[11px] font-bold uppercase text-slate-400 block mb-1">
             Hours Tracked
           </span>
@@ -303,14 +291,14 @@ export default function FreelancerDashboardPage() {
         </div>
       </div>
 
-      {/* ================= 4. AI COPILOT INSIGHTS BANNER ================= */}
-      <div className="bg-gradient-to-r from-blue-50 via-indigo-50/50 to-white p-5 sm:p-6 rounded-2xl border border-blue-200/80 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 font-sans">
+      {/* ================= 4. AI COPILOT BANNER ================= */}
+      <div className="bg-gradient-to-r from-blue-50 via-indigo-50/50 to-white backdrop-blur-3xl p-5 sm:p-6 rounded-3xl border border-blue-200/80 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 font-sans">
         <div className="flex items-center gap-3 text-left">
-          <div className="w-10 h-10 rounded-xl bg-[#0047AB] text-white flex items-center justify-center shrink-0 shadow-md shadow-[#0047AB]/25">
+          <div className="w-10 h-10 rounded-2xl bg-[#0047AB] text-white flex items-center justify-center shrink-0 shadow-md">
             <Sparkles className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-bold text-sm text-slate-900">
+            <h3 className="font-bold text-sm text-slate-900 font-sans">
               Orvixa AI Copilot Insight
             </h3>
             <p className="text-xs text-slate-600 font-medium mt-0.5">
@@ -322,16 +310,16 @@ export default function FreelancerDashboardPage() {
 
         <Link
           href="/dashboard/freelancer/ai-assistant"
-          className="bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition-all shrink-0"
+          className="bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs px-5 py-3 rounded-2xl shadow-sm transition-all shrink-0"
         >
           Open AI Copilot →
         </Link>
       </div>
 
-      {/* ================= 5. REAL ACTIVE PROJECTS & TODAY'S TASKS ================= */}
+      {/* ================= 5. ACTIVE PROJECTS & TODAY'S TASKS ================= */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 font-sans">
         {/* LEFT: REAL ACTIVE PROJECTS */}
-        <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-5 font-sans">
+        <div className="lg:col-span-7 bg-white/80 backdrop-blur-3xl rounded-3xl border border-slate-200/80 p-6 shadow-sm space-y-5 font-sans">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <h2 className="font-bold text-base text-slate-900 flex items-center gap-2">
               <FolderKanban className="w-4 h-4 text-[#0047AB]" />
@@ -352,13 +340,13 @@ export default function FreelancerDashboardPage() {
               {projects.map((p) => (
                 <div
                   key={p.id}
-                  className="p-4 rounded-xl bg-slate-50 border border-slate-100 flex justify-between items-center text-xs font-semibold"
+                  className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex justify-between items-center text-xs font-semibold"
                 >
                   <div>
                     <div className="font-bold text-sm text-slate-900">
                       {p.name}
                     </div>
-                    <div className="text-slate-400">
+                    <div className="text-slate-500">
                       Client: {p.client} • Due {p.due_date || "Upcoming"}
                     </div>
                   </div>
@@ -371,7 +359,7 @@ export default function FreelancerDashboardPage() {
           ) : (
             <div className="text-center py-10 text-slate-400 space-y-3 font-sans">
               <FolderKanban className="w-8 h-8 mx-auto text-slate-300" />
-              <p className="text-xs font-semibold">
+              <p className="text-xs font-semibold text-slate-500">
                 No active projects created yet.
               </p>
               <Link
@@ -386,7 +374,7 @@ export default function FreelancerDashboardPage() {
         </div>
 
         {/* RIGHT: REAL TODAY'S TASKS CHECKLIST */}
-        <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-5 font-sans">
+        <div className="lg:col-span-5 bg-white/80 backdrop-blur-3xl rounded-3xl border border-slate-200/80 p-6 shadow-sm space-y-5 font-sans">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <h2 className="font-bold text-base text-slate-900 flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-[#0047AB]" />
@@ -407,7 +395,7 @@ export default function FreelancerDashboardPage() {
                 <div
                   key={task.id}
                   onClick={() => toggleTaskStatus(task.id)}
-                  className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-100/60 transition-colors"
+                  className="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-100/60 transition-colors"
                 >
                   <div className="flex items-center gap-2.5">
                     <div
@@ -442,7 +430,9 @@ export default function FreelancerDashboardPage() {
           ) : (
             <div className="text-center py-10 text-slate-400 space-y-3 font-sans">
               <CheckCircle2 className="w-8 h-8 mx-auto text-slate-300" />
-              <p className="text-xs font-semibold">No pending tasks.</p>
+              <p className="text-xs font-semibold text-slate-500">
+                No pending tasks.
+              </p>
               <Link
                 href="/dashboard/freelancer/tasks"
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0047AB] text-white text-xs font-bold shadow-sm"
@@ -455,8 +445,8 @@ export default function FreelancerDashboardPage() {
         </div>
       </div>
 
-      {/* ================= 6. REAL INVOICES TABLE ================= */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden font-sans">
+      {/* ================= 6. RECENT INVOICES TABLE ================= */}
+      <div className="bg-white/80 backdrop-blur-3xl rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden font-sans">
         <div className="p-5 border-b border-slate-100 flex items-center justify-between">
           <h2 className="font-bold text-base text-slate-900 flex items-center gap-2">
             <FileText className="w-4 h-4 text-[#0047AB]" />
@@ -489,7 +479,7 @@ export default function FreelancerDashboardPage() {
                     <div className="font-bold text-sm text-slate-900">
                       {inv.invoice_number || "INV-1001"} — {inv.client}
                     </div>
-                    <div className="text-slate-400">
+                    <div className="text-slate-500">
                       Issued {inv.issue_date || "Today"}
                     </div>
                   </div>
@@ -518,7 +508,9 @@ export default function FreelancerDashboardPage() {
         ) : (
           <div className="text-center py-10 text-slate-400 space-y-3 font-sans">
             <FileText className="w-8 h-8 mx-auto text-slate-300" />
-            <p className="text-xs font-semibold">No invoices generated yet.</p>
+            <p className="text-xs font-semibold text-slate-500">
+              No invoices generated yet.
+            </p>
             <Link
               href="/dashboard/freelancer/invoices/new"
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0047AB] text-white text-xs font-bold shadow-sm"
