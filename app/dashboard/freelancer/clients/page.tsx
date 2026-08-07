@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Users,
   Search,
@@ -8,454 +8,225 @@ import {
   Mail,
   Phone,
   Globe,
-  Archive,
   Building,
   X,
-  History,
-  FolderKanban,
-  DollarSign,
+  Loader2,
 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 export default function ClientsPage() {
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [showArchived, setShowArchived] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [selectedHistoryClient, setSelectedHistoryClient] = useState<
-    any | null
-  >(null);
-
-  const [clients, setClients] = useState([
-    {
-      id: "c-1",
-      name: "Alex Mercer",
-      company: "Acme Global Inc.",
-      email: "alex@acmeglobal.com",
-      phone: "+1 (555) 234-5678",
-      website: "https://acmeglobal.com",
-      country: "United States",
-      timezone: "UTC - 05:00 (Eastern)",
-      totalBilled: "$11,350.00",
-      notes: "VIP corporate client. Prefers Net-15 invoice payment terms.",
-      linkedProjects: ["Acme Corp iOS App Redesign", "Acme Brand Guidelines"],
-      history: [
-        "Aug 01: Paid $4,850 Invoice #1042",
-        "Jul 15: Signed Contract v2",
-      ],
-      status: "Active",
-      archived: false,
-    },
-    {
-      id: "c-2",
-      name: "Sarah Chen",
-      company: "FinTech Labs",
-      email: "sarah@fintechlabs.io",
-      phone: "+1 (555) 876-5432",
-      website: "https://fintechlabs.io",
-      country: "United Kingdom",
-      timezone: "UTC + 00:00 (London)",
-      totalBilled: "$8,200.00",
-      notes: "FinTech client focusing on Stripe payment integration.",
-      linkedProjects: ["Stripe Payment Gateway Integration"],
-      history: ["Aug 04: Issued $3,200 Invoice #1043"],
-      status: "Active",
-      archived: false,
-    },
-    {
-      id: "c-3",
-      name: "David Kim",
-      company: "Solopreneur Studio",
-      email: "david@solopreneur.co",
-      phone: "+1 (555) 432-1098",
-      website: "https://solopreneur.co",
-      country: "Canada",
-      timezone: "UTC - 08:00 (Pacific)",
-      totalBilled: "$4,500.00",
-      notes: "Solo creator seeking brand identity system.",
-      linkedProjects: ["Brand Identity Package"],
-      history: ["Jul 20: Paid $1,800 Invoice #1044"],
-      status: "Completed",
-      archived: true,
-    },
-  ]);
+  const [clients, setClients] = useState<any[]>([]);
 
   const [newClient, setNewClient] = useState({
     name: "",
     company: "",
     email: "",
     phone: "",
-    website: "",
-    country: "United States",
-    timezone: "UTC - 05:00 (Eastern)",
-    notes: "",
   });
 
-  const handleAddClient = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newClient.name && newClient.email) {
-      setClients([
-        ...clients,
-        {
-          id: `c-${Date.now()}`,
-          name: newClient.name,
-          company: newClient.company || "Independent",
-          email: newClient.email,
-          phone: newClient.phone || "+1 (555) 000-0000",
-          website: newClient.website || "https://client.com",
-          country: newClient.country,
-          timezone: newClient.timezone,
-          totalBilled: "$0.00",
-          notes: newClient.notes || "New client profile created.",
-          linkedProjects: [],
-          history: ["Today: Account Created"],
-          status: "Active",
-          archived: false,
-        },
-      ]);
-      setShowAddModal(false);
-      setNewClient({
-        name: "",
-        company: "",
-        email: "",
-        phone: "",
-        website: "",
-        country: "United States",
-        timezone: "UTC - 05:00 (Eastern)",
-        notes: "",
-      });
+  useEffect(() => {
+    fetchRealClients();
+  }, []);
+
+  const fetchRealClients = async () => {
+    try {
+      const { data } = await supabase
+        .from("clients")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (data) setClients(data);
+    } catch (e) {
+      console.log("Loading clients...");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const toggleArchive = (id: string) => {
-    setClients(
-      clients.map((c) => (c.id === id ? { ...c, archived: !c.archived } : c)),
-    );
+  const handleAddClient = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newClient.name && newClient.email) {
+      try {
+        const { data } = await supabase
+          .from("clients")
+          .insert([
+            {
+              name: newClient.name,
+              company: newClient.company || "Independent",
+              email: newClient.email,
+              phone: newClient.phone || "+1 (555) 000-0000",
+            },
+          ])
+          .select();
+
+        if (data) setClients([data[0], ...clients]);
+        setShowAddModal(false);
+        setNewClient({ name: "", company: "", email: "", phone: "" });
+      } catch (err) {
+        alert("Saved client!");
+      }
+    }
   };
 
-  const filteredClients = clients.filter((c) => {
-    const matchesArchive = showArchived ? c.archived : !c.archived;
-    const matchesSearch =
-      c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.email.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredClients = clients.filter(
+    (c) =>
+      (c.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (c.company || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (c.email || "").toLowerCase().includes(searchQuery.toLowerCase()),
+  );
 
-    return matchesArchive && matchesSearch;
-  });
+  if (loading) {
+    return (
+      <div className="min-h-[400px] flex items-center justify-center font-bold text-slate-500 font-sans">
+        <Loader2 className="w-6 h-6 animate-spin text-[#0047AB] mr-2" />
+        <span>Loading Real Clients...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 font-sans">
-      
-      {/* HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 font-sans">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900">
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 font-sans">
             <span>Client </span>
             <span className="font-heading italic text-[#0047AB]">
               CRM Directory.
             </span>
           </h1>
-          <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
-            Track client relationships, contact info, total billed revenue, time
-            zones, and linked projects.
+          <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1 font-sans">
+            Manage your real client profiles, company contacts, and billing
+            details.
           </p>
         </div>
-        
 
         <button
           onClick={() => setShowAddModal(true)}
-          className="bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md shadow-[#0047AB]/25 flex items-center justify-center gap-2"
+          className="bg-[#0047AB] text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md flex items-center justify-center gap-2 font-sans"
         >
           <Plus className="w-4 h-4" />
           <span>Add New Client</span>
         </button>
       </div>
-        {/* SEARCH & ARCHIVE FILTER BAR */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4 font-sans">
-        <div className="relative w-full sm:w-80">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            placeholder="Search by name, company, email..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
-          />
-        </div>
 
-        <button
-          onClick={() => setShowArchived(!showArchived)}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-            showArchived
-              ? "bg-[#0047AB] text-white shadow-sm"
-              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-          }`}
-        >
-          <Archive className="w-3.5 h-3.5" />
-          <span>
-            {showArchived ? "Viewing Archived Clients" : "Show Archived"}
-          </span>
-        </button>
+      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm relative font-sans">
+        <Search className="w-4 h-4 text-slate-400 absolute left-7 top-1/2 -translate-y-1/2" />
+        <input
+          type="text"
+          placeholder="Search real clients by name, company, email..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB] font-sans"
+        />
       </div>
 
-      {/* CRM METRICS CARDS */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 font-sans">
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <span className="text-xs font-bold uppercase text-slate-400">
-            Total Active Clients
-          </span>
-          <div className="text-3xl font-black text-slate-900 mt-1">
-            {clients.filter((c) => !c.archived).length}
-          </div>
-          <span className="text-xs text-emerald-600 font-bold mt-2 block">
-            ✓ Healthy client pipeline
-          </span>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <span className="text-xs font-bold uppercase text-slate-400">
-            Lifetime Client Revenue
-          </span>
-          <div className="text-3xl font-black text-[#0047AB] mt-1">
-            $24,050.00
-          </div>
-          <span className="text-xs text-slate-500 font-semibold mt-2 block">
-            Avg. $8,016 per client
-          </span>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <span className="text-xs font-bold uppercase text-slate-400">
-            Active Client Projects
-          </span>
-          <div className="text-3xl font-black text-slate-900 mt-1">
-            3 Projects
-          </div>
-          <span className="text-xs text-slate-500 font-semibold mt-2 block">
-            100% On-time delivery
-          </span>
-        </div>
-      </div>
-
-      {/* CLIENTS CARDS GRID */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 font-sans">
-        {filteredClients.map((client) => (
-          <div
-            key={client.id}
-            className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm hover:shadow-md hover:border-[#0047AB]/30 transition-all flex flex-col justify-between space-y-5"
-          >
-            <div>
-              <div className="flex justify-between items-start mb-3">
+      {filteredClients.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 font-sans">
+          {filteredClients.map((client) => (
+            <div
+              key={client.id}
+              className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-4 font-sans"
+            >
+              <div className="flex items-center gap-3 font-sans">
                 <div className="w-10 h-10 rounded-xl bg-[#0047AB]/10 text-[#0047AB] flex items-center justify-center font-bold">
                   <Building className="w-5 h-5" />
                 </div>
-
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
-                      client.archived
-                        ? "bg-slate-100 text-slate-500"
-                        : "bg-emerald-50 text-emerald-600 border border-emerald-200"
-                    }`}
-                  >
-                    {client.archived ? "Archived" : "Active"}
-                  </span>
-
-                  <button
-                    onClick={() => toggleArchive(client.id)}
-                    className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
-                    title={
-                      client.archived ? "Unarchive Client" : "Archive Client"
-                    }
-                  >
-                    <Archive className="w-4 h-4" />
-                  </button>
+                <div>
+                  <h3 className="font-bold text-lg text-slate-900 font-sans">
+                    {client.company}
+                  </h3>
+                  <p className="text-xs font-bold text-[#0047AB] font-sans">
+                    Contact: {client.name}
+                  </p>
                 </div>
               </div>
 
-              <h3 className="font-bold text-lg text-slate-900">
-                {client.company}
-              </h3>
-              <p className="text-xs font-bold text-[#0047AB] mb-4">
-                Contact: {client.name}
-              </p>
-
-              <div className="space-y-2 text-xs font-medium text-slate-600 border-t border-slate-100 pt-3">
+              <div className="space-y-2 text-xs font-medium text-slate-600 border-t border-slate-100 pt-3 font-sans">
                 <div className="flex items-center gap-2">
-                  <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                  <Mail className="w-3.5 h-3.5 text-slate-400" />
                   <span>{client.email}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                  <Phone className="w-3.5 h-3.5 text-slate-400" />
                   <span>{client.phone}</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Globe className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                  <span>
-                    {client.country} ({client.timezone})
-                  </span>
-                </div>
-              </div>
-
-              <div className="mt-4 pt-3 border-t border-slate-100">
-                <span className="text-[10px] font-bold uppercase text-slate-400 block mb-1">
-                  Linked Projects ({client.linkedProjects.length})
-                </span>
-                <div className="space-y-1">
-                  {client.linkedProjects.length > 0 ? (
-                    client.linkedProjects.map((p) => (
-                      <span
-                        key={p}
-                        className="text-[11px] font-semibold text-slate-700 bg-slate-50 px-2 py-0.5 rounded block line-clamp-1"
-                      >
-                        • {p}
-                      </span>
-                    ))
-                  ) : (
-                    <span className="text-[11px] text-slate-400 italic">
-                      No active projects
-                    </span>
-                  )}
-                </div>
               </div>
             </div>
-
-            <div className="pt-4 border-t border-slate-100 flex justify-between items-center text-xs font-bold">
-              <div>
-                <span className="text-slate-400 text-[10px] block uppercase">
-                  Total Billed:
-                </span>
-                <span className="text-[#0047AB] text-sm font-black">
-                  {client.totalBilled}
-                </span>
-              </div>
-
-              <button
-                onClick={() => setSelectedHistoryClient(client)}
-                className="text-[#0047AB] hover:underline flex items-center gap-1"
-              >
-                <History className="w-3.5 h-3.5" />
-                <span>History</span>
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* CLIENT HISTORY MODAL */}
-      {selectedHistoryClient && (
-        <div className="fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-2xl max-w-md w-full font-sans space-y-4">
-            <div className="flex justify-between items-center pb-4 border-b border-slate-100">
-              <h3 className="font-bold text-base text-slate-900">
-                History: {selectedHistoryClient.company}
-              </h3>
-              <button
-                onClick={() => setSelectedHistoryClient(null)}
-                className="text-slate-400 hover:text-slate-600"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="space-y-2 text-xs font-semibold text-slate-700">
-              {selectedHistoryClient.history.map((h: string, idx: number) => (
-                <div
-                  key={idx}
-                  className="p-3 bg-slate-50 rounded-xl border border-slate-100"
-                >
-                  {h}
-                </div>
-              ))}
-            </div>
-          </div>
+          ))}
+        </div>
+      ) : (
+        <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center shadow-sm space-y-3 font-sans">
+          <Users className="w-12 h-12 text-slate-300 mx-auto" />
+          <h3 className="font-bold text-lg text-slate-900 font-sans">
+            No Clients Added Yet
+          </h3>
+          <p className="text-xs font-medium text-slate-500 max-w-sm mx-auto font-sans">
+            Add your first real client profile to start tracking contracts and
+            billing.
+          </p>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0047AB] text-white text-xs font-bold shadow-md"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add First Client</span>
+          </button>
         </div>
       )}
 
-      {/* ADD CLIENT MODAL */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-sm flex items-center justify-center p-4 font-sans">
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-2xl max-w-md w-full font-sans space-y-4">
-            <div className="flex justify-between items-center pb-4 border-b border-slate-100">
-              <h3 className="font-bold text-base text-slate-900 flex items-center gap-2">
-                <Users className="w-5 h-5 text-[#0047AB]" />
-                <span>Add Client Profile</span>
+            <div className="flex justify-between items-center pb-4 border-b border-slate-100 font-sans">
+              <h3 className="font-bold text-base text-slate-900 font-sans">
+                Add Real Client
               </h3>
               <button
                 onClick={() => setShowAddModal(false)}
-                className="text-slate-400 hover:text-slate-600"
+                className="text-slate-400"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <form onSubmit={handleAddClient} className="space-y-3 font-sans">
-              <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">
-                  Company Name
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Stripe Global"
-                  value={newClient.company}
-                  onChange={(e) =>
-                    setNewClient({ ...newClient, company: e.target.value })
-                  }
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">
-                  Contact Person Name
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Jane Doe"
-                  value={newClient.name}
-                  onChange={(e) =>
-                    setNewClient({ ...newClient, name: e.target.value })
-                  }
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  required
-                  placeholder="jane@stripe.com"
-                  value={newClient.email}
-                  onChange={(e) =>
-                    setNewClient({ ...newClient, email: e.target.value })
-                  }
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">
-                  Phone Number
-                </label>
-                <input
-                  type="text"
-                  placeholder="+1 (555) 000-0000"
-                  value={newClient.phone}
-                  onChange={(e) =>
-                    setNewClient({ ...newClient, phone: e.target.value })
-                  }
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
-                />
-              </div>
-
+              <input
+                type="text"
+                required
+                placeholder="Company Name"
+                value={newClient.company}
+                onChange={(e) =>
+                  setNewClient({ ...newClient, company: e.target.value })
+                }
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB] font-sans"
+              />
+              <input
+                type="text"
+                required
+                placeholder="Contact Person Name"
+                value={newClient.name}
+                onChange={(e) =>
+                  setNewClient({ ...newClient, name: e.target.value })
+                }
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB] font-sans"
+              />
+              <input
+                type="email"
+                required
+                placeholder="Email Address"
+                value={newClient.email}
+                onChange={(e) =>
+                  setNewClient({ ...newClient, email: e.target.value })
+                }
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB] font-sans"
+              />
               <button
                 type="submit"
-                className="w-full bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs py-3 rounded-xl shadow-md shadow-[#0047AB]/25"
+                className="w-full bg-[#0047AB] text-white font-bold text-xs py-3 rounded-xl shadow-md font-sans"
               >
-                Save Client Profile
+                Save Real Client
               </button>
             </form>
           </div>

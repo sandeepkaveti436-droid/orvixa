@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -24,8 +24,8 @@ import {
   Sun,
   Moon,
   ChevronRight,
-  User,
 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 export default function FreelancerDashboardLayout({
   children,
@@ -35,9 +35,73 @@ export default function FreelancerDashboardLayout({
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
 
-  // All 15 Requested Sidebar Navigation Links
+  // Persistent Real User Profile State
+  const [userName, setUserName] = useState("Freelancer");
+  const [userProfession, setUserProfession] = useState("Pro Freelancer");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [userInitials, setUserInitials] = useState("FL");
+
+  // Fetch Real Profile & Check Local Storage so Avatar Never Resets on Refresh
+  useEffect(() => {
+    async function loadRealUserProfile() {
+      // 1. Check Local Persistent Storage first
+      const cachedAvatar = localStorage.getItem("orvixa_avatar_photo");
+      const cachedName = localStorage.getItem("orvixa_user_name");
+      const cachedProf = localStorage.getItem("orvixa_user_prof");
+
+      if (cachedAvatar) setAvatarUrl(cachedAvatar);
+      if (cachedName) {
+        setUserName(cachedName);
+        setUserInitials(cachedName.substring(0, 2).toUpperCase());
+      }
+      if (cachedProf) setUserProfession(cachedProf);
+
+      // 2. Query Supabase Database for Updates
+      try {
+        const { data: authData } = await supabase.auth.getUser();
+        const user = authData?.user;
+
+        if (user) {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("full_name, profession, avatar_url")
+            .or(`user_id.eq.${user.id},id.eq.${user.id}`)
+            .single();
+
+          if (profile) {
+            if (profile.full_name) {
+              setUserName(profile.full_name);
+              localStorage.setItem("orvixa_user_name", profile.full_name);
+              setUserInitials(profile.full_name.substring(0, 2).toUpperCase());
+            }
+            if (profile.profession) {
+              setUserProfession(profile.profession);
+              localStorage.setItem("orvixa_user_prof", profile.profession);
+            }
+            if (profile.avatar_url) {
+              setAvatarUrl(profile.avatar_url);
+              localStorage.setItem("orvixa_avatar_photo", profile.avatar_url);
+            }
+          }
+        }
+      } catch (err) {
+        console.log("Loading profile...");
+      }
+    }
+
+    loadRealUserProfile();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    localStorage.removeItem("orvixa_avatar_photo");
+    localStorage.removeItem("orvixa_user_name");
+    document.cookie =
+      "orvixa_demo_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+    window.location.href = "/auth?mode=login";
+  };
+
   const sidebarLinks = [
     { name: "Dashboard", href: "/dashboard/freelancer", icon: LayoutDashboard },
     {
@@ -82,26 +146,24 @@ export default function FreelancerDashboardLayout({
     { name: "Settings", href: "/dashboard/freelancer/profile", icon: Settings },
   ];
 
-  // Breadcrumbs computation
   const pathSegments = pathname.split("/").filter(Boolean);
 
   return (
     <div
       className={`min-h-screen flex font-sans ${darkMode ? "dark bg-slate-900 text-white" : "bg-slate-50 text-slate-900"}`}
     >
-      {/* 1. SIDEBAR NAVIGATION */}
+      {/* SIDEBAR NAVIGATION */}
       <aside
         className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 p-5 flex flex-col justify-between transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
         <div className="space-y-6">
-          {/* Logo & Workspace Name */}
           <Link href="/" className="flex items-center gap-3 px-2">
             <Image
               src="/orviax.jpg"
               alt="Orvixa"
               width={32}
               height={32}
-              className="rounded-xl"
+              className="rounded-xl object-contain"
             />
             <div>
               <span className="font-heading text-lg font-bold text-slate-900 dark:text-white block leading-none">
@@ -113,8 +175,7 @@ export default function FreelancerDashboardLayout({
             </div>
           </Link>
 
-          {/* Navigation Items */}
-          <nav className="space-y-1 overflow-y-auto max-h-[calc(100vh-200px)]">
+          <nav className="space-y-1 overflow-y-auto max-h-[calc(100vh-200px)] font-sans">
             {sidebarLinks.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
@@ -124,7 +185,7 @@ export default function FreelancerDashboardLayout({
                   key={item.name}
                   href={item.href}
                   onClick={() => setSidebarOpen(false)}
-                  className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                  className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all font-sans ${
                     isActive
                       ? "bg-[#0047AB] text-white shadow-md shadow-[#0047AB]/25"
                       : item.isAi
@@ -140,40 +201,47 @@ export default function FreelancerDashboardLayout({
           </nav>
         </div>
 
-        {/* User Profile Footer & Logout */}
-        <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        {/* Real Persistent Profile Footer */}
+        <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between font-sans">
           <Link
             href="/dashboard/freelancer/profile"
-            className="flex items-center gap-2.5 group"
+            className="flex items-center gap-2.5 group font-sans"
           >
-            <div className="w-8 h-8 rounded-full bg-[#0047AB] text-white flex items-center justify-center font-bold text-xs">
-              SJ
+            <div className="w-8 h-8 rounded-full bg-[#0047AB] text-white flex items-center justify-center font-bold text-xs overflow-hidden shrink-0 font-sans shadow-sm">
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt={userName}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                userInitials
+              )}
             </div>
             <div>
-              <div className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-[#0047AB]">
-                Sarah Jenkins
+              <div className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-[#0047AB] font-sans line-clamp-1">
+                {userName}
               </div>
-              <div className="text-[10px] text-slate-400 font-semibold">
-                Pro Freelancer
+              <div className="text-[10px] text-slate-400 font-semibold font-sans line-clamp-1">
+                {userProfession}
               </div>
             </div>
           </Link>
 
-          <Link
-            href="/auth"
+          <button
+            onClick={handleLogout}
             title="Log Out"
             className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-white"
           >
             <LogOut className="w-4 h-4" />
-          </Link>
+          </button>
         </div>
       </aside>
 
-      {/* 2. MAIN CONTENT AREA WITH TOP BAR */}
-      <div className="flex-1 flex flex-col min-w-0 lg:ml-64">
-        {/* TOP BAR */}
+      {/* MAIN APP BODY */}
+      <div className="flex-1 flex flex-col min-w-0 lg:ml-64 font-sans">
         <header className="bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 px-6 py-3.5 flex items-center justify-between sticky top-0 z-40 font-sans">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 font-sans">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className="lg:hidden p-2 text-slate-700 dark:text-slate-200 hover:bg-slate-100 rounded-xl"
@@ -185,26 +253,22 @@ export default function FreelancerDashboardLayout({
               )}
             </button>
 
-            {/* Global Search */}
-            <div className="relative hidden sm:block w-72">
+            <div className="relative hidden sm:block w-72 font-sans">
               <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 placeholder="Search projects, invoices, clients, tasks..."
-                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-[#0047AB]"
+                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-[#0047AB] font-sans"
               />
             </div>
           </div>
 
-          {/* Right Top Bar Controls */}
-          <div className="flex items-center gap-3">
-            {/* Notifications */}
+          <div className="flex items-center gap-3 font-sans">
             <button className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-800 rounded-xl hover:bg-slate-100 relative">
               <Bell className="w-4 h-4" />
               <span className="w-2 h-2 rounded-full bg-[#0047AB] absolute top-1.5 right-1.5" />
             </button>
 
-            {/* Theme Switch */}
             <button
               onClick={() => setDarkMode(!darkMode)}
               className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-800 rounded-xl hover:bg-slate-100"
@@ -217,51 +281,27 @@ export default function FreelancerDashboardLayout({
               )}
             </button>
 
-            {/* User Profile Menu */}
-            <div className="relative">
-              <button
-                onClick={() => setShowProfileMenu(!showProfileMenu)}
-                className="flex items-center gap-2 pl-2 focus:outline-none"
-              >
-                <div className="w-8 h-8 rounded-full bg-[#0047AB] text-white flex items-center justify-center font-bold text-xs ring-2 ring-blue-100">
-                  SJ
-                </div>
-              </button>
-
-              {showProfileMenu && (
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl py-2 z-50 text-xs font-semibold">
-                  <Link
-                    href="/dashboard/freelancer/profile"
-                    onClick={() => setShowProfileMenu(false)}
-                    className="block px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200"
-                  >
-                    Edit Profile
-                  </Link>
-                  <Link
-                    href="/dashboard/freelancer/profile"
-                    onClick={() => setShowProfileMenu(false)}
-                    className="block px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200"
-                  >
-                    Account Settings
-                  </Link>
-                  <div className="border-t border-slate-100 dark:border-slate-800 my-1" />
-                  <Link
-                    href="/auth"
-                    onClick={() => setShowProfileMenu(false)}
-                    className="block px-4 py-2 text-rose-600 hover:bg-rose-50"
-                  >
-                    Logout
-                  </Link>
-                </div>
-              )}
-            </div>
+            <Link
+              href="/dashboard/freelancer/profile"
+              className="flex items-center gap-2 font-sans"
+            >
+              <div className="w-8 h-8 rounded-full bg-[#0047AB] text-white flex items-center justify-center font-bold text-xs ring-2 ring-blue-100 overflow-hidden shrink-0 font-sans shadow-sm">
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt={userName}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  userInitials
+                )}
+              </div>
+            </Link>
           </div>
         </header>
 
-        {/* BREADCRUMBS & DYNAMIC CONTENT AREA */}
-        <main className="p-6 sm:p-8 flex-1">
-          {/* Breadcrumbs */}
-          <div className="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-6">
+        <main className="p-6 sm:p-8 flex-1 font-sans">
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-6 font-sans">
             <Link href="/" className="hover:text-slate-600">
               Home
             </Link>

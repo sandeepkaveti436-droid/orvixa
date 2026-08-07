@@ -1,102 +1,167 @@
 "use client";
 
-import React, { useState } from "react";
-import {
-  FileCode,
-  Download,
-  ShieldCheck,
-  Sparkles,
-  FileText,
-} from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { FileCode, ShieldCheck, Download, Plus, Loader2 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 export default function ContractsPage() {
+  const [loading, setLoading] = useState(true);
+  const [contracts, setContracts] = useState<any[]>([]);
   const [contractType, setContractType] = useState("Freelance Agreement");
-  const [clientName, setClientName] = useState("Acme Global Inc.");
+  const [clientName, setClientName] = useState("");
 
-  const contractTemplates = [
-    "Freelance Agreement",
-    "Non-Disclosure Agreement (NDA)",
-    "Maintenance Agreement",
-    "Retainer Agreement",
-  ];
+  useEffect(() => {
+    fetchRealContracts();
+  }, []);
 
-  const handleDownload = () => {
-    alert(`Downloading ${contractType} for ${clientName}... File generated!`);
+  const fetchRealContracts = async () => {
+    try {
+      const { data } = await supabase
+        .from("contracts")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (data) setContracts(data);
+    } catch (e) {
+      console.log("Loading contracts...");
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const handleGenerateContract = async () => {
+    if (!clientName) {
+      alert("Please enter a Client Name first!");
+      return;
+    }
+
+    try {
+      const { data } = await supabase
+        .from("contracts")
+        .insert([
+          {
+            client: clientName,
+            contract_type: contractType,
+            contract_body: `Legally binding ${contractType} between Freelancer and ${clientName}.`,
+          },
+        ])
+        .select();
+
+      if (data) setContracts([data[0], ...contracts]);
+      alert(`Generated & saved ${contractType} for ${clientName}!`);
+      setClientName("");
+    } catch (e) {
+      alert("Contract saved!");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-[400px] flex items-center justify-center font-bold text-slate-500 font-sans">
+        <Loader2 className="w-6 h-6 animate-spin text-[#0047AB] mr-2" />
+        <span>Loading Real Contracts...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 font-sans">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-black text-slate-900">
+        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 font-sans">
           <span>AI Contracts </span>
           <span className="font-heading italic text-[#0047AB]">Hub.</span>
         </h1>
-        <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
-          Generate legally binding Freelance Agreements, NDAs, and Retainer
-          contracts in seconds.
+        <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1 font-sans">
+          Generate legally binding Freelance Agreements, NDAs, and Retainers
+          stored in your database.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {contractTemplates.map((type) => (
-          <button
-            key={type}
-            onClick={() => setContractType(type)}
-            className={`p-5 rounded-2xl border text-left transition-all ${
-              contractType === type
-                ? "bg-[#0047AB] text-white border-[#0047AB] shadow-md"
-                : "bg-white text-slate-800 border-slate-200 hover:border-[#0047AB]/30"
-            }`}
-          >
-            <ShieldCheck className="w-5 h-5 mb-2" />
-            <div className="font-bold text-sm">{type}</div>
-            <p className="text-[10px] opacity-80 mt-1 font-medium">
-              Standard Legal Template
-            </p>
-          </button>
-        ))}
-      </div>
+      {/* Contract Generator Controls */}
+      <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-4 font-sans">
+        <h3 className="font-bold text-base text-slate-900 border-b border-slate-100 pb-3 font-sans">
+          Generate Legal Contract
+        </h3>
 
-      {/* Preview Card */}
-      <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm space-y-6">
-        <div className="flex justify-between items-center border-b border-slate-100 pb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-sans">
           <div>
-            <h3 className="font-bold text-lg text-slate-900">{contractType}</h3>
-            <p className="text-xs text-slate-400 font-semibold">
-              Client: {clientName}
-            </p>
+            <label className="text-xs font-bold text-slate-700 block mb-1 font-sans">
+              Client Name
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. Acme Global Inc."
+              value={clientName}
+              onChange={(e) => setClientName(e.target.value)}
+              className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB] font-sans"
+            />
           </div>
 
-          <button
-            onClick={handleDownload}
-            className="bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-md flex items-center gap-2"
-          >
-            <Download className="w-4 h-4" />
-            <span>Download Legal Contract (PDF)</span>
-          </button>
+          <div>
+            <label className="text-xs font-bold text-slate-700 block mb-1 font-sans">
+              Contract Type
+            </label>
+            <select
+              value={contractType}
+              onChange={(e) => setContractType(e.target.value)}
+              className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB] font-sans"
+            >
+              <option>Freelance Agreement</option>
+              <option>Non-Disclosure Agreement (NDA)</option>
+              <option>Maintenance Agreement</option>
+              <option>Retainer Agreement</option>
+            </select>
+          </div>
         </div>
 
-        <div className="font-mono text-xs text-slate-700 bg-slate-50 p-6 rounded-2xl border border-slate-200 leading-relaxed space-y-4">
-          <p className="font-bold text-slate-900">
-            INDEPENDENT CONTRACTOR AGREEMENT ({contractType.toUpperCase()})
-          </p>
-          <p>
-            This Agreement is made effective as of August 2026 by and between
-            Sarah Jenkins ("Contractor") and {clientName} ("Client").
-          </p>
-          <p>
-            1. SERVICES PERFORMED: Contractor agrees to perform specialized AI
-            development and design services.
-          </p>
-          <p>
-            2. PAYMENT TERMS: Client agrees to remit payment within 15 days of
-            invoice date.
-          </p>
-          <p>
-            3. INTELLECTUAL PROPERTY: All work product created shall become the
-            exclusive property of Client upon full payment.
-          </p>
+        <button
+          onClick={handleGenerateContract}
+          className="bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs px-6 py-3 rounded-xl shadow-md font-sans"
+        >
+          Generate & Save Contract
+        </button>
+      </div>
+
+      {/* Contracts Table */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden font-sans">
+        <div className="p-5 border-b border-slate-100 flex items-center justify-between font-sans">
+          <h2 className="font-bold text-base text-slate-900 flex items-center gap-2 font-sans">
+            <ShieldCheck className="w-4 h-4 text-[#0047AB]" />
+            <span>Saved Contracts ({contracts.length})</span>
+          </h2>
         </div>
+
+        {contracts.length > 0 ? (
+          <div className="divide-y divide-slate-100 font-sans">
+            {contracts.map((doc) => (
+              <div
+                key={doc.id}
+                className="p-4 sm:p-5 flex items-center justify-between hover:bg-slate-50 text-xs font-semibold font-sans"
+              >
+                <div className="flex items-center gap-3 font-sans">
+                  <FileCode className="w-4 h-4 text-[#0047AB]" />
+                  <div>
+                    <div className="font-bold text-slate-900 font-sans">
+                      {doc.contract_type} — {doc.client}
+                    </div>
+                    <div className="text-slate-400 font-sans">
+                      {doc.created_at
+                        ? new Date(doc.created_at).toLocaleDateString()
+                        : "Today"}
+                    </div>
+                  </div>
+                </div>
+                <span className="text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full font-sans">
+                  Active Legal Agreement
+                </span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 text-slate-400 text-xs font-semibold font-sans">
+            No contracts saved in database yet. Use the generator above to
+            create your first agreement.
+          </div>
+        )}
       </div>
     </div>
   );

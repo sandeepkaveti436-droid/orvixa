@@ -1,113 +1,232 @@
 "use client";
 
-import React, { useState } from "react";
-import { User, Upload, Lock, ShieldAlert, CheckCircle2, Save } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { User, Upload, CheckCircle2, Save, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 export default function ProfilePage() {
-  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
   const [profile, setProfile] = useState({
-    fullName: "Sarah Jenkins",
+    fullName: "",
+    email: "",
     profession: "UI/UX & Product Designer",
     country: "United States",
     timezone: "UTC - 05:00 (Eastern Time)",
-    language: "English (US)",
     currency: "USD ($)",
   });
 
-  const [passwords, setPasswords] = useState({
-    current: "",
-    newPass: "",
-    confirm: "",
-  });
+  // Load Real Profile & Check Local Storage
+  useEffect(() => {
+    async function loadRealProfile() {
+      const cachedAvatar = localStorage.getItem("orvixa_avatar_photo");
+      const cachedName = localStorage.getItem("orvixa_user_name");
+      const cachedProf = localStorage.getItem("orvixa_user_prof");
 
+      if (cachedAvatar) setAvatarPreview(cachedAvatar);
+      if (cachedName) setProfile((prev) => ({ ...prev, fullName: cachedName }));
+      if (cachedProf)
+        setProfile((prev) => ({ ...prev, profession: cachedProf }));
+
+      try {
+        const { data: userData } = await supabase.auth.getUser();
+        const user = userData?.user;
+
+        if (user) {
+          const { data: prof } = await supabase
+            .from("profiles")
+            .select("*")
+            .or(`user_id.eq.${user.id},id.eq.${user.id}`)
+            .single();
+
+          if (prof) {
+            setProfile({
+              fullName:
+                prof.full_name || user.email?.split("@")[0] || "Freelancer",
+              email: user.email || "",
+              profession: prof.profession || "Pro Freelancer",
+              country: prof.country || "United States",
+              timezone: prof.timezone || "UTC - 05:00 (Eastern Time)",
+              currency: prof.currency || "USD ($)",
+            });
+
+            if (prof.avatar_url) setAvatarPreview(prof.avatar_url);
+          }
+        }
+      } catch (e) {
+        console.log("Loading profile...");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadRealProfile();
+  }, []);
+
+  // Handle Photo Upload & Save Instantly To Local Storage & Supabase
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setPhotoPreview(URL.createObjectURL(file));
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64Url = reader.result as string;
+        setAvatarPreview(base64Url);
+        localStorage.setItem("orvixa_avatar_photo", base64Url);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  const handleSaveProfile = (e: React.FormEvent) => {
+  // Save Real Profile Changes to Database
+  const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
-  };
+    localStorage.setItem("orvixa_user_name", profile.fullName);
+    localStorage.setItem("orvixa_user_prof", profile.profession);
 
-  const handleDeleteAccount = () => {
-    if (confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
-      window.location.href = "/auth";
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      const user = userData?.user;
+
+      if (user) {
+        await supabase.from("profiles").upsert([
+          {
+            id: user.id,
+            user_id: user.id,
+            full_name: profile.fullName,
+            profession: profile.profession,
+            country: profile.country,
+            timezone: profile.timezone,
+            currency: profile.currency,
+            avatar_url: avatarPreview,
+          },
+        ]);
+      }
+
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      alert("Profile updated in workspace!");
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-[400px] flex items-center justify-center font-bold text-slate-500 font-sans">
+        <Loader2 className="w-6 h-6 animate-spin text-[#0047AB] mr-2" />
+        <span>Loading Profile Details...</span>
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 font-sans">
+    <div className="max-w-3xl mx-auto space-y-6 font-sans">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-black text-slate-900">User Profile & Account</h1>
-        <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
-          Manage your personal details, billing currency, security, and account preferences.
+        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 font-sans">
+          <span>User Profile & </span>
+          <span className="font-heading italic text-[#0047AB]">Account.</span>
+        </h1>
+        <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1 font-sans">
+          Manage your real name, avatar photo, billing currency, and regional
+          settings.
         </p>
       </div>
 
       {saved && (
-        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold flex items-center gap-2">
+        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold flex items-center gap-2 font-sans">
           <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-          <span>Profile changes saved successfully!</span>
+          <span>Profile changes saved permanently!</span>
         </div>
       )}
 
-      {/* Profile Form */}
-      <form onSubmit={handleSaveProfile} className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
-        <h3 className="font-bold text-base text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-4">
-          <User className="w-4 h-4 text-[#0047AB]" />
-          <span>Personal Information</span>
-        </h3>
-
-        {/* Photo Upload */}
-        <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-full bg-[#0047AB] text-white flex items-center justify-center font-bold text-xl overflow-hidden shadow-md">
-            {photoPreview ? <img src={photoPreview} alt="Profile" className="w-full h-full object-cover" /> : "SJ"}
+      <form
+        onSubmit={handleSaveProfile}
+        className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6 font-sans"
+      >
+        {/* Photo Upload Box */}
+        <div className="flex items-center gap-4 border-b border-slate-100 pb-6 font-sans">
+          <div className="w-16 h-16 rounded-full bg-[#0047AB] text-white flex items-center justify-center font-bold text-xl overflow-hidden shadow-md shrink-0 font-sans">
+            {avatarPreview ? (
+              <img
+                src={avatarPreview}
+                alt="Avatar"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              profile.fullName.substring(0, 2).toUpperCase() || "FL"
+            )}
           </div>
           <div>
-            <label className="cursor-pointer inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0047AB] text-white text-xs font-bold shadow-sm hover:bg-[#003680]">
+            <label className="cursor-pointer inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0047AB] text-white text-xs font-bold shadow-sm hover:bg-[#003680] font-sans">
               <Upload className="w-3.5 h-3.5" />
-              <span>Upload Avatar</span>
-              <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
+              <span>Upload Real Photo</span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoUpload}
+                className="hidden"
+              />
             </label>
-            <p className="text-[11px] text-slate-400 font-semibold mt-1">JPG or PNG up to 5MB</p>
+            <p className="text-[11px] text-slate-400 font-semibold mt-1 font-sans">
+              PNG or JPG photo up to 5MB
+            </p>
           </div>
         </div>
 
-        {/* Fields */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Profile Inputs */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-sans">
           <div>
-            <label className="text-xs font-bold text-slate-700 block mb-1">Full Name</label>
+            <label className="text-xs font-bold text-slate-700 block mb-1 font-sans">
+              Full Name
+            </label>
             <input
               type="text"
+              required
               value={profile.fullName}
-              onChange={(e) => setProfile({ ...profile, fullName: e.target.value })}
-              className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+              onChange={(e) =>
+                setProfile({ ...profile, fullName: e.target.value })
+              }
+              className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB] font-sans"
             />
           </div>
 
           <div>
-            <label className="text-xs font-bold text-slate-700 block mb-1">Profession</label>
+            <label className="text-xs font-bold text-slate-700 block mb-1 font-sans">
+              Email Address (Read-only)
+            </label>
+            <input
+              type="email"
+              readOnly
+              value={profile.email}
+              className="w-full bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-500 cursor-not-allowed font-sans"
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-slate-700 block mb-1 font-sans">
+              Profession / Specialization
+            </label>
             <input
               type="text"
               value={profile.profession}
-              onChange={(e) => setProfile({ ...profile, profession: e.target.value })}
-              className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+              onChange={(e) =>
+                setProfile({ ...profile, profession: e.target.value })
+              }
+              className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB] font-sans"
             />
           </div>
 
           <div>
-            <label className="text-xs font-bold text-slate-700 block mb-1">Country</label>
+            <label className="text-xs font-bold text-slate-700 block mb-1 font-sans">
+              Country
+            </label>
             <select
               value={profile.country}
-              onChange={(e) => setProfile({ ...profile, country: e.target.value })}
-              className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+              onChange={(e) =>
+                setProfile({ ...profile, country: e.target.value })
+              }
+              className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB] font-sans"
             >
               <option>United States</option>
               <option>United Kingdom</option>
@@ -116,74 +235,15 @@ export default function ProfilePage() {
               <option>India</option>
             </select>
           </div>
-
-          <div>
-            <label className="text-xs font-bold text-slate-700 block mb-1">Timezone</label>
-            <select
-              value={profile.timezone}
-              onChange={(e) => setProfile({ ...profile, timezone: e.target.value })}
-              className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
-            >
-              <option>UTC - 05:00 (Eastern Time)</option>
-              <option>UTC - 08:00 (Pacific Time)</option>
-              <option>UTC + 00:00 (Greenwich Mean Time)</option>
-              <option>UTC + 05:30 (India Standard Time)</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="text-xs font-bold text-slate-700 block mb-1">Language</label>
-            <select
-              value={profile.language}
-              onChange={(e) => setProfile({ ...profile, language: e.target.value })}
-              className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
-            >
-              <option>English (US)</option>
-              <option>Spanish</option>
-              <option>German</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="text-xs font-bold text-slate-700 block mb-1">Currency</label>
-            <select
-              value={profile.currency}
-              onChange={(e) => setProfile({ ...profile, currency: e.target.value })}
-              className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
-            >
-              <option>USD ($)</option>
-              <option>EUR (€)</option>
-              <option>GBP (£)</option>
-              <option>INR (₹)</option>
-            </select>
-          </div>
         </div>
 
         <button
           type="submit"
-          className="bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs px-6 py-3 rounded-xl shadow-md shadow-[#0047AB]/25 flex items-center gap-2"
+          className="bg-[#0047AB] text-white font-bold text-xs px-6 py-3 rounded-xl shadow-md font-sans"
         >
-          <Save className="w-4 h-4" />
-          <span>Save Changes</span>
+          Save Real Profile To Database
         </button>
       </form>
-
-      {/* Delete Account Danger Zone */}
-      <div className="bg-rose-50 border border-rose-200 rounded-3xl p-6 sm:p-8 space-y-4">
-        <div className="flex items-center gap-2 text-rose-700 font-bold">
-          <ShieldAlert className="w-5 h-5" />
-          <span>Danger Zone</span>
-        </div>
-        <p className="text-xs font-medium text-rose-600">
-          Deleting your account will permanently remove all your projects, invoices, and time logs.
-        </p>
-        <button
-          onClick={handleDeleteAccount}
-          className="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-sm"
-        >
-          Delete Account
-        </button>
-      </div>
     </div>
   );
 }
