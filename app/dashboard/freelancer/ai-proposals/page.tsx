@@ -18,7 +18,7 @@ export default function AiProposalsPage() {
     setTimeout(() => {
       setOutput(
         `# Executive Proposal for ${clientName || "Client"}
-Prepared by Sarah Jenkins • Orvixa AI Copilot
+Prepared by Orvixa AI Copilot
 
 ## 1. Executive Summary
 We propose delivering a high-performance ${projectType} designed to scale your operational velocity and double user conversions.

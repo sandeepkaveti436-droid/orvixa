@@ -14,59 +14,7 @@ import {
 
 export default function NotificationsPage() {
   const [filter, setFilter] = useState("all");
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      type: "ai",
-      title: "✨ AI Invoice Auto-Drafted",
-      message:
-        "Orvixa AI prepared Invoice #INV-1045 for 12 billable hours with Acme Corp.",
-      time: "10 mins ago",
-      read: false,
-      icon: Sparkles,
-      color: "bg-purple-50 text-purple-600 border-purple-200",
-    },
-    {
-      id: 2,
-      title: "Deadline Alert: Stripe API Sandbox",
-      type: "deadline",
-      message: "Sprint deadline for FinTech Labs is due in 24 hours.",
-      time: "1 hour ago",
-      read: false,
-      icon: Clock,
-      color: "bg-amber-50 text-amber-600 border-amber-200",
-    },
-    {
-      id: 3,
-      title: "Invoice #1042 Paid ($4,850.00)",
-      type: "invoice",
-      message: "Acme Global Inc. remitted payment via Stripe integration.",
-      time: "3 hours ago",
-      read: true,
-      icon: DollarSign,
-      color: "bg-emerald-50 text-emerald-600 border-emerald-200",
-    },
-    {
-      id: 4,
-      title: "Task Reminder: Figma Design Tokens",
-      type: "task",
-      message: "You have 2 pending tasks due tomorrow on Acme iOS App.",
-      time: "Yesterday",
-      read: true,
-      icon: CheckCircle2,
-      color: "bg-blue-50 text-[#0047AB] border-blue-200",
-    },
-    {
-      id: 5,
-      title: "System Update v2.4 Active",
-      type: "system",
-      message: "Next.js 15 & Supabase real-time sync upgrade completed.",
-      time: "2 days ago",
-      read: true,
-      icon: Info,
-      color: "bg-slate-100 text-slate-600 border-slate-200",
-    },
-  ]);
+  const [notifications, setNotifications] = useState([]);
 
   const markAllAsRead = () => {
     setNotifications(notifications.map((n) => ({ ...n, read: true })));

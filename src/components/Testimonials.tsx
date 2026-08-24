@@ -8,75 +8,8 @@ export default function Testimonials() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
-  // 6 Curated Testimonial Stories with Grades & Ratings
-  const testimonials = [
-    {
-      id: "resort",
-      quote:
-        "Orvixa completely transformed our guest experience. Families now spend more time at our resort, and our kids' club is a major selling point!",
-      role: "General Manager",
-      company: "Luxury Resort",
-      grade: "5.0",
-      rating: 5,
-      photo:
-        "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&auto=format&fit=crop&q=80",
-    },
-    {
-      id: "hotel",
-      quote:
-        "The AI automation suite became an instant hit with our teams. We've seen increased engagement and significantly higher ancillary revenue across all departments!",
-      role: "Operations Director",
-      company: "Beachfront Hotel",
-      grade: "5.0",
-      rating: 5,
-      photo:
-        "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=800&auto=format&fit=crop&q=80",
-    },
-    {
-      id: "product-lead",
-      quote:
-        "Managing cross-functional teams used to be chaos. With Orvixa's Admin Dashboard, every project status, task assignment, and timeline is crystal clear.",
-      role: "Product Lead",
-      company: "InnovateX Global",
-      grade: "5.0",
-      rating: 5,
-      photo:
-        "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=800&auto=format&fit=crop&q=80",
-    },
-    {
-      id: "marketing",
-      quote:
-        "Our team's campaign velocity doubled in the first month. The automated reports and AI triage saved us over 15 hours every single week.",
-      role: "Marketing Director",
-      company: "Growth Scale Agency",
-      grade: "5.0",
-      rating: 5,
-      photo:
-        "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=800&auto=format&fit=crop&q=80",
-    },
-    {
-      id: "engineering",
-      quote:
-        "Replacing five scattered tools with Orvixa gave our company complete visibility into daily sprint velocity and employee performance.",
-      role: "VP of Engineering",
-      company: "Apex Tech Solutions",
-      grade: "4.9",
-      rating: 5,
-      photo:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&auto=format&fit=crop&q=80",
-    },
-    {
-      id: "freelancer",
-      quote:
-        "As an independent creator, Orvixa's Freelancer App handles all my client invoices, time logging, and AI task drafting effortlessly.",
-      role: "Founder & Creator",
-      company: "Solopreneur Studio",
-      grade: "5.0",
-      rating: 5,
-      photo:
-        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop&q=80",
-    },
-  ];
+  // Testimonials loaded from database
+  const testimonials: any[] = [];
 
   // Auto-scroll logic (5 seconds interval)
   useEffect(() => {
@@ -98,6 +31,30 @@ export default function Testimonials() {
   };
 
   const current = testimonials[activeIndex];
+
+  // Show placeholder when no testimonials are available
+  if (testimonials.length === 0) {
+    return (
+      <section
+        id="testimonials"
+        className="relative py-12 sm:py-18 px-4 sm:px-8 lg:px-12 bg-[#FAF6EE] overflow-hidden font-sans border-b border-slate-200/80"
+      >
+        <div className="max-w-8xl mx-auto relative z-10">
+          <div className="text-center py-12">
+            <p className="text-xs sm:text-sm font-bold text-[#0047AB] uppercase tracking-wider mb-2 font-sans">
+              Testimonials
+            </p>
+            <h2 className="text-[20px] sm:text-[24px] lg:text-[32px] font-black text-slate-900 leading-tight font-sans mb-4">
+              Client Success Stories
+            </h2>
+            <p className="text-slate-500 font-semibold text-sm">
+              Testimonials will appear here as your clients share their experiences.
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section

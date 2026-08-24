@@ -20,7 +20,7 @@ export default function AiAssistantPage() {
     setTimeout(() => {
       setGeneratedProposal(
         `# Project Proposal for ${clientName || "Client"}
-Prepared by Sarah Jenkins (Orvixa Freelancer)
+Prepared by Orvixa Freelancer
 
 ## Executive Summary
 We are pleased to submit this proposal for ${projectScope || "UI/UX Design & Next.js Web Application Development"}. Our team specializes in high-performance digital products that scale.

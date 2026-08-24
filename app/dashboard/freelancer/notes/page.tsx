@@ -7,26 +7,7 @@ export default function NotesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showModal, setShowModal] = useState(false);
 
-  const [notes, setNotes] = useState([
-    {
-      id: "n-1",
-      title: "Acme Corp iOS UX Requirements",
-      content:
-        "1. Color Tokens must match Figma.\n2. Passkey login required.\n3. Net-15 invoice payment.",
-      project: "Acme iOS App",
-      pinned: true,
-      date: "Aug 02, 2026",
-    },
-    {
-      id: "n-2",
-      title: "Stripe Webhook Security Check",
-      content:
-        "Verify webhook signatures using HMAC-SHA256 headers before processing callbacks.",
-      project: "Stripe API Integration",
-      pinned: false,
-      date: "Aug 04, 2026",
-    },
-  ]);
+  const [notes, setNotes] = useState([]);
 
   const [newNote, setNewNote] = useState({
     title: "",

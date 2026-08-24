@@ -15,29 +15,7 @@ import {
 
 export default function FreelancerFinancePage() {
   const [showExpenseModal, setShowExpenseModal] = useState(false);
-  const [expenses, setExpenses] = useState([
-    {
-      id: 1,
-      name: "Figma Professional Subscription",
-      category: "Software",
-      amount: "$15.00",
-      date: "Aug 01, 2026",
-    },
-    {
-      id: 2,
-      name: "Vercel Pro Hosting",
-      category: "Hosting",
-      amount: "$20.00",
-      date: "Aug 02, 2026",
-    },
-    {
-      id: 3,
-      name: "MacBook Pro M3 Support Stand",
-      category: "Equipment",
-      amount: "$120.00",
-      date: "Jul 28, 2026",
-    },
-  ]);
+  const [expenses, setExpenses] = useState([]);
 
   const [newExpense, setNewExpense] = useState({
     name: "",

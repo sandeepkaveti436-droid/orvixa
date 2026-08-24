@@ -29,10 +29,10 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false);
 
   const [profile, setProfile] = useState({
-    fullName: "Sarah Jenkins",
-    email: "sarah@orvixa.com",
-    profession: "UI/UX & Product Designer",
-    country: "United States",
+    fullName: "",
+    email: "",
+    profession: "",
+    country: "",
     timezone: "UTC - 05:00 (Eastern Time)",
     currency: "USD ($)",
     language: "English (US)",

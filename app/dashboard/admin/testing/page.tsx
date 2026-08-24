@@ -24,24 +24,7 @@ export default function ProductionTestingPage() {
     latencyMs: 0,
   });
 
-  const [bugsList, setBugsList] = useState([
-    {
-      id: "BUG-101",
-      module: "Invoices",
-      severity: "Low",
-      desc: "PDF Export padding offset on mobile view",
-      status: "Resolved",
-      dev: "Alex Mercer",
-    },
-    {
-      id: "BUG-102",
-      module: "AI Assistant",
-      severity: "Medium",
-      desc: "Contract proposal prompt timeout on 3G network",
-      status: "In Triage",
-      dev: "Sarah Jenkins",
-    },
-  ]);
+  const [bugsList, setBugsList] = useState([]);
 
   const runLiveDatabaseAudit = async () => {
     const startTime = performance.now();

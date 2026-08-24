@@ -17,9 +17,7 @@ export default function NewInvoicePage() {
   );
   const [clientName, setClientName] = useState("");
   const [clientEmail, setClientEmail] = useState("");
-  const [items, setItems] = useState([
-    { id: 1, description: "UI/UX Mobile Design Sprint", hours: 40, rate: 80 },
-  ]);
+  const [items, setItems] = useState([]);
 
   const addItem = () => {
     setItems([

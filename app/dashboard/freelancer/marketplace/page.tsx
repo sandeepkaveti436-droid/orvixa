@@ -15,40 +15,7 @@ export default function MarketplacePage() {
   const [filter, setFilter] = useState("all");
   const [installed, setInstalled] = useState<{ [key: number]: boolean }>({});
 
-  const items = [
-    {
-      id: 1,
-      name: "Next.js SaaS Landing Page Template",
-      category: "templates",
-      author: "Orvixa Design",
-      downloads: "1.4k",
-      icon: FileText,
-    },
-    {
-      id: 2,
-      name: "AI Invoice Auto-Draft Recipe",
-      category: "recipes",
-      author: "AI Copilot Core",
-      downloads: "3.2k",
-      icon: Sparkles,
-    },
-    {
-      id: 3,
-      name: "Stripe Payment Gateway Plugin",
-      category: "plugins",
-      author: "FinTech Extensions",
-      downloads: "5.8k",
-      icon: Zap,
-    },
-    {
-      id: 4,
-      name: "Client Proposal Master Prompt",
-      category: "prompts",
-      author: "Growth Labs",
-      downloads: "2.1k",
-      icon: Sparkles,
-    },
-  ];
+  const items: any[] = [];
 
   const toggleInstall = (id: number) => {
     setInstalled((prev) => ({ ...prev, [id]: !prev[id] }));

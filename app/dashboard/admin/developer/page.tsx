@@ -15,31 +15,8 @@ import {
 
 export default function DeveloperPortalPage() {
   const [copiedKey, setCopiedKey] = useState(false);
-  const [apiKeys, setApiKeys] = useState([
-    {
-      id: 1,
-      name: "Production API Key",
-      key: "orvixa_live_pk_9923812938129381923",
-      created: "Aug 01, 2026",
-      lastUsed: "2 mins ago",
-    },
-    {
-      id: 2,
-      name: "Stripe Webhook Secret",
-      key: "orvixa_whsec_7781239812398123912",
-      created: "Jul 15, 2026",
-      lastUsed: "1 hour ago",
-    },
-  ]);
-
-  const [webhooks, setWebhooks] = useState([
-    {
-      id: 101,
-      url: "https://api.acmeglobal.com/webhooks/orvixa",
-      events: ["invoice.paid", "task.completed"],
-      status: "Active",
-    },
-  ]);
+  const [apiKeys, setApiKeys] = useState([]);
+  const [webhooks, setWebhooks] = useState([]);
 
   const [newWebhookUrl, setNewWebhookUrl] = useState("");
 

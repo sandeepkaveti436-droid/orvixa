@@ -5,7 +5,17 @@ import { Award, Share2, Copy, Check, DollarSign, Users } from "lucide-react";
 
 export default function ReferralsPage() {
   const [copied, setCopied] = useState(false);
-  const referralLink = "https://orvixa.com/ref/sarah-jenkins";
+  const [userId, setUserId] = useState("");
+
+  React.useEffect(() => {
+    const user = localStorage.getItem("orvixa_user");
+    if (user) {
+      const parsed = JSON.parse(user);
+      setUserId(parsed.id || "user");
+    }
+  }, []);
+
+  const referralLink = `https://orvixa.com/ref/${userId}`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(referralLink);

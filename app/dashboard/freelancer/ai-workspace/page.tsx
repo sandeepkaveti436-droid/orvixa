@@ -36,12 +36,7 @@ export default function AiWorkspacePage() {
 
   // AI Chat Assistant & Knowledge Search State
   const [chatInput, setChatInput] = useState("");
-  const [chatMessages, setChatMessages] = useState([
-    {
-      sender: "ai",
-      text: "Hello Sarah! I am your Orvixa AI Copilot. How can I assist with your workspace today? I can plan projects, draft proposals, audit workloads, or summarize meeting notes.",
-    },
-  ]);
+  const [chatMessages, setChatMessages] = useState([]);
 
   // AI Generator Inputs
   const [promptInput, setPromptInput] = useState("");
@@ -62,7 +57,7 @@ export default function AiWorkspacePage() {
         ...prev,
         {
           sender: "ai",
-          text: `✨ Orvixa AI Result: Analyzed "${userMsg}". All project deadlines for Acme Corp and Stripe Integration are on track. Estimated completion rate: 94%.`,
+          text: `Processing your request: "${userMsg}". Please wait for AI analysis.`,
         },
       ]);
     }, 800);
@@ -73,19 +68,7 @@ export default function AiWorkspacePage() {
     setIsGenerating(true);
 
     setTimeout(() => {
-      let outputText = "";
-      if (activeAiTool === "planner") {
-        outputText = `✨ AI PROJECT PLANNER OUTPUT:\n1. Discovery & Wireframes (3 Days)\n2. Figma UI Component System (5 Days)\n3. Next.js 15 Implementation (7 Days)\n4. Supabase DB & Auth Integration (4 Days)\n5. QA Testing & Deployment (2 Days)`;
-      } else if (activeAiTool === "email") {
-        outputText = `Subject: Project Milestone Complete - Acme iOS App\n\nHi Alex,\n\nI am pleased to let you know that Phase 2 wireframes and design system tokens for the Acme iOS app redesign have been completed! Please review the attached deliverables.`;
-      } else if (activeAiTool === "meeting") {
-        outputText = `✨ AI MEETING SUMMARY & ACTION ITEMS:\n- Client requested dark mode toggle in navbar.\n- Action Item 1: Update Figma color tokens (Assignee: Sarah).\n- Action Item 2: Schedule QA demo for Aug 18.`;
-      } else if (activeAiTool === "predictor") {
-        outputText = `✨ AI DEADLINE PREDICTION:\n- Project: Stripe API Integration\n- Risk Level: LOW (94% confidence of on-time delivery by Aug 18).\n- Recommendation: Maintain current 6.5h daily sprint velocity.`;
-      } else {
-        outputText = `✨ AI GENERATED RESULT FOR ${activeAiTool.toUpperCase()}:\nAll tasks and documentation auto-synced across your Orvixa workspace.`;
-      }
-
+      const outputText = `✨ AI Generated Result for ${activeAiTool.toUpperCase()}:\nNo data available. Please load your projects and tasks first.`;
       setGeneratedResult(outputText);
       setIsGenerating(false);
     }, 1000);

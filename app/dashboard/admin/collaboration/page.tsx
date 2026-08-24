@@ -13,37 +13,8 @@ import {
 
 export default function CollaborationPage() {
   const [chatInput, setChatInput] = useState("");
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      sender: "Sarah Jenkins",
-      text: "Figma iOS color tokens are updated and ready for review!",
-      time: "10:42 AM",
-    },
-    {
-      id: 2,
-      sender: "Alex Mercer",
-      text: "Awesome! Merging PR #42 into main branch now.",
-      time: "10:45 AM",
-    },
-  ]);
-
-  const [shapes, setShapes] = useState([
-    {
-      id: 1,
-      text: "Brainstorming Sprint Velocity v2.0",
-      x: 20,
-      y: 30,
-      color: "bg-amber-100 border-amber-300",
-    },
-    {
-      id: 2,
-      text: "Next.js 15 & Supabase Integration",
-      x: 220,
-      y: 30,
-      color: "bg-blue-100 border-blue-300",
-    },
-  ]);
+  const [messages, setMessages] = useState([]);
+  const [shapes, setShapes] = useState([]);
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();

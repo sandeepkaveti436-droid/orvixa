@@ -25,22 +25,17 @@ export default function ProjectDetailsPage({
   const [progress, setProgress] = useState(92);
 
   const project = {
-    id: params.id || "proj-1",
-    name: "Acme Corp iOS App Redesign",
-    client: "Acme Global Inc.",
-    description:
-      "Complete mobile user experience redesign, Figma design system tokens export, and Next.js frontend implementation.",
-    status: "In Progress",
-    priority: "High",
-    budget: "$6,500.00 USD",
-    startDate: "Aug 01, 2026",
-    dueDate: "Aug 25, 2026",
-    tags: ["UI/UX", "Mobile", "Figma", "Next.js"],
-    attachments: [
-      { name: "Acme_iOS_Wireframes_v2.fig", size: "12.4 MB" },
-      { name: "Project_Scope_SOW.pdf", size: "1.2 MB" },
-      { name: "Brand_Color_Tokens.json", size: "12 KB" },
-    ],
+    id: params.id || "",
+    name: "",
+    client: "",
+    description: "",
+    status: "Draft",
+    priority: "Medium",
+    budget: "$0.00",
+    startDate: "",
+    dueDate: "",
+    tags: [],
+    attachments: [],
   };
 
   return (
