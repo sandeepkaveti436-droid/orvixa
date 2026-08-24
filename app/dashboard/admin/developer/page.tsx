@@ -15,8 +15,18 @@ import {
 
 export default function DeveloperPortalPage() {
   const [copiedKey, setCopiedKey] = useState(false);
-  const [apiKeys, setApiKeys] = useState<Array<{id: number; name: string; key: string; created: string; lastUsed: string}>>([] as any);
-  const [webhooks, setWebhooks] = useState<Array<{id: number; url: string; events: string[]; status: string}>>([] as any);
+  const [apiKeys, setApiKeys] = useState<
+    Array<{
+      id: number;
+      name: string;
+      key: string;
+      created: string;
+      lastUsed: string;
+    }>
+  >([] as any);
+  const [webhooks, setWebhooks] = useState<
+    Array<{ id: number; url: string; events: string[]; status: string }>
+  >([] as any);
 
   const [newWebhookUrl, setNewWebhookUrl] = useState("");
 

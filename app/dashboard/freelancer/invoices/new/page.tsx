@@ -17,7 +17,9 @@ export default function NewInvoicePage() {
   );
   const [clientName, setClientName] = useState("");
   const [clientEmail, setClientEmail] = useState("");
-  const [items, setItems] = useState<Array<{id: number; description: string; hours: number; rate: number}>>([] as any);
+  const [items, setItems] = useState<
+    Array<{ id: number; description: string; hours: number; rate: number }>
+  >([] as any);
 
   const addItem = () => {
     setItems([

@@ -14,7 +14,14 @@ import {
 export default function MarketplacePage() {
   const [filter, setFilter] = useState("all");
   const [installed, setInstalled] = useState<{ [key: number]: boolean }>({});
-  const items: Array<{id: number; name: string; category: string; author: string; downloads: string; icon: any}> = [];
+  const items: Array<{
+    id: number;
+    name: string;
+    category: string;
+    author: string;
+    downloads: string;
+    icon: any;
+  }> = [];
 
   const toggleInstall = (id: number) => {
     setInstalled((prev) => ({ ...prev, [id]: !prev[id] }));

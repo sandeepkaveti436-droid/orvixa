@@ -121,7 +121,10 @@ function AuthContent() {
       document.cookie = "orvixa_demo_session=true; path=/;";
       setView("freelancer_success");
     } catch (error: Error | unknown) {
-      const message = error instanceof Error ? error.message : "Failed to create account. Please try again.";
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Failed to create account. Please try again.";
       setErrorMessage(message);
     } finally {
       setLoading(false);
@@ -169,7 +172,10 @@ function AuthContent() {
       document.cookie = "orvixa_demo_session=true; path=/;";
       setView("org_success");
     } catch (error: Error | unknown) {
-      const message = error instanceof Error ? error.message : "Failed to create organization. Please try again.";
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Failed to create organization. Please try again.";
       setErrorMessage(message);
     } finally {
       setLoading(false);
@@ -222,7 +228,10 @@ function AuthContent() {
         }
       }
     } catch (error: Error | unknown) {
-      const message = error instanceof Error ? error.message : "Invalid email or password. Please try again.";
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Invalid email or password. Please try again.";
       setErrorMessage(message);
     } finally {
       setLoading(false);

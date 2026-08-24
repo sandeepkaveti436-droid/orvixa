@@ -7,7 +7,16 @@ export default function NotesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showModal, setShowModal] = useState(false);
 
-  const [notes, setNotes] = useState<Array<{id: string; title: string; content: string; project: string; pinned: boolean; date: string}>>([] as any);
+  const [notes, setNotes] = useState<
+    Array<{
+      id: string;
+      title: string;
+      content: string;
+      project: string;
+      pinned: boolean;
+      date: string;
+    }>
+  >([] as any);
 
   const [newNote, setNewNote] = useState({
     title: "",

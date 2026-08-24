@@ -9,7 +9,15 @@ export default function Testimonials() {
   const [isPaused, setIsPaused] = useState(false);
 
   // Testimonials loaded from database
-  const testimonials: Array<{id: string; quote: string; role: string; company: string; grade: string; rating: number; photo: string}> = [];
+  const testimonials: Array<{
+    id: string;
+    quote: string;
+    role: string;
+    company: string;
+    grade: string;
+    rating: number;
+    photo: string;
+  }> = [];
 
   // Auto-scroll logic (5 seconds interval)
   useEffect(() => {
@@ -48,7 +56,8 @@ export default function Testimonials() {
               Client Success Stories
             </h2>
             <p className="text-slate-500 font-semibold text-sm">
-              Testimonials will appear here as your clients share their experiences.
+              Testimonials will appear here as your clients share their
+              experiences.
             </p>
           </div>
         </div>

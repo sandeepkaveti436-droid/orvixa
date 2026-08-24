@@ -13,8 +13,12 @@ import {
 
 export default function CollaborationPage() {
   const [chatInput, setChatInput] = useState("");
-  const [messages, setMessages] = useState<Array<{id: number; sender: string; text: string; time: string}>>([] as any);
-  const [shapes, setShapes] = useState<Array<{id: number; text: string; x: number; y: number; color: string}>>([] as any);
+  const [messages, setMessages] = useState<
+    Array<{ id: number; sender: string; text: string; time: string }>
+  >([] as any);
+  const [shapes, setShapes] = useState<
+    Array<{ id: number; text: string; x: number; y: number; color: string }>
+  >([] as any);
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
