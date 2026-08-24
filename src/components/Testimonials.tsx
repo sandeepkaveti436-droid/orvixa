@@ -9,7 +9,7 @@ export default function Testimonials() {
   const [isPaused, setIsPaused] = useState(false);
 
   // Testimonials loaded from database
-  const testimonials: any[] = [];
+  const testimonials: Array<{id: string; quote: string; role: string; company: string; grade: string; rating: number; photo: string}> = [];
 
   // Auto-scroll logic (5 seconds interval)
   useEffect(() => {

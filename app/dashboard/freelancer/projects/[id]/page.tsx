@@ -24,7 +24,19 @@ export default function ProjectDetailsPage({
   const [showEditDrawer, setShowEditDrawer] = useState(false);
   const [progress, setProgress] = useState(92);
 
-  const project = {
+  const project: {
+    id: string;
+    name: string;
+    client: string;
+    description: string;
+    status: string;
+    priority: string;
+    budget: string;
+    startDate: string;
+    dueDate: string;
+    tags: string[];
+    attachments: Array<{name: string; size: string}>;
+  } = {
     id: params.id || "",
     name: "",
     client: "",

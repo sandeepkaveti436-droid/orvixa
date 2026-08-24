@@ -36,7 +36,7 @@ export default function AiWorkspacePage() {
 
   // AI Chat Assistant & Knowledge Search State
   const [chatInput, setChatInput] = useState("");
-  const [chatMessages, setChatMessages] = useState([]);
+  const [chatMessages, setChatMessages] = useState<Array<{sender: string; text: string}>>([] as any);
 
   // AI Generator Inputs
   const [promptInput, setPromptInput] = useState("");

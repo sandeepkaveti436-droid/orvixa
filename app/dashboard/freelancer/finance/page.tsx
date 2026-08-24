@@ -15,7 +15,7 @@ import {
 
 export default function FreelancerFinancePage() {
   const [showExpenseModal, setShowExpenseModal] = useState(false);
-  const [expenses, setExpenses] = useState([]);
+  const [expenses, setExpenses] = useState<Array<{id: number; name: string; category: string; amount: string; date: string}>>([] as any);
 
   const [newExpense, setNewExpense] = useState({
     name: "",

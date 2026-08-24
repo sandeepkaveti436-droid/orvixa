@@ -14,7 +14,7 @@ import {
 
 export default function NotificationsPage() {
   const [filter, setFilter] = useState("all");
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState<Array<{id: number; type: string; title: string; message: string; time: string; read: boolean; icon: any; color: string}>>([] as any);
 
   const markAllAsRead = () => {
     setNotifications(notifications.map((n) => ({ ...n, read: true })));

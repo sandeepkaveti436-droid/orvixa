@@ -24,7 +24,7 @@ export default function ProductionTestingPage() {
     latencyMs: 0,
   });
 
-  const [bugsList, setBugsList] = useState([]);
+  const [bugsList, setBugsList] = useState<Array<{id: string; module: string; severity: string; desc: string; status: string; dev: string}>>([] as any);
 
   const runLiveDatabaseAudit = async () => {
     const startTime = performance.now();
