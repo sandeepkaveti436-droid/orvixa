@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   Briefcase,
@@ -33,9 +33,24 @@ export default function FreelancerDashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Notification Popup State
+  // --- 🔒 BROWSER BACK BUTTON LOCK (Prevents exiting workspace to landing website) ---
+  useEffect(() => {
+    window.history.pushState(null, "", window.location.href);
+
+    const handlePopState = () => {
+      window.history.pushState(null, "", window.location.href);
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [pathname]);
+
+  // Notifications State
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([
     {
@@ -46,8 +61,8 @@ export default function FreelancerDashboardLayout({
     },
     {
       id: 2,
-      title: "💰 Currency Updated",
-      text: "Workspace financial metrics have been synced in ₹ INR.",
+      title: "💰 Currency Synced",
+      text: "Workspace financial metrics are synced in ₹ INR.",
       time: "5m ago",
     },
   ]);
@@ -56,7 +71,7 @@ export default function FreelancerDashboardLayout({
   const [userName, setUserName] = useState("Freelancer");
   const [userProfession, setUserProfession] = useState("Pro Freelancer");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [userInitials, setUserInitials] = useState("FL");
+  const [userInitials, setUserInitials] = useState("SK");
 
   useEffect(() => {
     async function loadRealUserProfile() {
@@ -123,7 +138,7 @@ export default function FreelancerDashboardLayout({
   }, []);
 
   const getInitialsFromName = (name: string) => {
-    if (!name) return "FL";
+    if (!name) return "SK";
     const parts = name.trim().split(/[\s._-]+/);
     return parts.length > 1
       ? (parts[0][0] + parts[1][0]).toUpperCase()
@@ -140,7 +155,7 @@ export default function FreelancerDashboardLayout({
     window.location.replace("/login");
   };
 
-  // Dismiss a single notification
+  // Dismiss single notification
   const handleDismissNotification = (id: number) => {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
   };
@@ -205,7 +220,7 @@ export default function FreelancerDashboardLayout({
         }`}
       >
         <div className="space-y-6">
-          {/* Logo & Workspace Name (POINTS TO DASHBOARD) */}
+          {/* Logo & Workspace Name */}
           <Link
             href="/dashboard/freelancer"
             className="flex items-center gap-3 px-2 hover:opacity-90 transition"
@@ -332,7 +347,7 @@ export default function FreelancerDashboardLayout({
               )}
             </button>
 
-            {/* NOTIFICATIONS POPUP DRAWER */}
+            {/* NOTIFICATIONS POPUP */}
             {showNotifications && (
               <div className="absolute right-0 top-12 w-80 sm:w-96 bg-white border border-slate-200 rounded-3xl shadow-2xl p-4 z-50 font-sans space-y-3">
                 <div className="flex justify-between items-center pb-2 border-b border-slate-100">
@@ -350,7 +365,7 @@ export default function FreelancerDashboardLayout({
                         onClick={handleClearAllNotifications}
                         className="text-[10px] text-[#0047AB] font-bold hover:underline flex items-center gap-1"
                       >
-                        <CheckCheck className="w-3 h-3" />
+                        <CheckCheck className="w-3.5 h-3.5" />
                         <span>Clear All</span>
                       </button>
                     )}
@@ -385,10 +400,9 @@ export default function FreelancerDashboardLayout({
                           </span>
                         </div>
 
-                        {/* Dismiss / Mark Read Checkmark Button */}
                         <button
                           onClick={() => handleDismissNotification(n.id)}
-                          title="Mark as read & dismiss"
+                          title="Mark as read"
                           className="text-slate-400 hover:text-emerald-600 hover:bg-white p-1 rounded-lg transition shrink-0"
                         >
                           <Check className="w-3.5 h-3.5" />

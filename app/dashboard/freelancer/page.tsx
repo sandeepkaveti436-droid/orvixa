@@ -330,7 +330,7 @@ export default function FreelancerDashboard() {
                       {proj.name}
                     </Link>
 
-                    {/* STATUS SELECTOR (On Hold / Cancel / In Progress) */}
+                    {/* STATUS SELECTOR */}
                     <select
                       value={proj.status || "In Progress"}
                       disabled={updatingId === proj.id}
