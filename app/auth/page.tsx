@@ -239,11 +239,15 @@ function AuthContent() {
   };
 
   return (
-    <main className="min-h-screen bg-[#0047AB] flex items-center justify-center p-4 sm:p-6 lg:p-8 font-sans relative overflow-hidden">
+    <main className="min-h-screen bg-gradient-to-br from-[#020B2D] via-[#001D6E] to-[#0A0526] flex items-center justify-center p-4 sm:p-6 lg:p-8 font-sans relative overflow-hidden">
       {/* Background Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-7xl h-[600px] pointer-events-none z-0">
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[700px] h-[380px] bg-gradient-to-tr from-[#0047AB]/15 via-indigo-300/15 to-purple-400/10 blur-[140px] rounded-full" />
-      </div>
+      {/* ================= PREMIUM AMBIENT GLOW & LIGHT ORBS ================= */}
+      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-gradient-to-tr from-[#0047AB] via-[#3B82F6]/30 to-purple-600/20 blur-[130px] rounded-full pointer-events-none opacity-60" />
+      <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-bl from-indigo-500/25 via-[#0047AB]/40 to-blue-600/20 blur-[140px] rounded-full pointer-events-none opacity-50" />
+
+      {/* Decorative Grid Overlay Pattern */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
+
 
       {/* Main Glass Card */}
       <div className="w-full max-w-xl bg-white/90 backdrop-blur-2xl border border-slate-200/90 rounded-3xl p-6 sm:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.06)] relative z-10 font-sans">
