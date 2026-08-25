@@ -74,7 +74,7 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#FAF6EE] flex items-center justify-center p-4 sm:p-6 lg:p-8 font-sans relative overflow-hidden">
+    <main className="min-h-screen bg-[#0047AB] flex items-center justify-center p-4 sm:p-6 lg:p-8 font-sans relative overflow-hidden">
       {/* Background Ambient Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-7xl h-[600px] pointer-events-none z-0">
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[700px] h-[380px] bg-gradient-to-tr from-[#0047AB]/15 via-indigo-300/15 to-purple-400/10 blur-[140px] rounded-full" />
@@ -150,7 +150,7 @@ export default function LoginPage() {
             <label className="text-xs font-bold text-slate-700 block mb-1">
               Password
             </label>
-            <div className="relative">
+            <div className="relative mb-6">
               <input
                 type={showPassword ? "text" : "password"}
                 required
@@ -178,7 +178,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-sm py-3.5 px-4 rounded-xl transition-all shadow-md shadow-[#0047AB]/25 flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-sm py-2.5 px-4 rounded-xl transition-all shadow-md shadow-[#0047AB]/25 flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {loading ? (
               <Loader2 className="w-4 h-4 animate-spin" />
