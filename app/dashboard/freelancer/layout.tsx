@@ -22,7 +22,6 @@ import {
   Menu,
   X,
   ChevronRight,
-  Check,
   CheckCheck,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -36,105 +35,108 @@ export default function FreelancerDashboardLayout({
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // --- 🔒 BROWSER BACK BUTTON LOCK (Prevents exiting workspace to landing website) ---
-  useEffect(() => {
-    window.history.pushState(null, "", window.location.href);
-
-    const handlePopState = () => {
-      window.history.pushState(null, "", window.location.href);
-    };
-
-    window.addEventListener("popstate", handlePopState);
-    return () => {
-      window.removeEventListener("popstate", handlePopState);
-    };
-  }, [pathname]);
-
-  // Notifications State
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([
     {
       id: 1,
       title: "✅ Login Successful",
-      text: "You have securely logged into your Orvixa workspace.",
+      text: "You have securely logged into your workspace.",
       time: "Just now",
-    },
-    {
-      id: 2,
-      title: "💰 Currency Synced",
-      text: "Workspace financial metrics are synced in ₹ INR.",
-      time: "5m ago",
     },
   ]);
 
-  // Persistent Real User Profile State
+  // Live Profile State
   const [userName, setUserName] = useState("Freelancer");
-  const [userProfession, setUserProfession] = useState("Pro Freelancer");
+  const [userProfession, setUserProfession] = useState("UI/UX Designer");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [userInitials, setUserInitials] = useState("SK");
 
   useEffect(() => {
-    async function loadRealUserProfile() {
-      const cachedAvatar = localStorage.getItem("orvixa_avatar_photo");
-      const cachedName = localStorage.getItem("orvixa_user_name");
-      const cachedProf = localStorage.getItem("orvixa_user_prof");
+    window.history.pushState(null, "", window.location.href);
+    const handlePopState = () => {
+      window.history.pushState(null, "", window.location.href);
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [pathname]);
 
-      if (cachedAvatar) setAvatarUrl(cachedAvatar);
-      if (cachedName) {
-        setUserName(cachedName);
-        setUserInitials(getInitialsFromName(cachedName));
-      }
-      if (cachedProf) setUserProfession(cachedProf);
+  const loadRealUserProfile = async () => {
+    const cachedAvatar = localStorage.getItem("orvixa_avatar_photo");
+    const cachedName = localStorage.getItem("orvixa_user_name");
+    const cachedProf = localStorage.getItem("orvixa_user_prof");
 
-      try {
-        const { data: authData } = await supabase.auth.getUser();
-        const user = authData?.user;
+    if (cachedAvatar) setAvatarUrl(cachedAvatar);
+    if (cachedName) {
+      setUserName(cachedName);
+      setUserInitials(getInitialsFromName(cachedName));
+    }
+    if (cachedProf && cachedProf !== "Pro Freelancer") {
+      setUserProfession(cachedProf);
+    }
 
-        if (user) {
-          const metaName =
-            user.user_metadata?.full_name ||
-            user.user_metadata?.name ||
-            user.email?.split("@")[0] ||
-            "";
+    try {
+      const { data: authData } = await supabase.auth.getUser();
+      const user = authData?.user;
 
-          if (metaName) {
-            setUserName(metaName);
-            localStorage.setItem("orvixa_user_name", metaName);
-            setUserInitials(getInitialsFromName(metaName));
-          }
+      if (user) {
+        let finalName =
+          user.user_metadata?.full_name ||
+          user.user_metadata?.name ||
+          user.email?.split("@")[0] ||
+          "Freelancer";
 
+        let finalProfession =
+          user.user_metadata?.profession || "UI/UX Designer";
+        let finalAvatar = user.user_metadata?.avatar_url || null;
+
+        try {
           const { data: profile } = await supabase
             .from("profiles")
             .select("full_name, profession, avatar_url")
-            .or(`user_id.eq.${user.id},id.eq.${user.id}`)
+            .eq("id", user.id)
             .maybeSingle();
 
           if (profile) {
-            const finalName =
-              profile.full_name || metaName || user.email?.split("@")[0];
-            if (finalName) {
-              setUserName(finalName);
-              localStorage.setItem("orvixa_user_name", finalName);
-              setUserInitials(getInitialsFromName(finalName));
+            if (profile.full_name) finalName = profile.full_name;
+            if (profile.profession && profile.profession !== "Pro Freelancer") {
+              finalProfession = profile.profession;
             }
-
-            if (profile.profession) {
-              setUserProfession(profile.profession);
-              localStorage.setItem("orvixa_user_prof", profile.profession);
-            }
-
-            if (profile.avatar_url) {
-              setAvatarUrl(profile.avatar_url);
-              localStorage.setItem("orvixa_avatar_photo", profile.avatar_url);
-            }
+            if (profile.avatar_url) finalAvatar = profile.avatar_url;
           }
+        } catch (dbErr) {
+          console.log("DB check:", dbErr);
         }
-      } catch (err) {
-        console.log("Syncing profile...", err);
-      }
-    }
 
+        setUserName(finalName);
+        setUserProfession(finalProfession);
+        if (finalAvatar) setAvatarUrl(finalAvatar);
+        setUserInitials(getInitialsFromName(finalName));
+
+        localStorage.setItem("orvixa_user_name", finalName);
+        localStorage.setItem("orvixa_user_prof", finalProfession);
+        if (finalAvatar)
+          localStorage.setItem("orvixa_avatar_photo", finalAvatar);
+      }
+    } catch (err) {
+      console.log("Profile sync:", err);
+    }
+  };
+
+  useEffect(() => {
     loadRealUserProfile();
+
+    // Listen to custom photo updates
+    const handleProfileUpdate = () => {
+      loadRealUserProfile();
+    };
+
+    window.addEventListener("profilePhotoUpdated", handleProfileUpdate);
+    window.addEventListener("storage", handleProfileUpdate);
+
+    return () => {
+      window.removeEventListener("profilePhotoUpdated", handleProfileUpdate);
+      window.removeEventListener("storage", handleProfileUpdate);
+    };
   }, []);
 
   const getInitialsFromName = (name: string) => {
@@ -153,16 +155,6 @@ export default function FreelancerDashboardLayout({
     document.cookie =
       "orvixa_demo_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
     window.location.replace("/login");
-  };
-
-  // Dismiss single notification
-  const handleDismissNotification = (id: number) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
-  };
-
-  // Clear all notifications
-  const handleClearAllNotifications = () => {
-    setNotifications([]);
   };
 
   const sidebarLinks = [
@@ -213,14 +205,13 @@ export default function FreelancerDashboardLayout({
 
   return (
     <div className="min-h-screen flex font-sans bg-slate-50 text-slate-900 transition-colors duration-300">
-      {/* ================= 1. SIDEBAR NAVIGATION ================= */}
+      {/* 1. SIDEBAR */}
       <aside
         className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 p-5 flex flex-col justify-between transition-all duration-300 lg:translate-x-0 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <div className="space-y-6">
-          {/* Logo & Workspace Name */}
           <Link
             href="/dashboard/freelancer"
             className="flex items-center gap-3 px-2 hover:opacity-90 transition"
@@ -243,7 +234,6 @@ export default function FreelancerDashboardLayout({
             </div>
           </Link>
 
-          {/* Navigation Links */}
           <nav className="space-y-1 overflow-y-auto max-h-[calc(100vh-200px)] font-sans">
             {sidebarLinks.map((item) => {
               const Icon = item.icon;
@@ -270,13 +260,13 @@ export default function FreelancerDashboardLayout({
           </nav>
         </div>
 
-        {/* Real User Profile Footer */}
+        {/* 🌟 BOTTOM-LEFT USER PROFILE (Live Photo Display) */}
         <div className="pt-4 border-t border-slate-100 flex items-center justify-between font-sans">
           <Link
             href="/dashboard/freelancer/profile"
             className="flex items-center gap-2.5 group font-sans min-w-0"
           >
-            <div className="w-8 h-8 rounded-full bg-[#0047AB] text-white flex items-center justify-center font-bold text-xs overflow-hidden shrink-0 font-sans shadow-sm ring-1 ring-white/20">
+            <div className="w-9 h-9 rounded-full bg-[#0047AB] text-white flex items-center justify-center font-bold text-xs overflow-hidden shrink-0 font-sans shadow-sm ring-1 ring-slate-200">
               {avatarUrl ? (
                 <img
                   src={avatarUrl}
@@ -284,9 +274,10 @@ export default function FreelancerDashboardLayout({
                   className="w-full h-full object-cover"
                 />
               ) : (
-                userInitials
+                <span>{userInitials}</span>
               )}
             </div>
+
             <div className="min-w-0">
               <div className="text-xs font-bold font-sans truncate group-hover:text-[#0047AB] text-slate-900">
                 {userName}
@@ -307,10 +298,9 @@ export default function FreelancerDashboardLayout({
         </div>
       </aside>
 
-      {/* ================= 2. MAIN APP BODY WITH TOP BAR ================= */}
+      {/* 2. MAIN BODY */}
       <div className="flex-1 flex flex-col min-w-0 lg:ml-64 font-sans">
-        {/* TOP BAR */}
-        <header className="bg-white border-b border-slate-200 px-6 py-3.5 flex items-center justify-between sticky top-0 z-40 font-sans transition-colors duration-300">
+        <header className="bg-white border-b border-slate-200 px-6 py-3.5 flex items-center justify-between sticky top-0 z-40 font-sans">
           <div className="flex items-center gap-3 font-sans">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -323,7 +313,6 @@ export default function FreelancerDashboardLayout({
               )}
             </button>
 
-            {/* Global Search */}
             <div className="relative hidden sm:block w-72 font-sans">
               <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
@@ -335,7 +324,6 @@ export default function FreelancerDashboardLayout({
           </div>
 
           <div className="flex items-center gap-3 font-sans relative">
-            {/* NOTIFICATION BELL */}
             <button
               onClick={() => setShowNotifications(!showNotifications)}
               className="p-2 rounded-full relative transition-colors text-slate-500 hover:bg-slate-100"
@@ -347,78 +335,7 @@ export default function FreelancerDashboardLayout({
               )}
             </button>
 
-            {/* NOTIFICATIONS POPUP */}
-            {showNotifications && (
-              <div className="absolute right-0 top-12 w-80 sm:w-96 bg-white border border-slate-200 rounded-3xl shadow-2xl p-4 z-50 font-sans space-y-3">
-                <div className="flex justify-between items-center pb-2 border-b border-slate-100">
-                  <h4 className="font-bold text-xs text-slate-900 flex items-center gap-1.5">
-                    <span>Notifications</span>
-                    {notifications.length > 0 && (
-                      <span className="text-[10px] bg-blue-50 text-[#0047AB] px-2 py-0.5 rounded-full font-bold">
-                        {notifications.length}
-                      </span>
-                    )}
-                  </h4>
-                  <div className="flex items-center gap-2">
-                    {notifications.length > 0 && (
-                      <button
-                        onClick={handleClearAllNotifications}
-                        className="text-[10px] text-[#0047AB] font-bold hover:underline flex items-center gap-1"
-                      >
-                        <CheckCheck className="w-3.5 h-3.5" />
-                        <span>Clear All</span>
-                      </button>
-                    )}
-                    <button
-                      onClick={() => setShowNotifications(false)}
-                      className="text-slate-400 hover:text-slate-600"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-
-                <div className="space-y-2 text-xs font-semibold max-h-64 overflow-y-auto pr-1">
-                  {notifications.length > 0 ? (
-                    notifications.map((n) => (
-                      <div
-                        key={n.id}
-                        className="p-3 rounded-2xl border bg-slate-50 hover:bg-blue-50/40 border-slate-100 flex items-start justify-between gap-2 transition group"
-                      >
-                        <div
-                          onClick={() => handleDismissNotification(n.id)}
-                          className="flex-1 cursor-pointer"
-                        >
-                          <div className="font-bold text-xs text-slate-900 group-hover:text-[#0047AB]">
-                            {n.title}
-                          </div>
-                          <p className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">
-                            {n.text}
-                          </p>
-                          <span className="text-[10px] text-slate-400 block mt-1">
-                            {n.time}
-                          </span>
-                        </div>
-
-                        <button
-                          onClick={() => handleDismissNotification(n.id)}
-                          title="Mark as read"
-                          className="text-slate-400 hover:text-emerald-600 hover:bg-white p-1 rounded-lg transition shrink-0"
-                        >
-                          <Check className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-center py-6 text-xs text-slate-400 font-medium">
-                      ✓ You are all caught up! No notifications.
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Profile Avatar Header */}
+            {/* Top Navbar Avatar */}
             <Link
               href="/dashboard/freelancer/profile"
               className="flex items-center gap-2 font-sans"
@@ -432,14 +349,13 @@ export default function FreelancerDashboardLayout({
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  userInitials
+                  <span>{userInitials}</span>
                 )}
               </div>
             </Link>
           </div>
         </header>
 
-        {/* BREADCRUMBS & MAIN PAGE CONTENT */}
         <main className="p-6 sm:p-8 flex-1 font-sans">
           <div className="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-6 font-sans">
             <Link
@@ -452,11 +368,7 @@ export default function FreelancerDashboardLayout({
               <React.Fragment key={index}>
                 <ChevronRight className="w-3 h-3 text-slate-300" />
                 <span
-                  className={`capitalize transition-colors ${
-                    index === pathSegments.length - 1
-                      ? "font-bold text-[#0047AB]"
-                      : "hover:text-[#0047AB]"
-                  }`}
+                  className={`capitalize transition-colors ${index === pathSegments.length - 1 ? "font-bold text-[#0047AB]" : "hover:text-[#0047AB]"}`}
                 >
                   {segment.replace("-", " ")}
                 </span>
