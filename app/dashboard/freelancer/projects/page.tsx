@@ -4,325 +4,582 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   FolderKanban,
-  Users,
-  CheckSquare,
-  IndianRupee,
-  Clock,
-  Sparkles,
+  LayoutGrid,
+  List,
+  Search,
   Plus,
-  ArrowUpRight,
-  Loader2,
   Building,
+  Calendar,
+  Clock,
+  ArrowRight,
+  Trash2,
+  X,
+  Loader2,
+  AlertCircle,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
-export default function FreelancerDashboard() {
+export default function ProjectsPage() {
   const [loading, setLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | number | null>(null);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [showCreateModal, setShowCreateModal] = useState(false);
+
   const [projects, setProjects] = useState<any[]>([]);
-  const [tasks, setTasks] = useState<any[]>([]);
+
+  const [newProj, setNewProj] = useState({
+    name: "",
+    client: "",
+    category: "Web Development",
+    description: "",
+    deliverables: "",
+    status: "In Progress",
+    priority: "High",
+    budget: "25000",
+    currency: "INR (₹)",
+    start_date: new Date().toISOString().split("T")[0],
+    due_date: "",
+  });
+
+  const existingClients = Array.from(
+    new Set(projects.map((p) => p.client).filter(Boolean)),
+  );
 
   useEffect(() => {
-    fetchDashboardData();
+    fetchRealProjects();
   }, []);
 
-  const fetchDashboardData = async () => {
+  const fetchRealProjects = async () => {
     try {
-      setLoading(true);
-
-      // 1. Fetch real projects from Supabase
-      const { data: projData, error: projError } = await supabase
+      const { data, error } = await supabase
         .from("projects")
         .select("*")
         .order("created_at", { ascending: false });
 
-      if (projData) {
-        setProjects(projData);
+      if (error) {
+        console.error("Error loading projects:", error.message);
+      } else if (data) {
+        setProjects(data);
       }
-
-      // 2. Fetch tasks if tasks table exists
-      try {
-        const { data: taskData } = await supabase
-          .from("tasks")
-          .select("*")
-          .eq("status", "Pending");
-        if (taskData) setTasks(taskData);
-      } catch (e) {
-        // Ignored if tasks table not yet created
-      }
-    } catch (err) {
-      console.error("Dashboard data load error:", err);
+    } catch (err: any) {
+      console.error("Error loading projects:", err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  // --- LIVE CALCULATIONS ---
-  // 1. Active Projects count
-  const activeProjectsCount = projects.filter(
-    (p) => (p.status || "").toLowerCase() !== "completed",
-  ).length;
+  const handleCreateProject = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSaving(true);
+    setErrorMessage("");
 
-  // 2. Unique Active Clients count (Calculates from projects automatically!)
-  const uniqueClients = Array.from(
-    new Set(projects.map((p) => (p.client || "").trim()).filter(Boolean)),
-  );
-  const activeClientsCount = uniqueClients.length;
+    const clientName = newProj.client.trim();
+    const projectName = newProj.name.trim();
 
-  // 3. Total Project Value / Billed in Indian Rupees (₹)
-  const totalProjectValue = projects.reduce(
-    (acc, curr) => acc + (Number(curr.budget) || 0),
-    0,
-  );
+    if (!projectName || !clientName) {
+      setErrorMessage("Project Name and Client Name are required.");
+      setIsSaving(false);
+      return;
+    }
 
-  // 4. Pending Tasks count
-  const pendingTasksCount = tasks.length;
+    try {
+      const payload = {
+        name: projectName,
+        client: clientName,
+        category: newProj.category,
+        description: newProj.description.trim(),
+        deliverables: newProj.deliverables.trim(),
+        status: newProj.status || "In Progress",
+        priority: newProj.priority || "High",
+        budget: parseFloat(newProj.budget) || 0,
+        currency: "INR (₹)",
+        start_date: newProj.start_date || null,
+        due_date: newProj.due_date || null,
+        progress: 10,
+      };
+
+      const { data, error } = await supabase
+        .from("projects")
+        .insert([payload])
+        .select();
+
+      if (error) throw new Error(error.message);
+
+      if (data && data.length > 0) {
+        setProjects((prev) => [data[0], ...prev]);
+      } else {
+        await fetchRealProjects();
+      }
+
+      setNewProj({
+        name: "",
+        client: "",
+        category: "Web Development",
+        description: "",
+        deliverables: "",
+        status: "In Progress",
+        priority: "High",
+        budget: "25000",
+        currency: "INR (₹)",
+        start_date: new Date().toISOString().split("T")[0],
+        due_date: "",
+      });
+      setShowCreateModal(false);
+    } catch (err: any) {
+      console.error("Supabase Save Error:", err);
+      setErrorMessage(err.message || "Failed to save project.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDeleteProject = async (id: string | number, name: string) => {
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete "${name}"?`,
+    );
+    if (!confirmDelete) return;
+
+    setDeletingId(id);
+    try {
+      const { error } = await supabase.from("projects").delete().eq("id", id);
+      if (error) throw new Error(error.message);
+      setProjects((prev) => prev.filter((proj) => proj.id !== id));
+    } catch (err: any) {
+      alert(`Error deleting project: ${err.message}`);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const filteredProjects = projects.filter((p) => {
+    const matchesSearch =
+      (p.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (p.client || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (p.category || "").toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus =
+      statusFilter === "all" ||
+      (p.status || "").toLowerCase().replace(/\s+/g, "") ===
+        statusFilter.toLowerCase();
+
+    return matchesSearch && matchesStatus;
+  });
 
   if (loading) {
     return (
       <div className="min-h-[400px] flex items-center justify-center font-bold text-slate-500 font-sans">
         <Loader2 className="w-6 h-6 animate-spin text-[#0047AB] mr-2" />
-        <span>Loading Live Dashboard...</span>
+        <span>Loading Real Projects...</span>
       </div>
     );
   }
 
   return (
     <div className="space-y-8 font-sans">
-      {/* WELCOME HEADER */}
+      {/* HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <span className="text-[11px] font-bold text-[#0047AB] bg-blue-50 border border-blue-200 px-3 py-1 rounded-full">
-            ● Orvixa Freelancer OS
-          </span>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 mt-2">
-            <span>Welcome, </span>
-            <span className="font-heading italic text-[#0047AB]">
-              skynovadigitals
-            </span>
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900">
+            <span>Projects & </span>
+            <span className="italic text-[#0047AB]">Workflows.</span>
           </h1>
           <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
-            Real-time overview of active projects, clients, and earnings in ₹
-            INR.
+            Manage your client deliverables, milestones, and deadlines in ₹ INR.
           </p>
         </div>
 
+        <button
+          onClick={() => {
+            setErrorMessage("");
+            setShowCreateModal(true);
+          }}
+          className="bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md shadow-[#0047AB]/25 flex items-center justify-center gap-2 transition"
+        >
+          <Plus className="w-4 h-4" />
+          <span>Create Project</span>
+        </button>
+      </div>
+
+      {/* SEARCH & FILTERS BAR */}
+      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="relative w-full md:w-80">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            placeholder="Search projects, client, category..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+          />
+        </div>
+
         <div className="flex items-center gap-3">
-          <Link
-            href="/dashboard/freelancer/projects"
-            className="bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md shadow-[#0047AB]/25 flex items-center gap-2 transition"
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl px-3 py-2 focus:outline-none focus:border-[#0047AB]"
           >
-            <Plus className="w-4 h-4" />
-            <span>New Project</span>
-          </Link>
-        </div>
-      </div>
+            <option value="all">All Statuses</option>
+            <option value="draft">Draft</option>
+            <option value="inprogress">In Progress</option>
+            <option value="review">Under Review</option>
+            <option value="completed">Completed</option>
+          </select>
 
-      {/* QUICK ACTIONS BAR */}
-      <div className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center gap-2">
-        <span className="text-[11px] font-bold uppercase text-slate-400 mr-2 tracking-wider">
-          Quick Actions:
-        </span>
-        <Link
-          href="/dashboard/freelancer/projects"
-          className="bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition"
-        >
-          <Plus className="w-3.5 h-3.5" /> Project
-        </Link>
-        <Link
-          href="/dashboard/freelancer/clients"
-          className="bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition"
-        >
-          <Plus className="w-3.5 h-3.5" /> Client
-        </Link>
-        <Link
-          href="/dashboard/freelancer/tasks"
-          className="bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition"
-        >
-          <Plus className="w-3.5 h-3.5" /> Task
-        </Link>
-      </div>
-
-      {/* --- LIVE STAT CARDS --- */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        {/* Active Projects */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider block mb-1">
-            Active Projects
-          </span>
-          <div className="text-2xl font-black text-slate-900 mb-1">
-            {activeProjectsCount} Active
-          </div>
-          <span className="text-[11px] font-bold text-emerald-600">
-            ✓ Workspace Synced
-          </span>
-        </div>
-
-        {/* Active Clients (LIVE calculated from your projects!) */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider block mb-1">
-            Active Clients
-          </span>
-          <div className="text-2xl font-black text-slate-900 mb-1">
-            {activeClientsCount}{" "}
-            {activeClientsCount === 1 ? "Client" : "Clients"}
-          </div>
-          <span className="text-[11px] font-bold text-slate-400">
-            From Active Projects
-          </span>
-        </div>
-
-        {/* Pending Tasks */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider block mb-1">
-            Pending Tasks
-          </span>
-          <div className="text-2xl font-black text-slate-900 mb-1">
-            {pendingTasksCount} Tasks
-          </div>
-          <span className="text-[11px] font-bold text-slate-400">
-            Task Deliverables
-          </span>
-        </div>
-
-        {/* Total Project Value (Indian Rupees ₹) */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider block mb-1">
-            Total Pipeline Value
-          </span>
-          <div className="text-2xl font-black text-[#0047AB] mb-1">
-            ₹{totalProjectValue.toLocaleString("en-IN")}
-          </div>
-          <span className="text-[11px] font-bold text-emerald-600">
-            ✓ Total Project Budgets
-          </span>
-        </div>
-
-        {/* Invoices */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider block mb-1">
-            Pending Invoices
-          </span>
-          <div className="text-2xl font-black text-slate-900 mb-1">₹0.00</div>
-          <span className="text-[11px] font-bold text-amber-600">
-            Awaiting payment
-          </span>
-        </div>
-
-        {/* Hours Tracked */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider block mb-1">
-            Hours Tracked
-          </span>
-          <div className="text-2xl font-black text-slate-900 mb-1">0h 0m</div>
-          <span className="text-[11px] font-bold text-slate-400">
-            Logged Hours
-          </span>
-        </div>
-      </div>
-
-      {/* RECENT PROJECTS & OVERVIEW */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Active Projects List */}
-        <div className="lg:col-span-2 bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-            <h3 className="font-bold text-base text-slate-900 flex items-center gap-2">
-              <FolderKanban className="w-5 h-5 text-[#0047AB]" />
-              <span>Active Projects ({projects.length})</span>
-            </h3>
-            <Link
-              href="/dashboard/freelancer/projects"
-              className="text-xs font-bold text-[#0047AB] hover:underline flex items-center gap-1"
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+            <button
+              onClick={() => setViewMode("grid")}
+              className={`p-1.5 rounded-lg transition-all ${
+                viewMode === "grid"
+                  ? "bg-white text-[#0047AB] shadow-sm"
+                  : "text-slate-500"
+              }`}
             >
-              View All <ArrowUpRight className="w-3.5 h-3.5" />
-            </Link>
+              <LayoutGrid className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setViewMode("list")}
+              className={`p-1.5 rounded-lg transition-all ${
+                viewMode === "list"
+                  ? "bg-white text-[#0047AB] shadow-sm"
+                  : "text-slate-500"
+              }`}
+            >
+              <List className="w-4 h-4" />
+            </button>
           </div>
+        </div>
+      </div>
 
-          <div className="space-y-3">
-            {projects.slice(0, 4).map((proj) => (
-              <Link
-                key={proj.id}
-                href={`/dashboard/freelancer/projects/${proj.id}`}
-                className="p-4 rounded-2xl border border-slate-100 hover:border-blue-200 bg-slate-50/50 hover:bg-white flex items-center justify-between transition group"
-              >
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-bold text-sm text-slate-900 group-hover:text-[#0047AB] transition">
-                      {proj.name}
-                    </span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-[#0047AB]">
+      {/* PROJECTS DISPLAY */}
+      {filteredProjects.length > 0 ? (
+        <div
+          className={
+            viewMode === "grid"
+              ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              : "space-y-3"
+          }
+        >
+          {filteredProjects.map((proj) => (
+            <div
+              key={proj.id}
+              className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between space-y-4 hover:shadow-md transition"
+            >
+              <div>
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex gap-2">
+                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-[#0047AB] border border-blue-200">
                       {proj.status || "In Progress"}
                     </span>
-                  </div>
-                  <p className="text-xs text-slate-500 flex items-center gap-1.5">
-                    <Building className="w-3.5 h-3.5 text-slate-400" />
-                    <span>
-                      Client:{" "}
-                      <strong className="text-slate-700">{proj.client}</strong>
+                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-600">
+                      {proj.priority || "High"}
                     </span>
-                  </p>
-                </div>
-
-                <div className="text-right">
-                  <span className="text-sm font-black text-[#0047AB] block">
-                    ₹{Number(proj.budget || 0).toLocaleString("en-IN")}
-                  </span>
-                  <span className="text-[11px] text-slate-400 font-semibold">
-                    {proj.due_date ? `Due: ${proj.due_date}` : "Active"}
-                  </span>
-                </div>
-              </Link>
-            ))}
-
-            {projects.length === 0 && (
-              <div className="text-center py-8 text-xs text-slate-400">
-                No active projects yet. Create one to see live data here.
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Client Summary Box */}
-        <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-            <h3 className="font-bold text-base text-slate-900 flex items-center gap-2">
-              <Users className="w-5 h-5 text-[#0047AB]" />
-              <span>Clients Summary</span>
-            </h3>
-            <span className="text-xs font-bold text-slate-500">
-              {activeClientsCount} Total
-            </span>
-          </div>
-
-          <div className="space-y-2.5">
-            {uniqueClients.map((clientName, index) => {
-              const clientProjectsCount = projects.filter(
-                (p) => p.client === clientName,
-              ).length;
-              return (
-                <div
-                  key={index}
-                  className="p-3 bg-slate-50 rounded-xl flex items-center justify-between text-xs"
-                >
-                  <div className="flex items-center gap-2 font-bold text-slate-800">
-                    <Building className="w-3.5 h-3.5 text-slate-400" />
-                    <span>{clientName}</span>
                   </div>
-                  <span className="font-semibold text-[#0047AB] bg-blue-50 px-2 py-0.5 rounded-md text-[11px]">
-                    {clientProjectsCount}{" "}
-                    {clientProjectsCount === 1 ? "Project" : "Projects"}
-                  </span>
-                </div>
-              );
-            })}
 
-            {uniqueClients.length === 0 && (
-              <div className="text-center py-8 text-xs text-slate-400">
-                No clients found.
+                  <button
+                    onClick={() => handleDeleteProject(proj.id, proj.name)}
+                    disabled={deletingId === proj.id}
+                    title="Delete Project"
+                    className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+                  >
+                    {deletingId === proj.id ? (
+                      <Loader2 className="w-4 h-4 animate-spin text-red-600" />
+                    ) : (
+                      <Trash2 className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
+
+                <Link
+                  href={`/dashboard/freelancer/projects/${proj.id}`}
+                  className="font-bold text-lg text-slate-900 hover:text-[#0047AB] block mb-1"
+                >
+                  {proj.name}
+                </Link>
+
+                <p className="text-xs font-semibold text-slate-500 flex items-center gap-1.5 mb-2">
+                  <Building className="w-3.5 h-3.5 text-slate-400" />
+                  <span>{proj.client}</span>
+                  {proj.category && (
+                    <span className="ml-auto bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md text-[10px] font-medium">
+                      {proj.category}
+                    </span>
+                  )}
+                </p>
+
+                <p className="text-xs text-slate-600 font-medium line-clamp-2 mb-3">
+                  {proj.description || "No project description provided."}
+                </p>
+
+                <div className="flex items-center gap-3 text-[11px] text-slate-400 mb-2">
+                  {proj.due_date && (
+                    <span className="flex items-center gap-1">
+                      <Calendar className="w-3 h-3 text-[#0047AB]" />
+                      Due: {proj.due_date}
+                    </span>
+                  )}
+                  {proj.created_at && (
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3 h-3 text-slate-400" />
+                      {new Date(proj.created_at).toLocaleDateString("en-IN")}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                <span className="text-[#0047AB] font-black text-base flex items-center">
+                  ₹{Number(proj.budget || 0).toLocaleString("en-IN")}
+                </span>
+
+                <Link
+                  href={`/dashboard/freelancer/projects/${proj.id}`}
+                  className="text-xs font-bold text-[#0047AB] hover:underline flex items-center gap-1"
+                >
+                  <span>View Details</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center shadow-sm space-y-3">
+          <FolderKanban className="w-12 h-12 text-slate-300 mx-auto" />
+          <h3 className="font-bold text-lg text-slate-900">
+            No Projects Found
+          </h3>
+          <p className="text-xs font-medium text-slate-500 max-w-sm mx-auto">
+            Launch your first client project to track deliverables, milestones,
+            and earnings.
+          </p>
+          <button
+            onClick={() => {
+              setErrorMessage("");
+              setShowCreateModal(true);
+            }}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0047AB] text-white text-xs font-bold shadow-md"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Create Your First Project</span>
+          </button>
+        </div>
+      )}
+
+      {/* CREATE PROJECT MODAL */}
+      {showCreateModal && (
+        <div className="fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-2xl max-w-lg w-full space-y-4 my-8">
+            <div className="flex justify-between items-center pb-4 border-b border-slate-100">
+              <h3 className="font-bold text-lg text-slate-900 flex items-center gap-2">
+                <FolderKanban className="w-5 h-5 text-[#0047AB]" />
+                <span>Create Real Freelance Project</span>
+              </h3>
+              <button
+                onClick={() => setShowCreateModal(false)}
+                className="text-slate-400 hover:text-slate-600"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {errorMessage && (
+              <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>{errorMessage}</span>
               </div>
             )}
+
+            <form onSubmit={handleCreateProject} className="space-y-3.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">
+                    Project Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Next.js SaaS Web App"
+                    value={newProj.name}
+                    onChange={(e) =>
+                      setNewProj({ ...newProj, name: e.target.value })
+                    }
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">
+                    Client Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    list="client-suggestions"
+                    placeholder="e.g. Acme Global Inc."
+                    value={newProj.client}
+                    onChange={(e) =>
+                      setNewProj({ ...newProj, client: e.target.value })
+                    }
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                  />
+                  <datalist id="client-suggestions">
+                    {existingClients.map((c, i) => (
+                      <option key={i} value={c} />
+                    ))}
+                  </datalist>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">
+                    Service / Category
+                  </label>
+                  <select
+                    value={newProj.category}
+                    onChange={(e) =>
+                      setNewProj({ ...newProj, category: e.target.value })
+                    }
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                  >
+                    <option value="Web Development">Web Development</option>
+                    <option value="Mobile App">Mobile App</option>
+                    <option value="UI/UX Design">UI/UX Design</option>
+                    <option value="SEO & Marketing">SEO & Marketing</option>
+                    <option value="Content & Copywriting">
+                      Content & Copywriting
+                    </option>
+                    <option value="Consulting">Consulting</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">
+                    Budget Amount (₹ INR) *
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-slate-500 text-xs">
+                      ₹
+                    </span>
+                    <input
+                      type="number"
+                      required
+                      placeholder="25000"
+                      value={newProj.budget}
+                      onChange={(e) =>
+                        setNewProj({ ...newProj, budget: e.target.value })
+                      }
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-7 pr-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">
+                    Start Date
+                  </label>
+                  <input
+                    type="date"
+                    value={newProj.start_date}
+                    onChange={(e) =>
+                      setNewProj({ ...newProj, start_date: e.target.value })
+                    }
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">
+                    Deadline / Due Date
+                  </label>
+                  <input
+                    type="date"
+                    value={newProj.due_date}
+                    onChange={(e) =>
+                      setNewProj({ ...newProj, due_date: e.target.value })
+                    }
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">
+                    Status
+                  </label>
+                  <select
+                    value={newProj.status}
+                    onChange={(e) =>
+                      setNewProj({ ...newProj, status: e.target.value })
+                    }
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                  >
+                    <option value="Draft">Draft</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Review">Under Review</option>
+                    <option value="Completed">Completed</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">
+                    Priority
+                  </label>
+                  <select
+                    value={newProj.priority}
+                    onChange={(e) =>
+                      setNewProj({ ...newProj, priority: e.target.value })
+                    }
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                  >
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                    <option value="Urgent">Urgent</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">
+                  Scope of Work & Description
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="Describe project requirements, client requests, goals..."
+                  value={newProj.description}
+                  onChange={(e) =>
+                    setNewProj({ ...newProj, description: e.target.value })
+                  }
+                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSaving}
+                className="w-full bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs py-3 px-4 rounded-xl shadow-md flex items-center justify-center gap-2 transition disabled:opacity-50 mt-2"
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Saving to Supabase...</span>
+                  </>
+                ) : (
+                  <span>Save Project (₹ INR)</span>
+                )}
+              </button>
+            </form>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

@@ -3,453 +3,933 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
-  FolderKanban,
-  Users,
   Plus,
-  ArrowUpRight,
-  Loader2,
-  Building,
-  Trash2,
   Clock,
-  AlertTriangle,
+  Calendar,
+  CheckCircle2,
+  AlertCircle,
+  X,
+  Loader2,
+  TrendingUp,
+  Trash2,
+  Building,
+  FolderKanban,
+  CheckSquare,
+  Users,
+  Video,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 export default function FreelancerDashboard() {
   const [loading, setLoading] = useState(true);
+
+  // Live Database States
   const [projects, setProjects] = useState<any[]>([]);
   const [tasks, setTasks] = useState<any[]>([]);
-  const [updatingId, setUpdatingId] = useState<string | number | null>(null);
-  const [deletingId, setDeletingId] = useState<string | number | null>(null);
+  const [meetings, setMeetings] = useState<any[]>([]);
+  const [reminders, setReminders] = useState<any[]>([]);
+
+  // Modals
+  const [showTaskModal, setShowTaskModal] = useState(false);
+  const [showMeetingModal, setShowMeetingModal] = useState(false);
+  const [showReminderModal, setShowReminderModal] = useState(false);
+
+  // Forms
+  const [newTask, setNewTask] = useState({
+    title: "",
+    project_name: "",
+    priority: "High",
+  });
+  const [newMeeting, setNewMeeting] = useState({
+    title: "",
+    client: "",
+    meeting_time: "10:00 AM",
+    platform: "Google Meet",
+  });
+  const [newReminder, setNewReminder] = useState({
+    title: "",
+    reminder_time: "09:30 AM",
+    priority: "High",
+  });
 
   useEffect(() => {
-    fetchDashboardData();
+    fetchLiveWorkspaceData();
   }, []);
 
-  const fetchDashboardData = async () => {
+  const fetchLiveWorkspaceData = async () => {
     try {
       setLoading(true);
 
-      // 1. Fetch real projects from Supabase
-      const { data: projData, error: projError } = await supabase
-        .from("projects")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (projData) {
-        setProjects(projData);
-      }
-
-      // 2. Fetch tasks if tasks table exists
-      try {
-        const { data: taskData } = await supabase
+      const [projRes, taskRes, meetRes, remRes] = await Promise.all([
+        supabase
+          .from("projects")
+          .select("*")
+          .order("created_at", { ascending: false }),
+        supabase
           .from("tasks")
           .select("*")
-          .eq("status", "Pending");
-        if (taskData) setTasks(taskData);
-      } catch (e) {
-        // Ignored if tasks table is not yet created
-      }
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("meetings")
+          .select("*")
+          .order("created_at", { ascending: true }),
+        supabase
+          .from("reminders")
+          .select("*")
+          .order("created_at", { ascending: true }),
+      ]);
+
+      if (projRes.data) setProjects(projRes.data);
+      if (taskRes.data) setTasks(taskRes.data);
+      if (meetRes.data) setMeetings(meetRes.data);
+      if (remRes.data) setReminders(remRes.data);
     } catch (err) {
-      console.error("Dashboard data load error:", err);
+      console.error("Error loading workspace data:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  // --- 1. CHANGE STATUS (On Hold, Cancelled, In Progress, etc.) ---
-  const handleStatusChange = async (
-    projectId: string | number,
-    newStatus: string,
-  ) => {
-    setUpdatingId(projectId);
+  // --- TASK ACTIONS ---
+  const handleCreateTask = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTask.title.trim()) return;
+
     try {
-      const { error } = await supabase
-        .from("projects")
-        .update({ status: newStatus })
-        .eq("id", projectId);
+      const { data, error } = await supabase
+        .from("tasks")
+        .insert([
+          {
+            title: newTask.title.trim(),
+            project_name: newTask.project_name || "General",
+            priority: newTask.priority,
+            status: "Pending",
+          },
+        ])
+        .select();
 
       if (error) throw error;
-
-      // Update state locally immediately
-      setProjects((prev) =>
-        prev.map((p) => (p.id === projectId ? { ...p, status: newStatus } : p)),
-      );
+      if (data) setTasks([data[0], ...tasks]);
+      setNewTask({ title: "", project_name: "", priority: "High" });
+      setShowTaskModal(false);
     } catch (err: any) {
-      alert(`Failed to update status: ${err.message}`);
-    } finally {
-      setUpdatingId(null);
+      alert(`Error creating task: ${err.message}`);
     }
   };
 
-  // --- 2. DELETE PROJECT PERMANENTLY ---
-  const handleDeleteProject = async (
-    projectId: string | number,
-    name: string,
+  const handleToggleTaskStatus = async (
+    taskId: string,
+    currentStatus: string,
   ) => {
-    const confirmDelete = window.confirm(
-      `Are you sure you want to delete "${name}" permanently?`,
-    );
-    if (!confirmDelete) return;
-
-    setDeletingId(projectId);
+    const nextStatus = currentStatus === "Completed" ? "Pending" : "Completed";
     try {
-      const { error } = await supabase
-        .from("projects")
-        .delete()
-        .eq("id", projectId);
-
-      if (error) throw error;
-
-      // Remove from UI immediately
-      setProjects((prev) => prev.filter((p) => p.id !== projectId));
+      await supabase
+        .from("tasks")
+        .update({ status: nextStatus })
+        .eq("id", taskId);
+      setTasks(
+        tasks.map((t) => (t.id === taskId ? { ...t, status: nextStatus } : t)),
+      );
     } catch (err: any) {
-      alert(`Failed to delete project: ${err.message}`);
-    } finally {
-      setDeletingId(null);
+      console.error(err);
     }
+  };
+
+  const handleDeleteTask = async (taskId: string) => {
+    await supabase.from("tasks").delete().eq("id", taskId);
+    setTasks(tasks.filter((t) => t.id !== taskId));
+  };
+
+  // --- MEETING ACTIONS ---
+  const handleCreateMeeting = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newMeeting.title.trim()) return;
+
+    try {
+      const { data, error } = await supabase
+        .from("meetings")
+        .insert([newMeeting])
+        .select();
+      if (error) throw error;
+      if (data) setMeetings([...meetings, data[0]]);
+      setNewMeeting({
+        title: "",
+        client: "",
+        meeting_time: "10:00 AM",
+        platform: "Google Meet",
+      });
+      setShowMeetingModal(false);
+    } catch (err: any) {
+      alert(`Error scheduling meeting: ${err.message}`);
+    }
+  };
+
+  const handleDeleteMeeting = async (id: string) => {
+    await supabase.from("meetings").delete().eq("id", id);
+    setMeetings(meetings.filter((m) => m.id !== id));
+  };
+
+  // --- REMINDER ACTIONS ---
+  const handleCreateReminder = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newReminder.title.trim()) return;
+
+    try {
+      const { data, error } = await supabase
+        .from("reminders")
+        .insert([newReminder])
+        .select();
+      if (error) throw error;
+      if (data) setReminders([...reminders, data[0]]);
+      setNewReminder({
+        title: "",
+        reminder_time: "09:30 AM",
+        priority: "High",
+      });
+      setShowReminderModal(false);
+    } catch (err: any) {
+      alert(`Error adding reminder: ${err.message}`);
+    }
+  };
+
+  const handleDeleteReminder = async (id: string) => {
+    await supabase.from("reminders").delete().eq("id", id);
+    setReminders(reminders.filter((r) => r.id !== id));
   };
 
   // --- LIVE STAT CALCULATIONS ---
-  // 1. Active Projects = In Progress or Under Review
-  const activeProjects = projects.filter((p) =>
-    ["in progress", "under review"].includes(
-      (p.status || "").toLowerCase().trim(),
-    ),
-  );
-
-  // 2. On Hold / Payment Issues Count
-  const onHoldCount = projects.filter((p) =>
-    (p.status || "").toLowerCase().includes("hold"),
+  const totalProjectsCount = projects.length;
+  const totalTasksCount = tasks.length;
+  const assignedTasksCount = tasks.filter(
+    (t) => t.status !== "Completed",
+  ).length;
+  const completedTasksCount = tasks.filter(
+    (t) => t.status === "Completed",
   ).length;
 
-  // 3. Unique Active Clients count
   const uniqueClients = Array.from(
     new Set(projects.map((p) => (p.client || "").trim()).filter(Boolean)),
   );
-  const activeClientsCount = uniqueClients.length;
+  const totalBudget = projects.reduce(
+    (acc, p) => acc + (Number(p.budget) || 0),
+    0,
+  );
 
-  // 4. Total Pipeline Value in Indian Rupees (₹) excluding cancelled
-  const totalProjectValue = projects
-    .filter((p) => (p.status || "").toLowerCase() !== "cancelled")
-    .reduce((acc, curr) => acc + (Number(curr.budget) || 0), 0);
+  const overdueAmount = projects
+    .filter((p) => (p.status || "").toLowerCase().includes("hold"))
+    .reduce((acc, p) => acc + (Number(p.budget) || 0), 0);
+  const inProgressAmount = projects
+    .filter((p) => (p.status || "").toLowerCase() === "in progress")
+    .reduce((acc, p) => acc + (Number(p.budget) || 0), 0);
+  const reviewAmount = projects
+    .filter((p) => (p.status || "").toLowerCase().includes("review"))
+    .reduce((acc, p) => acc + (Number(p.budget) || 0), 0);
+  const completedAmount = projects
+    .filter((p) => (p.status || "").toLowerCase() === "completed")
+    .reduce((acc, p) => acc + (Number(p.budget) || 0), 0);
 
-  // 5. Pending Tasks count
-  const pendingTasksCount = tasks.length;
-
-  // Status Badge Styling Helper
-  const getStatusBadge = (status: string) => {
-    const s = (status || "").toLowerCase();
-    if (s.includes("hold")) {
-      return "bg-amber-50 text-amber-700 border-amber-200";
-    }
-    if (s.includes("cancel") || s.includes("stopped")) {
-      return "bg-red-50 text-red-700 border-red-200";
-    }
-    if (s.includes("complete")) {
-      return "bg-emerald-50 text-emerald-700 border-emerald-200";
-    }
-    if (s.includes("review")) {
-      return "bg-purple-50 text-purple-700 border-purple-200";
-    }
-    return "bg-blue-50 text-[#0047AB] border-blue-200";
-  };
+  const activityPercent =
+    totalTasksCount > 0
+      ? Math.round((completedTasksCount / totalTasksCount) * 100)
+      : 75;
+  const chartColors = ["#3B82F6", "#10B981", "#EF4444", "#F59E0B", "#8B5CF6"];
 
   if (loading) {
     return (
       <div className="min-h-[400px] flex items-center justify-center font-bold text-slate-500 font-sans">
         <Loader2 className="w-6 h-6 animate-spin text-[#0047AB] mr-2" />
-        <span>Loading Live Dashboard...</span>
+        <span className="font-sans">Loading Workspace Data...</span>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 font-sans">
-      {/* WELCOME HEADER */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <span className="text-[11px] font-bold text-[#0047AB] bg-blue-50 border border-blue-200 px-3 py-1 rounded-full">
-            ● Orvixa Freelancer OS
-          </span>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 mt-2">
-            <span>Welcome, </span>
-            <span className="font-heading italic text-[#0047AB]">
-              skynovadigitals
+    <div className="space-y-6 font-sans text-slate-900 pb-12">
+      {/* ================= 1. TOP METRIC STATS ROW ================= */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 font-sans">
+        {/* Total Project */}
+        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between hover:border-blue-200 transition font-sans">
+          <div className="flex items-center justify-between font-sans">
+            <span className="text-xs font-bold text-slate-500 font-sans">
+              Total Project
             </span>
-          </h1>
-          <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
-            Real-time overview of active projects, clients, and earnings in ₹
-            INR.
-          </p>
+            <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 font-sans">
+              Active
+            </span>
+          </div>
+          <div className="mt-3 font-sans">
+            <div className="text-3xl font-black text-slate-900 font-sans">
+              {totalProjectsCount}
+            </div>
+            <span className="text-[11px] font-medium text-slate-400 font-sans">
+              All registered projects
+            </span>
+          </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <Link
-            href="/dashboard/freelancer/projects"
-            className="bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md shadow-[#0047AB]/25 flex items-center gap-2 transition"
-          >
-            <Plus className="w-4 h-4" />
-            <span>New Project</span>
-          </Link>
+        {/* Total Task */}
+        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between hover:border-blue-200 transition font-sans">
+          <div className="flex items-center justify-between font-sans">
+            <span className="text-xs font-bold text-slate-500 font-sans">
+              Total Task
+            </span>
+            <span className="text-[11px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200 font-sans">
+              Tracked
+            </span>
+          </div>
+          <div className="mt-3 font-sans">
+            <div className="text-3xl font-black text-slate-900 font-sans">
+              {totalTasksCount}
+            </div>
+            <span className="text-[11px] font-medium text-slate-400 font-sans">
+              All workspace deliverables
+            </span>
+          </div>
+        </div>
+
+        {/* Assigned Task */}
+        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between hover:border-blue-200 transition font-sans">
+          <div className="flex items-center justify-between font-sans">
+            <span className="text-xs font-bold text-slate-500 font-sans">
+              Assigned Task
+            </span>
+            <span className="text-[11px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 font-sans">
+              Pending
+            </span>
+          </div>
+          <div className="mt-3 font-sans">
+            <div className="text-3xl font-black text-slate-900 font-sans">
+              {assignedTasksCount}
+            </div>
+            <span className="text-[11px] font-medium text-slate-400 font-sans">
+              Tasks in progress
+            </span>
+          </div>
+        </div>
+
+        {/* Total Pipeline Revenue */}
+        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between hover:border-blue-200 transition font-sans">
+          <div className="flex items-center justify-between font-sans">
+            <span className="text-xs font-bold text-slate-500 font-sans">
+              Total Pipeline
+            </span>
+            <span className="text-[11px] font-bold text-[#0047AB] bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200 font-sans">
+              ₹ INR
+            </span>
+          </div>
+          <div className="mt-3 font-sans">
+            <div className="text-3xl font-black text-[#0047AB] font-sans">
+              ₹{totalBudget.toLocaleString("en-IN")}
+            </div>
+            <span className="text-[11px] font-medium text-slate-400 font-sans">
+              {uniqueClients.length} Total Client
+              {uniqueClients.length === 1 ? "" : "s"}
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* QUICK ACTIONS BAR */}
-      <div className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center gap-2">
-        <span className="text-[11px] font-bold uppercase text-slate-400 mr-2 tracking-wider">
-          Quick Actions:
-        </span>
-        <Link
-          href="/dashboard/freelancer/projects"
-          className="bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition"
-        >
-          <Plus className="w-3.5 h-3.5" /> Project
-        </Link>
-        <Link
-          href="/dashboard/freelancer/clients"
-          className="bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition"
-        >
-          <Plus className="w-3.5 h-3.5" /> Client
-        </Link>
-        <Link
-          href="/dashboard/freelancer/tasks"
-          className="bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition"
-        >
-          <Plus className="w-3.5 h-3.5" /> Task
-        </Link>
-      </div>
-
-      {/* --- LIVE STAT CARDS --- */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        {/* Active Projects */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider block mb-1">
-            Active Projects
-          </span>
-          <div className="text-2xl font-black text-slate-900 mb-1">
-            {activeProjects.length} Active
-          </div>
-          <span className="text-[11px] font-bold text-emerald-600">
-            ✓ Workspace Synced
-          </span>
-        </div>
-
-        {/* Active Clients */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider block mb-1">
-            Active Clients
-          </span>
-          <div className="text-2xl font-black text-slate-900 mb-1">
-            {activeClientsCount}{" "}
-            {activeClientsCount === 1 ? "Client" : "Clients"}
-          </div>
-          <span className="text-[11px] font-bold text-slate-500">
-            From Real Projects
-          </span>
-        </div>
-
-        {/* On Hold / Payment Issues */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider block mb-1">
-            On Hold / Issues
-          </span>
-          <div className="text-2xl font-black text-amber-600 mb-1">
-            {onHoldCount} Projects
-          </div>
-          <span className="text-[11px] font-bold text-amber-600">
-            Payment / Paused
-          </span>
-        </div>
-
-        {/* Total Project Value (Indian Rupees ₹) */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider block mb-1">
-            Total Pipeline Value
-          </span>
-          <div className="text-2xl font-black text-[#0047AB] mb-1">
-            ₹{totalProjectValue.toLocaleString("en-IN")}
-          </div>
-          <span className="text-[11px] font-bold text-emerald-600">
-            ✓ Total Project Budgets
-          </span>
-        </div>
-
-        {/* Pending Invoices */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider block mb-1">
-            Pending Invoices
-          </span>
-          <div className="text-2xl font-black text-slate-900 mb-1">₹0.00</div>
-          <span className="text-[11px] font-bold text-amber-600">
-            Awaiting payment
-          </span>
-        </div>
-
-        {/* Hours Tracked */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider block mb-1">
-            Hours Tracked
-          </span>
-          <div className="text-2xl font-black text-slate-900 mb-1">0h 0m</div>
-          <span className="text-[11px] font-bold text-slate-400">
-            Logged Hours
-          </span>
-        </div>
-      </div>
-
-      {/* RECENT PROJECTS & CLIENT SUMMARY */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Active Projects List */}
-        <div className="lg:col-span-2 bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-            <h3 className="font-bold text-base text-slate-900 flex items-center gap-2">
-              <FolderKanban className="w-5 h-5 text-[#0047AB]" />
-              <span>All Projects ({projects.length})</span>
-            </h3>
-            <Link
-              href="/dashboard/freelancer/projects"
-              className="text-xs font-bold text-[#0047AB] hover:underline flex items-center gap-1"
+      {/* ================= 2. MIDDLE ROW: TODAY'S TASKS, TODAY'S MEETINGS, ACTIVITY, PROJECT WORK ================= */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 font-sans">
+        {/* 1. Today's Tasks */}
+        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between font-sans">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100 font-sans">
+            <div className="flex items-center gap-2 font-sans">
+              <h3 className="font-bold text-xs text-slate-700 font-sans">
+                Today&apos;s Tasks
+              </h3>
+              <span className="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full font-sans">
+                {tasks.length}
+              </span>
+            </div>
+            <button
+              onClick={() => setShowTaskModal(true)}
+              className="text-xs font-bold text-[#0047AB] hover:underline flex items-center gap-1 font-sans"
             >
-              View Grid <ArrowUpRight className="w-3.5 h-3.5" />
-            </Link>
+              <Plus className="w-3.5 h-3.5" /> Add
+            </button>
           </div>
 
-          <div className="space-y-3">
-            {projects.slice(0, 6).map((proj) => (
+          <div className="space-y-2.5 my-3.5 max-h-48 overflow-y-auto pr-1 font-sans">
+            {tasks.map((task) => (
               <div
-                key={proj.id}
-                className="p-4 rounded-2xl border border-slate-100 hover:border-blue-200 bg-slate-50/50 hover:bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition"
+                key={task.id}
+                className="p-2.5 bg-slate-50/80 hover:bg-blue-50/40 rounded-xl border border-slate-100 flex items-center justify-between gap-2 group transition font-sans"
               >
-                <div>
-                  <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <Link
-                      href={`/dashboard/freelancer/projects/${proj.id}`}
-                      className="font-bold text-sm text-slate-900 hover:text-[#0047AB] transition"
-                    >
-                      {proj.name}
-                    </Link>
-
-                    {/* STATUS SELECTOR */}
-                    <select
-                      value={proj.status || "In Progress"}
-                      disabled={updatingId === proj.id}
-                      onChange={(e) =>
-                        handleStatusChange(proj.id, e.target.value)
-                      }
-                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full border cursor-pointer focus:outline-none ${getStatusBadge(
-                        proj.status,
-                      )}`}
-                    >
-                      <option value="In Progress">🟢 In Progress</option>
-                      <option value="On Hold (Payment Pending)">
-                        🟠 On Hold (Payment Issue)
-                      </option>
-                      <option value="Under Review">🟣 Under Review</option>
-                      <option value="Completed">🔵 Completed</option>
-                      <option value="Cancelled">🔴 Cancelled / Stopped</option>
-                    </select>
-
-                    {updatingId === proj.id && (
-                      <Loader2 className="w-3 h-3 animate-spin text-[#0047AB]" />
-                    )}
-                  </div>
-
-                  <p className="text-xs text-slate-500 flex items-center gap-1.5">
-                    <Building className="w-3.5 h-3.5 text-slate-400" />
-                    <span>
-                      Client:{" "}
-                      <strong className="text-slate-700">{proj.client}</strong>
-                    </span>
-                    {proj.due_date && (
-                      <span className="text-slate-400 ml-2">
-                        • Due: {proj.due_date}
-                      </span>
-                    )}
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-4 self-end sm:self-center">
-                  <span className="text-sm font-black text-[#0047AB]">
-                    ₹{Number(proj.budget || 0).toLocaleString("en-IN")}
-                  </span>
-
-                  {/* DELETE BUTTON */}
+                <div className="flex items-center gap-2 min-w-0 font-sans">
                   <button
-                    onClick={() => handleDeleteProject(proj.id, proj.name)}
-                    disabled={deletingId === proj.id}
-                    title="Delete Project Permanently"
-                    className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition"
+                    onClick={() => handleToggleTaskStatus(task.id, task.status)}
+                    className={`w-5 h-5 rounded-md flex items-center justify-center border transition shrink-0 ${
+                      task.status === "Completed"
+                        ? "bg-emerald-500 border-emerald-500 text-white"
+                        : "border-slate-300 hover:border-[#0047AB]"
+                    }`}
                   >
-                    {deletingId === proj.id ? (
-                      <Loader2 className="w-4 h-4 animate-spin text-red-600" />
-                    ) : (
-                      <Trash2 className="w-4 h-4" />
+                    {task.status === "Completed" && (
+                      <CheckCircle2 className="w-3.5 h-3.5" />
                     )}
                   </button>
+                  <div className="min-w-0 font-sans">
+                    <div
+                      className={`text-xs font-bold font-sans truncate ${task.status === "Completed" ? "line-through text-slate-400" : "text-slate-800"}`}
+                    >
+                      {task.title}
+                    </div>
+                    <span className="text-[9px] font-medium text-slate-400 block truncate font-sans">
+                      {task.project_name}
+                    </span>
+                  </div>
                 </div>
+                <button
+                  onClick={() => handleDeleteTask(task.id)}
+                  className="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-600 transition p-1"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
               </div>
             ))}
-
-            {projects.length === 0 && (
-              <div className="text-center py-8 text-xs text-slate-400">
-                No active projects yet. Create one to see live data here.
+            {tasks.length === 0 && (
+              <div className="text-center py-6 text-xs text-slate-400 font-sans">
+                No tasks today. Click &quot;Add&quot; above.
               </div>
             )}
           </div>
+
+          <Link
+            href="/dashboard/freelancer/tasks"
+            className="text-right text-[11px] font-bold text-slate-400 hover:text-[#0047AB] block pt-1 font-sans"
+          >
+            Manage all →
+          </Link>
         </div>
 
-        {/* Client Summary Box */}
-        <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-            <h3 className="font-bold text-base text-slate-900 flex items-center gap-2">
-              <Users className="w-5 h-5 text-[#0047AB]" />
-              <span>Clients Summary</span>
+        {/* 2. Today's Meetings */}
+        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between font-sans">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100 font-sans">
+            <div className="flex items-center gap-2 font-sans">
+              <h3 className="font-bold text-xs text-slate-700 font-sans">
+                Today&apos;s Meetings
+              </h3>
+              <span className="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full font-sans">
+                {meetings.length}
+              </span>
+            </div>
+            <button
+              onClick={() => setShowMeetingModal(true)}
+              className="text-xs font-bold text-[#0047AB] hover:underline flex items-center gap-1 font-sans"
+            >
+              <Plus className="w-3.5 h-3.5" /> Schedule
+            </button>
+          </div>
+
+          <div className="space-y-2.5 my-3.5 max-h-48 overflow-y-auto pr-1 font-sans">
+            {meetings.map((m) => (
+              <div
+                key={m.id}
+                className="p-2.5 bg-slate-50/80 hover:bg-slate-100/60 rounded-xl border border-slate-100 flex items-center justify-between gap-2 group transition font-sans"
+              >
+                <div className="font-sans">
+                  <span className="text-[10px] font-bold text-[#0047AB] bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100 inline-block mb-0.5 font-sans">
+                    {m.meeting_time}
+                  </span>
+                  <div className="text-xs font-bold text-slate-800 line-clamp-1 font-sans">
+                    {m.title}
+                  </div>
+                  <span className="text-[10px] text-slate-400 font-medium font-sans">
+                    {m.client || "Client Call"}
+                  </span>
+                </div>
+                <button
+                  onClick={() => handleDeleteMeeting(m.id)}
+                  className="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-600 transition p-1"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ))}
+            {meetings.length === 0 && (
+              <div className="text-center py-6 text-xs text-slate-400 font-sans">
+                No scheduled calls today.
+              </div>
+            )}
+          </div>
+
+          <button
+            onClick={() => setShowMeetingModal(true)}
+            className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold py-2 rounded-xl transition flex items-center justify-center gap-1.5 font-sans"
+          >
+            <Plus className="w-3.5 h-3.5" /> Schedule meeting
+          </button>
+        </div>
+
+        {/* 3. Activity Chart */}
+        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between font-sans">
+          <div className="flex items-center justify-between font-sans">
+            <h3 className="font-bold text-xs text-slate-700 font-sans">
+              Activity
             </h3>
-            <span className="text-xs font-bold text-slate-500">
-              {activeClientsCount} Total
+            <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1 font-sans">
+              <TrendingUp className="w-3 h-3" /> {activityPercent}%
             </span>
           </div>
 
-          <div className="space-y-2.5">
-            {uniqueClients.map((clientName, index) => {
-              const clientProjects = projects.filter(
-                (p) => p.client === clientName,
-              );
-              const hasHold = clientProjects.some((p) =>
-                (p.status || "").toLowerCase().includes("hold"),
-              );
+          <div className="text-2xl font-black text-slate-900 my-1 font-sans">
+            {activityPercent}%
+          </div>
+
+          <div className="flex items-end justify-between h-24 pt-2 gap-1.5 font-sans">
+            {[
+              { day: "MON", val: 85 },
+              { day: "TUE", val: 40 },
+              { day: "WED", val: 75 },
+              { day: "THU", val: 55 },
+              { day: "FRI", val: 90 },
+              { day: "SAT", val: 45 },
+            ].map((col, idx) => (
+              <div
+                key={idx}
+                className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end font-sans"
+              >
+                <div
+                  className={`w-full rounded-md transition-all duration-500 ${idx === 0 || idx === 2 ? "bg-slate-900" : "bg-slate-200"}`}
+                  style={{ height: `${col.val}%` }}
+                />
+                <span className="text-[9px] font-bold text-slate-400 font-sans">
+                  {col.day}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 4. Project Work Breakdown Donut */}
+        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between font-sans">
+          <div className="flex justify-between items-center pb-2 border-b border-slate-100 font-sans">
+            <h4 className="font-bold text-xs text-slate-700 font-sans">
+              Project Work
+            </h4>
+            <span className="text-[10px] font-bold text-slate-400 font-sans">
+              {projects.length} Total
+            </span>
+          </div>
+
+          <div className="relative w-28 h-28 mx-auto my-1 flex items-center justify-center font-sans">
+            <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
+              <circle
+                cx="18"
+                cy="18"
+                r="14"
+                fill="transparent"
+                stroke="#E2E8F0"
+                strokeWidth="4"
+              />
+              <circle
+                cx="18"
+                cy="18"
+                r="14"
+                fill="transparent"
+                stroke="#3B82F6"
+                strokeWidth="4"
+                strokeDasharray="50 100"
+                strokeDashoffset="0"
+              />
+              <circle
+                cx="18"
+                cy="18"
+                r="14"
+                fill="transparent"
+                stroke="#10B981"
+                strokeWidth="4"
+                strokeDasharray="30 100"
+                strokeDashoffset="-50"
+              />
+              <circle
+                cx="18"
+                cy="18"
+                r="14"
+                fill="transparent"
+                stroke="#EF4444"
+                strokeWidth="4"
+                strokeDasharray="20 100"
+                strokeDashoffset="-80"
+              />
+            </svg>
+            <div className="absolute text-center font-sans">
+              <span className="text-lg font-black text-slate-900 block leading-none font-sans">
+                {projects.length}
+              </span>
+              <span className="text-[8px] font-bold uppercase text-slate-400 font-sans">
+                PROJECTS
+              </span>
+            </div>
+          </div>
+
+          <div className="space-y-1 pt-2 border-t border-slate-100 text-xs font-sans">
+            {projects.slice(0, 2).map((p, idx) => (
+              <div
+                key={p.id}
+                className="flex items-center justify-between text-slate-700 font-sans"
+              >
+                <div className="flex items-center gap-1.5 truncate font-sans">
+                  <span
+                    className="w-2 h-2 rounded-full shrink-0"
+                    style={{
+                      backgroundColor: chartColors[idx % chartColors.length],
+                    }}
+                  />
+                  <span className="truncate font-bold text-[10px] font-sans">
+                    {p.name}
+                  </span>
+                </div>
+                <span className="font-bold text-[10px] text-slate-400 font-sans">
+                  {totalBudget > 0
+                    ? Math.round(((Number(p.budget) || 0) / totalBudget) * 100)
+                    : 50}
+                  %
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ================= 3. BOTTOM ROW: INVOICE OVERVIEW, SCHEDULE TIMELINE, REMINDERS ================= */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 font-sans">
+        {/* 1. Invoice / Revenue Breakdown in ₹ INR */}
+        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm space-y-4 font-sans">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3 font-sans">
+            <h3 className="font-bold text-xs text-slate-700 font-sans">
+              Invoice / Revenue Overview
+            </h3>
+            <span className="text-xs font-bold text-[#0047AB] font-sans">
+              ₹{totalBudget.toLocaleString("en-IN")}
+            </span>
+          </div>
+
+          <div className="space-y-3 font-sans">
+            <div className="space-y-1 font-sans">
+              <div className="flex justify-between text-xs font-bold font-sans">
+                <span className="text-purple-700 font-sans">
+                  Overdue / On Hold
+                </span>
+                <span className="text-slate-800 font-sans">
+                  ₹{overdueAmount.toLocaleString("en-IN")}
+                </span>
+              </div>
+              <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-purple-600 rounded-full"
+                  style={{
+                    width: `${totalBudget > 0 ? (overdueAmount / totalBudget) * 100 : 0}%`,
+                  }}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1 font-sans">
+              <div className="flex justify-between text-xs font-bold font-sans">
+                <span className="text-blue-600 font-sans">
+                  In Progress Active
+                </span>
+                <span className="text-slate-800 font-sans">
+                  ₹{inProgressAmount.toLocaleString("en-IN")}
+                </span>
+              </div>
+              <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-blue-500 rounded-full"
+                  style={{
+                    width: `${totalBudget > 0 ? (inProgressAmount / totalBudget) * 100 : 0}%`,
+                  }}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1 font-sans">
+              <div className="flex justify-between text-xs font-bold font-sans">
+                <span className="text-emerald-600 font-sans">
+                  Fully Completed
+                </span>
+                <span className="text-slate-800 font-sans">
+                  ₹{completedAmount.toLocaleString("en-IN")}
+                </span>
+              </div>
+              <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-emerald-500 rounded-full"
+                  style={{
+                    width: `${totalBudget > 0 ? (completedAmount / totalBudget) * 100 : 0}%`,
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 2. Schedule Timeline */}
+        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm space-y-3 font-sans">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3 font-sans">
+            <h3 className="font-bold text-xs text-slate-700 font-sans">
+              Schedule Timeline
+            </h3>
+            <span className="text-xs font-bold text-slate-400 font-sans">
+              Today
+            </span>
+          </div>
+
+          <div className="space-y-2.5 font-sans">
+            {projects.slice(0, 3).map((p, idx) => {
+              const bgColors = [
+                "bg-lime-50 border-lime-200",
+                "bg-amber-50 border-amber-200",
+                "bg-blue-50 border-blue-200",
+              ];
+              const times = ["1:00 PM", "2:30 PM", "4:30 PM"];
 
               return (
                 <div
-                  key={index}
-                  className="p-3 bg-slate-50 rounded-xl flex items-center justify-between text-xs"
+                  key={p.id}
+                  className="flex items-center justify-between gap-3 font-sans"
                 >
-                  <div className="flex items-center gap-2 font-bold text-slate-800">
-                    <Building className="w-3.5 h-3.5 text-slate-400" />
-                    <span>{clientName}</span>
-                    {hasHold && (
-                      <span className="text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold">
-                        Hold
-                      </span>
-                    )}
+                  <div
+                    className={`p-2.5 rounded-xl border flex-1 font-sans ${bgColors[idx % bgColors.length]}`}
+                  >
+                    <div className="text-xs font-bold text-slate-900 truncate font-sans">
+                      {p.name}
+                    </div>
+                    <span className="text-[9px] font-bold text-slate-600 uppercase tracking-wider block font-sans">
+                      {p.client}
+                    </span>
                   </div>
-                  <span className="font-semibold text-[#0047AB] bg-blue-50 px-2 py-0.5 rounded-md text-[11px]">
-                    {clientProjects.length}{" "}
-                    {clientProjects.length === 1 ? "Project" : "Projects"}
+                  <span className="text-[10px] font-bold text-slate-400 shrink-0 font-sans">
+                    {times[idx % times.length]}
                   </span>
                 </div>
               );
             })}
-
-            {uniqueClients.length === 0 && (
-              <div className="text-center py-8 text-xs text-slate-400">
-                No clients found.
+            {projects.length === 0 && (
+              <div className="text-center py-6 text-xs text-slate-400 font-sans">
+                No scheduled timeline items.
               </div>
             )}
           </div>
         </div>
+
+        {/* 3. Reminders */}
+        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-3 font-sans">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3 font-sans">
+            <h3 className="font-bold text-xs text-slate-700 font-sans">
+              Reminders
+            </h3>
+            <button
+              onClick={() => setShowReminderModal(true)}
+              className="text-xs font-bold text-[#0047AB] hover:underline flex items-center gap-1 font-sans"
+            >
+              <Plus className="w-3.5 h-3.5" /> Add
+            </button>
+          </div>
+
+          <div className="space-y-2 font-sans">
+            {reminders.map((r) => (
+              <div
+                key={r.id}
+                className="p-2.5 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-between gap-2 group transition font-sans"
+              >
+                <div className="font-sans">
+                  <span className="text-[9px] font-bold text-slate-400 block font-sans">
+                    {r.reminder_time}
+                  </span>
+                  <div className="text-xs font-bold text-slate-800 font-sans">
+                    {r.title}
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 font-sans">
+                  <span
+                    className={`text-[9px] font-bold px-2 py-0.5 rounded-full font-sans ${r.priority === "High" ? "bg-red-50 text-red-600 border border-red-200" : "bg-amber-50 text-amber-600 border border-amber-200"}`}
+                  >
+                    {r.priority}
+                  </span>
+                  <button
+                    onClick={() => handleDeleteReminder(r.id)}
+                    className="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-600 transition"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+            {reminders.length === 0 && (
+              <div className="text-center py-6 text-xs text-slate-400 font-sans">
+                No active reminders.
+              </div>
+            )}
+          </div>
+
+          <button
+            onClick={() => setShowReminderModal(true)}
+            className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold py-2 rounded-xl transition font-sans"
+          >
+            + New Reminder
+          </button>
+        </div>
       </div>
+
+      {/* ================= MODALS ================= */}
+      {/* 1. Add Task Modal */}
+      {showTaskModal && (
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 font-sans">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full space-y-4 shadow-2xl font-sans">
+            <div className="flex justify-between items-center border-b pb-3 font-sans">
+              <h4 className="font-bold text-xs text-slate-700 font-sans">
+                Add Live Task
+              </h4>
+              <button
+                onClick={() => setShowTaskModal(false)}
+                className="text-slate-400 hover:text-slate-600"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <form onSubmit={handleCreateTask} className="space-y-3 font-sans">
+              <input
+                type="text"
+                required
+                placeholder="Task title (e.g. Create Landing Page)"
+                value={newTask.title}
+                onChange={(e) =>
+                  setNewTask({ ...newTask, title: e.target.value })
+                }
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold outline-none focus:border-[#0047AB] font-sans"
+              />
+              <input
+                type="text"
+                placeholder="Project Name (e.g. Food Link)"
+                value={newTask.project_name}
+                onChange={(e) =>
+                  setNewTask({ ...newTask, project_name: e.target.value })
+                }
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold outline-none focus:border-[#0047AB] font-sans"
+              />
+              <button
+                type="submit"
+                className="w-full bg-[#0047AB] text-white font-bold text-xs py-2.5 rounded-xl shadow-md font-sans"
+              >
+                Save Task
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 2. Schedule Meeting Modal */}
+      {showMeetingModal && (
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 font-sans">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full space-y-4 shadow-2xl font-sans">
+            <div className="flex justify-between items-center border-b pb-3 font-sans">
+              <h4 className="font-bold text-xs text-slate-700 font-sans">
+                Schedule Meeting
+              </h4>
+              <button
+                onClick={() => setShowMeetingModal(false)}
+                className="text-slate-400 hover:text-slate-600"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <form
+              onSubmit={handleCreateMeeting}
+              className="space-y-3 font-sans"
+            >
+              <input
+                type="text"
+                required
+                placeholder="Meeting Topic (e.g. Project Feedback Call)"
+                value={newMeeting.title}
+                onChange={(e) =>
+                  setNewMeeting({ ...newMeeting, title: e.target.value })
+                }
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold outline-none focus:border-[#0047AB] font-sans"
+              />
+              <input
+                type="text"
+                placeholder="Client Name (e.g. Food Link)"
+                value={newMeeting.client}
+                onChange={(e) =>
+                  setNewMeeting({ ...newMeeting, client: e.target.value })
+                }
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold outline-none focus:border-[#0047AB] font-sans"
+              />
+              <input
+                type="text"
+                placeholder="Time (e.g. 03:00 PM)"
+                value={newMeeting.meeting_time}
+                onChange={(e) =>
+                  setNewMeeting({ ...newMeeting, meeting_time: e.target.value })
+                }
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold outline-none focus:border-[#0047AB] font-sans"
+              />
+              <button
+                type="submit"
+                className="w-full bg-[#0047AB] text-white font-bold text-xs py-2.5 rounded-xl shadow-md font-sans"
+              >
+                Save Meeting
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 3. Add Reminder Modal */}
+      {showReminderModal && (
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 font-sans">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full space-y-4 shadow-2xl font-sans">
+            <div className="flex justify-between items-center border-b pb-3 font-sans">
+              <h4 className="font-bold text-xs text-slate-700 font-sans">
+                Add Reminder
+              </h4>
+              <button
+                onClick={() => setShowReminderModal(false)}
+                className="text-slate-400 hover:text-slate-600"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <form
+              onSubmit={handleCreateReminder}
+              className="space-y-3 font-sans"
+            >
+              <input
+                type="text"
+                required
+                placeholder="Reminder Title (e.g. Check Test Results)"
+                value={newReminder.title}
+                onChange={(e) =>
+                  setNewReminder({ ...newReminder, title: e.target.value })
+                }
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold outline-none focus:border-[#0047AB] font-sans"
+              />
+              <input
+                type="text"
+                placeholder="Time (e.g. 09:30 AM)"
+                value={newReminder.reminder_time}
+                onChange={(e) =>
+                  setNewReminder({
+                    ...newReminder,
+                    reminder_time: e.target.value,
+                  })
+                }
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold outline-none focus:border-[#0047AB] font-sans"
+              />
+              <button
+                type="submit"
+                className="w-full bg-[#0047AB] text-white font-bold text-xs py-2.5 rounded-xl shadow-md font-sans"
+              >
+                Save Reminder
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

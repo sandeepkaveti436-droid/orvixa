@@ -238,7 +238,7 @@ export default function FreelancerDashboardLayout({
                 Orvixa
               </span>
               <span className="text-[10px] font-bold text-[#0047AB] tracking-wider uppercase">
-                Freelancer OS
+                Freelancer
               </span>
             </div>
           </Link>

@@ -4,42 +4,59 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   TrendingUp,
-  IndianRupee,
-  FolderKanban,
+  BarChart3,
   Users,
+  FolderKanban,
   CheckCircle2,
   Clock,
-  Calendar,
   Sparkles,
-  BarChart3,
-  Loader2,
   ArrowUpRight,
-  PieChart,
+  ArrowRight,
+  ShieldAlert,
+  Loader2,
+  Calendar,
+  Layers,
+  Building,
+  DollarSign,
+  Activity,
+  CheckSquare,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 export default function AnalyticsPage() {
   const [loading, setLoading] = useState(true);
-  const [timeRange, setTimeRange] = useState<"7D" | "30D" | "90D" | "1Y">(
-    "30D",
-  );
+  const [timeRange, setTimeRange] = useState<
+    "7D" | "30D" | "90D" | "1Y" | "ALL"
+  >("30D");
+
+  // Live Database States
   const [projects, setProjects] = useState<any[]>([]);
+  const [invoices, setInvoices] = useState<any[]>([]);
+  const [tasks, setTasks] = useState<any[]>([]);
 
   useEffect(() => {
-    fetchAnalyticsData();
+    fetchAnalyticsWorkspaceData();
   }, []);
 
-  const fetchAnalyticsData = async () => {
+  const fetchAnalyticsWorkspaceData = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from("projects")
-        .select("*")
-        .order("created_at", { ascending: true });
 
-      if (data) {
-        setProjects(data);
-      }
+      const [projRes, invRes, taskRes] = await Promise.all([
+        supabase
+          .from("projects")
+          .select("*")
+          .order("created_at", { ascending: true }),
+        supabase
+          .from("invoices")
+          .select("*")
+          .order("created_at", { ascending: true }),
+        supabase.from("tasks").select("*"),
+      ]);
+
+      if (projRes.data) setProjects(projRes.data);
+      if (invRes.data) setInvoices(invRes.data);
+      if (taskRes.data) setTasks(taskRes.data);
     } catch (err) {
       console.error("Error loading analytics:", err);
     } finally {
@@ -53,59 +70,117 @@ export default function AnalyticsPage() {
     if (timeRange === "7D") return 7;
     if (timeRange === "30D") return 30;
     if (timeRange === "90D") return 90;
-    return 365;
+    if (timeRange === "1Y") return 365;
+    return 9999;
   };
 
   const filteredProjects = projects.filter((p) => {
-    if (!p.created_at) return true;
+    if (!p.created_at || timeRange === "ALL") return true;
     const projDate = new Date(p.created_at);
     const diffDays = (now.getTime() - projDate.getTime()) / (1000 * 3600 * 24);
     return diffDays <= getDays();
   });
 
-  // --- METRIC CALCULATIONS ---
-  // 1. Total Pipeline & Project Revenue in ₹
+  // --- LIVE COMPUTED SAAS METRICS ---
+  // 1. Total Pipeline Revenue in ₹ INR
   const totalRevenue = filteredProjects
     .filter((p) => (p.status || "").toLowerCase() !== "cancelled")
     .reduce((sum, p) => sum + (Number(p.budget) || 0), 0);
 
-  // 2. Active, Completed, On Hold Breakdown
-  const activeCount = filteredProjects.filter((p) =>
-    ["in progress", "under review"].includes((p.status || "").toLowerCase()),
-  ).length;
+  // 2. Average Project Value (Deal Size)
+  const activeProjectsCount = filteredProjects.length;
+  const avgProjectValue =
+    activeProjectsCount > 0
+      ? Math.round(totalRevenue / activeProjectsCount)
+      : 0;
 
-  const completedCount = filteredProjects.filter(
-    (p) => (p.status || "").toLowerCase() === "completed",
-  ).length;
-
-  const onHoldCount = filteredProjects.filter((p) =>
+  // 3. Status Distributions
+  const inProgressProjects = filteredProjects.filter(
+    (p) => (p.status || "").toLowerCase() === "in progress",
+  );
+  const underReviewProjects = filteredProjects.filter((p) =>
+    (p.status || "").toLowerCase().includes("review"),
+  );
+  const onHoldProjects = filteredProjects.filter((p) =>
     (p.status || "").toLowerCase().includes("hold"),
-  ).length;
-
-  // 3. Unique Clients
-  const uniqueClients = Array.from(
-    new Set(
-      filteredProjects.map((p) => (p.client || "").trim()).filter(Boolean),
-    ),
+  );
+  const completedProjects = filteredProjects.filter(
+    (p) => (p.status || "").toLowerCase() === "completed",
   );
 
-  // 4. Revenue By Client
-  const clientRevenueMap: { [client: string]: number } = {};
+  // 4. Client Concentration & Revenue Share
+  const clientRevenueMap: {
+    [client: string]: { amount: number; count: number };
+  } = {};
   filteredProjects.forEach((p) => {
-    const c = p.client || "Other";
-    clientRevenueMap[c] = (clientRevenueMap[c] || 0) + (Number(p.budget) || 0);
+    const c = (p.client || "Other").trim();
+    if (!clientRevenueMap[c]) {
+      clientRevenueMap[c] = { amount: 0, count: 0 };
+    }
+    clientRevenueMap[c].amount += Number(p.budget) || 0;
+    clientRevenueMap[c].count += 1;
   });
 
   const clientRevenueList = Object.entries(clientRevenueMap)
-    .map(([client, amount]) => ({ client, amount }))
+    .map(([client, data]) => ({
+      client,
+      amount: data.amount,
+      count: data.count,
+      share:
+        totalRevenue > 0 ? Math.round((data.amount / totalRevenue) * 100) : 0,
+    }))
     .sort((a, b) => b.amount - a.amount);
 
-  // 5. Dynamic Workspace Score
-  const workspaceScore = Math.min(
-    100,
-    Math.max(
-      60,
-      70 + uniqueClients.length * 5 + completedCount * 10 - onHoldCount * 5,
+  // 5. Dynamic Monthly Trend Data for Chart
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  const currentMonthIdx = now.getMonth();
+
+  const monthlyData = months
+    .slice(0, currentMonthIdx + 1)
+    .map((monthName, idx) => {
+      const monthProjects = projects.filter((p) => {
+        if (!p.created_at) return idx === currentMonthIdx;
+        return new Date(p.created_at).getMonth() === idx;
+      });
+
+      const monthTotal = monthProjects.reduce(
+        (sum, p) => sum + (Number(p.budget) || 0),
+        0,
+      );
+      return {
+        month: monthName,
+        revenue: monthTotal,
+        projects: monthProjects.length,
+      };
+    });
+
+  const maxMonthlyRevenue = Math.max(
+    ...monthlyData.map((m) => m.revenue),
+    totalRevenue,
+    10000,
+  );
+
+  // 6. AI Workspace Performance Health Score
+  const totalTasks = tasks.length;
+  const completedTasks = tasks.filter((t) => t.status === "Completed").length;
+  const taskRate = totalTasks > 0 ? (completedTasks / totalTasks) * 20 : 15;
+  const calculatedHealthScore = Math.min(
+    98,
+    Math.round(
+      65 + taskRate + clientRevenueList.length * 5 - onHoldProjects.length * 5,
     ),
   );
 
@@ -113,212 +188,431 @@ export default function AnalyticsPage() {
     return (
       <div className="min-h-[400px] flex items-center justify-center font-bold text-slate-500 font-sans">
         <Loader2 className="w-6 h-6 animate-spin text-[#0047AB] mr-2" />
-        <span>Loading Live Analytics...</span>
+        <span className="font-sans">Loading Live SaaS Analytics Engine...</span>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 font-sans">
-      {/* HEADER */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-8 font-sans text-slate-900 pb-16 max-w-7xl mx-auto">
+      {/* ================= 1. HEADER & LIVE DB STATUS ================= */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 font-sans">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900">
+          <div className="flex items-center gap-2 mb-1.5 font-sans">
+            <span className="text-[11px] font-bold text-[#0047AB] bg-blue-50 border border-blue-200 px-3 py-1 rounded-full flex items-center gap-1.5 font-sans">
+              <Activity className="w-3.5 h-3.5 text-[#0047AB]" />
+              <span>Real-Time Workspace Metrics</span>
+            </span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 font-sans tracking-tight">
             <span>Analytics & </span>
             <span className="italic text-[#0047AB]">Insights.</span>
           </h1>
-          <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
-            Real-time performance metrics computed directly from your database
-            records.
+          <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-0.5 font-sans">
+            Performance trends, cashflow velocity, and client concentration
+            computed live in ₹ INR.
           </p>
         </div>
 
-        {/* Time Range Selector */}
-        <div className="flex items-center gap-2">
-          <span className="text-[11px] font-bold text-slate-400 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
-            Showing Live DB Only
+        {/* Time Range Controls */}
+        <div className="flex items-center gap-2 font-sans">
+          <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-xl hidden sm:inline-flex items-center gap-1 font-sans">
+            <CheckCircle2 className="w-3 h-3" /> Live DB Mode
           </span>
-          <div className="flex items-center bg-slate-100 p-1 rounded-xl">
-            {(["7D", "30D", "90D", "1Y"] as const).map((r) => (
+
+          <div className="flex items-center bg-slate-100 p-1 rounded-xl font-sans">
+            {(["7D", "30D", "90D", "1Y", "ALL"] as const).map((range) => (
               <button
-                key={r}
-                onClick={() => setTimeRange(r)}
-                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition ${
-                  timeRange === r
+                key={range}
+                onClick={() => setTimeRange(range)}
+                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition font-sans ${
+                  timeRange === range
                     ? "bg-[#0047AB] text-white shadow-sm"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
               >
-                {r}
+                {range}
               </button>
             ))}
           </div>
         </div>
       </div>
 
-      {/* TOP 3 STAT CARDS */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Total Revenue in ₹ */}
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-2">
-          <span className="text-[11px] font-bold uppercase text-slate-400 tracking-wider">
-            TOTAL PROJECT PIPELINE REVENUE
-          </span>
-          <div className="text-3xl font-black text-[#0047AB]">
-            ₹{totalRevenue.toLocaleString("en-IN")}
+      {/* ================= 2. TOP 4 SAAS KPI METRICS ROW ================= */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 font-sans">
+        {/* Gross Pipeline Revenue */}
+        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-3 font-sans hover:border-blue-200 transition">
+          <div className="flex items-center justify-between font-sans">
+            <span className="text-[11px] font-bold uppercase text-slate-400 tracking-wider font-sans">
+              GROSS PIPELINE
+            </span>
+            <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 font-sans flex items-center gap-1">
+              <TrendingUp className="w-3 h-3" /> Active
+            </span>
           </div>
-          <span className="text-xs font-bold text-emerald-600 flex items-center gap-1">
-            <CheckCircle2 className="w-3.5 h-3.5" /> Computed from{" "}
-            {filteredProjects.length} live project
-            {filteredProjects.length === 1 ? "" : "s"}
-          </span>
+          <div>
+            <div className="text-3xl font-black text-[#0047AB] font-sans">
+              ₹{totalRevenue.toLocaleString("en-IN")}
+            </div>
+            <span className="text-[11px] font-semibold text-slate-400 mt-1 block font-sans">
+              Across {activeProjectsCount} live project
+              {activeProjectsCount === 1 ? "" : "s"}
+            </span>
+          </div>
         </div>
 
-        {/* Active & Completed Deliverables */}
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-2">
-          <span className="text-[11px] font-bold uppercase text-slate-400 tracking-wider">
-            PROJECT STATUS RATIO
-          </span>
-          <div className="text-3xl font-black text-slate-900">
-            {activeCount} Active / {completedCount} Done
+        {/* Average Deal Value */}
+        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-3 font-sans hover:border-blue-200 transition">
+          <div className="flex items-center justify-between font-sans">
+            <span className="text-[11px] font-bold uppercase text-slate-400 tracking-wider font-sans">
+              AVG PROJECT VALUE
+            </span>
+            <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200 font-sans">
+              Per Deal
+            </span>
           </div>
-          <span className="text-xs font-semibold text-slate-500">
-            {onHoldCount > 0
-              ? `⚠️ ${onHoldCount} project(s) on hold`
-              : "✓ All projects healthy"}
-          </span>
+          <div>
+            <div className="text-3xl font-black text-slate-900 font-sans">
+              ₹{avgProjectValue.toLocaleString("en-IN")}
+            </div>
+            <span className="text-[11px] font-semibold text-slate-400 mt-1 block font-sans">
+              Client ticket average
+            </span>
+          </div>
         </div>
 
-        {/* AI Workspace Health Score */}
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-2">
-          <span className="text-[11px] font-bold uppercase text-slate-400 tracking-wider">
-            AI WORKSPACE SCORE
-          </span>
-          <div className="text-3xl font-black text-slate-900">
-            {workspaceScore} / 100
+        {/* Project Velocity Ratio */}
+        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-3 font-sans hover:border-blue-200 transition">
+          <div className="flex items-center justify-between font-sans">
+            <span className="text-[11px] font-bold uppercase text-slate-400 tracking-wider font-sans">
+              PROJECT RATIO
+            </span>
+            <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 font-sans">
+              Delivery
+            </span>
           </div>
-          <span className="text-xs font-bold text-emerald-600 flex items-center gap-1">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" /> Real-time
-            Workspace Active
-          </span>
+          <div>
+            <div className="text-3xl font-black text-slate-900 font-sans">
+              {inProgressProjects.length + underReviewProjects.length} Active /{" "}
+              {completedProjects.length} Done
+            </div>
+            <span className="text-[11px] font-semibold text-slate-400 mt-1 block font-sans">
+              {onHoldProjects.length > 0
+                ? `⚠️ ${onHoldProjects.length} On Hold`
+                : "✓ 0 Blocked deliverables"}
+            </span>
+          </div>
+        </div>
+
+        {/* AI Health Score */}
+        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-3 font-sans hover:border-blue-200 transition">
+          <div className="flex items-center justify-between font-sans">
+            <span className="text-[11px] font-bold uppercase text-slate-400 tracking-wider font-sans">
+              WORKSPACE SCORE
+            </span>
+            <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 font-sans flex items-center gap-1">
+              <Sparkles className="w-3 h-3 text-amber-500" /> Optimal
+            </span>
+          </div>
+          <div>
+            <div className="text-3xl font-black text-slate-900 font-sans">
+              {calculatedHealthScore}{" "}
+              <span className="text-sm font-bold text-slate-400">/ 100</span>
+            </div>
+            <span className="text-[11px] font-semibold text-emerald-600 mt-1 block font-sans">
+              ✓ Delivery speed on schedule
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* REVENUE GROWTH & CLIENT BREAKDOWN GRID */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Revenue Distribution Chart */}
-        <div className="lg:col-span-2 bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+      {/* ================= 3. SAAS REVENUE GROWTH GRAPH & CLIENT CONCENTRATION ================= */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 font-sans">
+        {/* Main Interactive Revenue Graph (8 Columns) */}
+        <div className="lg:col-span-8 bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6 font-sans">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4 font-sans">
             <div>
-              <h3 className="font-bold text-base text-slate-900 flex items-center gap-2">
+              <h3 className="font-bold text-base text-slate-900 flex items-center gap-2 font-sans">
                 <BarChart3 className="w-5 h-5 text-[#0047AB]" />
-                <span>Project Revenue Distribution ({timeRange})</span>
+                <span>Revenue Growth & Monthly Pipeline Trend</span>
               </h3>
-              <p className="text-xs font-semibold text-slate-400 mt-0.5">
-                Computed directly from your live database.
+              <p className="text-xs font-semibold text-slate-400 mt-0.5 font-sans">
+                Dynamic visual breakdown computed from your live database (
+                {timeRange}).
               </p>
             </div>
-            <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-              ● Live DB Mode
-            </span>
+            <div className="text-right font-sans">
+              <span className="text-sm font-black text-[#0047AB] font-sans">
+                ₹{totalRevenue.toLocaleString("en-IN")}
+              </span>
+              <span className="text-[10px] text-slate-400 font-bold uppercase block font-sans">
+                Total Value
+              </span>
+            </div>
           </div>
 
-          {/* Dynamic Visual Graph from real projects */}
-          {filteredProjects.length > 0 ? (
-            <div className="space-y-4 pt-2">
-              {filteredProjects.map((proj) => {
-                const budgetNum = Number(proj.budget) || 0;
-                const percentage =
-                  totalRevenue > 0
-                    ? Math.round((budgetNum / totalRevenue) * 100)
-                    : 0;
+          {/* Interactive SaaS Bar Chart */}
+          <div className="space-y-4 pt-2 font-sans">
+            <div className="flex items-end justify-between gap-3 h-52 pt-6 px-2 border-b border-slate-100 font-sans">
+              {monthlyData.map((data, idx) => {
+                const heightPercent =
+                  maxMonthlyRevenue > 0
+                    ? Math.max(
+                        12,
+                        Math.round((data.revenue / maxMonthlyRevenue) * 100),
+                      )
+                    : 15;
+                const isCurrent = idx === monthlyData.length - 1;
 
                 return (
-                  <div key={proj.id} className="space-y-1.5">
-                    <div className="flex justify-between text-xs font-bold">
-                      <span className="text-slate-800 flex items-center gap-2">
-                        {proj.name}
-                        <span className="text-[10px] font-semibold text-slate-400">
-                          ({proj.client})
-                        </span>
-                      </span>
-                      <span className="text-[#0047AB]">
-                        ₹{budgetNum.toLocaleString("en-IN")}{" "}
-                        <span className="text-slate-400 font-normal">
-                          ({percentage}%)
-                        </span>
-                      </span>
-                    </div>
+                  <div
+                    key={idx}
+                    className="flex-1 flex flex-col items-center gap-2 h-full justify-end group font-sans"
+                  >
+                    <span className="opacity-0 group-hover:opacity-100 transition text-[10px] font-black bg-slate-900 text-white px-2 py-1 rounded-md shadow-md mb-1 font-sans">
+                      ₹{data.revenue.toLocaleString("en-IN")}
+                    </span>
 
-                    <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-[#0047AB] rounded-full transition-all duration-500"
-                        style={{ width: `${Math.max(percentage, 5)}%` }}
-                      />
-                    </div>
+                    <div
+                      className={`w-full max-w-[48px] rounded-2xl transition-all duration-500 relative ${
+                        isCurrent
+                          ? "bg-gradient-to-t from-[#0047AB] to-blue-500 shadow-md shadow-[#0047AB]/25"
+                          : "bg-slate-200/80 hover:bg-slate-300"
+                      }`}
+                      style={{ height: `${heightPercent}%` }}
+                    />
+
+                    <span
+                      className={`text-xs font-bold font-sans ${
+                        isCurrent ? "text-[#0047AB]" : "text-slate-400"
+                      }`}
+                    >
+                      {data.month}
+                    </span>
                   </div>
                 );
               })}
             </div>
-          ) : (
-            <div className="text-center py-12 space-y-3">
-              <FolderKanban className="w-12 h-12 text-slate-300 mx-auto" />
-              <h4 className="font-bold text-slate-800 text-sm">
-                No Projects in this time range
-              </h4>
-              <p className="text-xs text-slate-500">
-                Create a project or switch the time range above to 1Y.
-              </p>
+
+            <div className="flex items-center justify-between text-xs text-slate-500 pt-2 font-sans">
+              <div className="flex items-center gap-4 font-sans">
+                <span className="flex items-center gap-1.5 font-sans">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#0047AB]" />
+                  <span>Current Live Month</span>
+                </span>
+                <span className="flex items-center gap-1.5 font-sans">
+                  <span className="w-2.5 h-2.5 rounded-full bg-slate-200" />
+                  <span>Historical Pipeline</span>
+                </span>
+              </div>
+
+              <span className="font-bold text-slate-700 font-sans">
+                {activeProjectsCount} Total Projects Mapped
+              </span>
             </div>
-          )}
+          </div>
         </div>
 
-        {/* Revenue by Client Breakdown */}
-        <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-            <h3 className="font-bold text-base text-slate-900 flex items-center gap-2">
-              <Users className="w-5 h-5 text-[#0047AB]" />
-              <span>Revenue by Client</span>
+        {/* Client Concentration / Share Matrix (4 Columns) */}
+        <div className="lg:col-span-4 bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6 font-sans flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4 font-sans">
+              <div>
+                <h3 className="font-bold text-base text-slate-900 flex items-center gap-2 font-sans">
+                  <Users className="w-5 h-5 text-[#0047AB]" />
+                  <span>Client Concentration</span>
+                </h3>
+                <span className="text-xs font-semibold text-slate-400 font-sans">
+                  Portfolio Revenue Share
+                </span>
+              </div>
+              <span className="text-xs font-bold text-[#0047AB] bg-blue-50 px-2 py-0.5 rounded-full font-sans">
+                {clientRevenueList.length} Clients
+              </span>
+            </div>
+
+            <div className="space-y-4 pt-4 font-sans">
+              {clientRevenueList.map((item, idx) => (
+                <div key={idx} className="space-y-1.5 font-sans">
+                  <div className="flex justify-between items-center text-xs font-bold font-sans">
+                    <span className="text-slate-900 font-sans truncate max-w-[140px]">
+                      {item.client}
+                    </span>
+                    <span className="text-slate-900 font-black font-sans">
+                      ₹{item.amount.toLocaleString("en-IN")}{" "}
+                      <span className="text-slate-400 font-semibold text-[11px]">
+                        ({item.share}%)
+                      </span>
+                    </span>
+                  </div>
+
+                  <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden font-sans">
+                    <div
+                      className={`h-full rounded-full transition-all duration-500 font-sans ${
+                        idx === 0 ? "bg-[#0047AB]" : "bg-emerald-500"
+                      }`}
+                      style={{ width: `${Math.max(item.share, 4)}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+
+              {clientRevenueList.length === 0 && (
+                <div className="text-center py-10 text-xs text-slate-400 font-sans">
+                  No client revenue records found.
+                </div>
+              )}
+            </div>
+          </div>
+
+          <Link
+            href="/dashboard/freelancer/clients"
+            className="w-full py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-2xl border border-slate-200 flex items-center justify-center gap-1.5 transition font-sans"
+          >
+            <span>View Full CRM Directory</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+      </div>
+
+      {/* ================= 4. PROJECT PIPELINE BREAKDOWN & AI AUDIT INSIGHTS ================= */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 font-sans">
+        {/* Project Pipeline Breakdown */}
+        <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-5 font-sans">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-4 font-sans">
+            <h3 className="font-bold text-base text-slate-900 flex items-center gap-2 font-sans">
+              <FolderKanban className="w-5 h-5 text-[#0047AB]" />
+              <span>Project Deliverables Pipeline</span>
             </h3>
-            <span className="text-xs font-bold text-slate-500">
-              {uniqueClients.length} Clients
+            <span className="text-xs font-bold text-slate-400 font-sans">
+              {filteredProjects.length} Active Items
             </span>
           </div>
 
-          <div className="space-y-3">
-            {clientRevenueList.map((item, idx) => {
-              const clientShare =
+          <div className="space-y-3 font-sans">
+            {filteredProjects.map((p) => {
+              const budgetNum = Number(p.budget) || 0;
+              const sharePercent =
                 totalRevenue > 0
-                  ? Math.round((item.amount / totalRevenue) * 100)
+                  ? Math.round((budgetNum / totalRevenue) * 100)
                   : 0;
 
               return (
-                <div
-                  key={idx}
-                  className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between text-xs"
+                <Link
+                  key={p.id}
+                  href={`/dashboard/freelancer/projects/${p.id}`}
+                  className="p-4 rounded-2xl border border-slate-100 hover:border-blue-200 bg-slate-50/60 hover:bg-white flex items-center justify-between transition group font-sans"
                 >
-                  <div>
-                    <div className="font-bold text-slate-900">
-                      {item.client}
+                  <div className="min-w-0 font-sans">
+                    <div className="flex items-center gap-2 mb-1 font-sans">
+                      <span className="text-sm font-bold text-slate-900 group-hover:text-[#0047AB] truncate font-sans">
+                        {p.name}
+                      </span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-[#0047AB] border border-blue-200 font-sans">
+                        {p.status || "In Progress"}
+                      </span>
                     </div>
-                    <span className="text-[11px] text-slate-400 font-semibold">
-                      {clientShare}% of total portfolio
+                    <span className="text-xs text-slate-400 font-medium font-sans">
+                      Client:{" "}
+                      <strong className="text-slate-700">{p.client}</strong>
                     </span>
                   </div>
-                  <div className="text-right">
-                    <span className="font-black text-[#0047AB] text-sm block">
-                      ₹{item.amount.toLocaleString("en-IN")}
+
+                  <div className="text-right shrink-0 font-sans">
+                    <span className="text-sm font-black text-[#0047AB] block font-sans">
+                      ₹{budgetNum.toLocaleString("en-IN")}
+                    </span>
+                    <span className="text-[11px] font-semibold text-slate-400 font-sans">
+                      {sharePercent}% of portfolio
                     </span>
                   </div>
-                </div>
+                </Link>
               );
             })}
 
-            {clientRevenueList.length === 0 && (
-              <div className="text-center py-8 text-xs text-slate-400">
-                No client data recorded yet.
+            {filteredProjects.length === 0 && (
+              <div className="text-center py-8 text-xs text-slate-400 font-sans">
+                No projects mapped in this time range.
               </div>
             )}
           </div>
+        </div>
+
+        {/* AI Performance & Portfolio Health Insights */}
+        <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-5 font-sans flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4 font-sans">
+              <h3 className="font-bold text-base text-slate-900 flex items-center gap-2 font-sans">
+                <Sparkles className="w-5 h-5 text-[#0047AB]" />
+                <span>AI Portfolio & Cashflow Audit</span>
+              </h3>
+              <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full font-sans">
+                ● Live AI Analysis
+              </span>
+            </div>
+
+            <div className="space-y-3 pt-3 font-sans">
+              {clientRevenueList.length > 0 &&
+                clientRevenueList[0].share > 60 && (
+                  <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200 flex items-start gap-3 font-sans">
+                    <ShieldAlert className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                    <div className="font-sans">
+                      <h4 className="text-xs font-bold text-amber-900 font-sans">
+                        High Client Concentration Alert
+                      </h4>
+                      <p className="text-[11px] text-amber-800 mt-0.5 leading-relaxed font-sans">
+                        <strong>{clientRevenueList[0].client}</strong> accounts
+                        for <strong>{clientRevenueList[0].share}%</strong> of
+                        your total pipeline revenue (₹
+                        {clientRevenueList[0].amount.toLocaleString("en-IN")}).
+                        Diversifying with 1-2 new active clients will reduce
+                        revenue risk.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+              <div className="p-4 rounded-2xl bg-blue-50/60 border border-blue-100 flex items-start gap-3 font-sans">
+                <CheckCircle2 className="w-5 h-5 text-[#0047AB] shrink-0 mt-0.5" />
+                <div className="font-sans">
+                  <h4 className="text-xs font-bold text-slate-900 font-sans">
+                    Average Deal Velocity: ₹
+                    {avgProjectValue.toLocaleString("en-IN")}
+                  </h4>
+                  <p className="text-[11px] text-slate-600 mt-0.5 leading-relaxed font-sans">
+                    Your average ticket size across {activeProjectsCount}{" "}
+                    projects is currently{" "}
+                    <strong>₹{avgProjectValue.toLocaleString("en-IN")}</strong>.
+                    Project delivery schedules are currently operating at{" "}
+                    <strong>{calculatedHealthScore}% efficiency</strong>.
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex items-start gap-3 font-sans">
+                <TrendingUp className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                <div className="font-sans">
+                  <h4 className="text-xs font-bold text-slate-900 font-sans">
+                    Total Contract Pipeline
+                  </h4>
+                  <p className="text-[11px] text-slate-600 mt-0.5 leading-relaxed font-sans">
+                    You have{" "}
+                    <strong>₹{totalRevenue.toLocaleString("en-IN")} INR</strong>{" "}
+                    in total active project value ready to be billed upon
+                    milestone delivery.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <Link
+            href="/dashboard/freelancer/invoices"
+            className="w-full py-2.5 bg-[#0047AB] hover:bg-[#003680] text-white text-xs font-bold rounded-2xl shadow-md shadow-[#0047AB]/20 flex items-center justify-center gap-1.5 transition font-sans"
+          >
+            <span>Issue Client Invoices in ₹ INR</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
         </div>
       </div>
     </div>
