@@ -248,7 +248,6 @@ function AuthContent() {
       {/* Decorative Grid Overlay Pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
 
-
       {/* Main Glass Card */}
       <div className="w-full max-w-xl bg-white/90 backdrop-blur-2xl border border-slate-200/90 rounded-3xl p-6 sm:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.06)] relative z-10 font-sans">
         {/* Header Logo Bar */}

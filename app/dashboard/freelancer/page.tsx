@@ -10,13 +10,11 @@ import {
   AlertCircle,
   X,
   Loader2,
-  TrendingUp,
   Trash2,
   Building,
   FolderKanban,
   CheckSquare,
   Users,
-  Video,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
@@ -104,6 +102,7 @@ export default function FreelancerDashboard() {
             project_name: newTask.project_name || "General",
             priority: newTask.priority,
             status: "Pending",
+            progress: 0,
           },
         ])
         .select();
@@ -122,13 +121,18 @@ export default function FreelancerDashboard() {
     currentStatus: string,
   ) => {
     const nextStatus = currentStatus === "Completed" ? "Pending" : "Completed";
+    const nextProgress = nextStatus === "Completed" ? 100 : 0;
     try {
       await supabase
         .from("tasks")
-        .update({ status: nextStatus })
+        .update({ status: nextStatus, progress: nextProgress })
         .eq("id", taskId);
       setTasks(
-        tasks.map((t) => (t.id === taskId ? { ...t, status: nextStatus } : t)),
+        tasks.map((t) =>
+          t.id === taskId
+            ? { ...t, status: nextStatus, progress: nextProgress }
+            : t,
+        ),
       );
     } catch (err: any) {
       console.error(err);
@@ -203,9 +207,6 @@ export default function FreelancerDashboard() {
   const assignedTasksCount = tasks.filter(
     (t) => t.status !== "Completed",
   ).length;
-  const completedTasksCount = tasks.filter(
-    (t) => t.status === "Completed",
-  ).length;
 
   const uniqueClients = Array.from(
     new Set(projects.map((p) => (p.client || "").trim()).filter(Boolean)),
@@ -228,10 +229,6 @@ export default function FreelancerDashboard() {
     .filter((p) => (p.status || "").toLowerCase() === "completed")
     .reduce((acc, p) => acc + (Number(p.budget) || 0), 0);
 
-  const activityPercent =
-    totalTasksCount > 0
-      ? Math.round((completedTasksCount / totalTasksCount) * 100)
-      : 75;
   const chartColors = ["#3B82F6", "#10B981", "#EF4444", "#F59E0B", "#8B5CF6"];
 
   if (loading) {
@@ -329,8 +326,8 @@ export default function FreelancerDashboard() {
         </div>
       </div>
 
-      {/* ================= 2. MIDDLE ROW: TODAY'S TASKS, TODAY'S MEETINGS, ACTIVITY, PROJECT WORK ================= */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 font-sans">
+      {/* ================= 2. BALANCED 3-COLUMN MIDDLE ROW (NO ACTIVITY CARD) ================= */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 font-sans">
         {/* 1. Today's Tasks */}
         <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between font-sans">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100 font-sans">
@@ -462,47 +459,7 @@ export default function FreelancerDashboard() {
           </button>
         </div>
 
-        {/* 3. Activity Chart */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between font-sans">
-          <div className="flex items-center justify-between font-sans">
-            <h3 className="font-bold text-xs text-slate-700 font-sans">
-              Activity
-            </h3>
-            <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1 font-sans">
-              <TrendingUp className="w-3 h-3" /> {activityPercent}%
-            </span>
-          </div>
-
-          <div className="text-2xl font-black text-slate-900 my-1 font-sans">
-            {activityPercent}%
-          </div>
-
-          <div className="flex items-end justify-between h-24 pt-2 gap-1.5 font-sans">
-            {[
-              { day: "MON", val: 85 },
-              { day: "TUE", val: 40 },
-              { day: "WED", val: 75 },
-              { day: "THU", val: 55 },
-              { day: "FRI", val: 90 },
-              { day: "SAT", val: 45 },
-            ].map((col, idx) => (
-              <div
-                key={idx}
-                className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end font-sans"
-              >
-                <div
-                  className={`w-full rounded-md transition-all duration-500 ${idx === 0 || idx === 2 ? "bg-slate-900" : "bg-slate-200"}`}
-                  style={{ height: `${col.val}%` }}
-                />
-                <span className="text-[9px] font-bold text-slate-400 font-sans">
-                  {col.day}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* 4. Project Work Breakdown Donut */}
+        {/* 3. Project Work Breakdown Donut (Shows 0 and gray ring when 0 projects) */}
         <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between font-sans">
           <div className="flex justify-between items-center pb-2 border-b border-slate-100 font-sans">
             <h4 className="font-bold text-xs text-slate-700 font-sans">
@@ -514,45 +471,28 @@ export default function FreelancerDashboard() {
           </div>
 
           <div className="relative w-28 h-28 mx-auto my-1 flex items-center justify-center font-sans">
+            {/* Clean empty gray ring when 0 projects */}
             <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
               <circle
                 cx="18"
                 cy="18"
                 r="14"
                 fill="transparent"
-                stroke="#E2E8F0"
+                stroke={projects.length > 0 ? "#E2E8F0" : "#F1F5F9"}
                 strokeWidth="4"
               />
-              <circle
-                cx="18"
-                cy="18"
-                r="14"
-                fill="transparent"
-                stroke="#3B82F6"
-                strokeWidth="4"
-                strokeDasharray="50 100"
-                strokeDashoffset="0"
-              />
-              <circle
-                cx="18"
-                cy="18"
-                r="14"
-                fill="transparent"
-                stroke="#10B981"
-                strokeWidth="4"
-                strokeDasharray="30 100"
-                strokeDashoffset="-50"
-              />
-              <circle
-                cx="18"
-                cy="18"
-                r="14"
-                fill="transparent"
-                stroke="#EF4444"
-                strokeWidth="4"
-                strokeDasharray="20 100"
-                strokeDashoffset="-80"
-              />
+              {projects.length > 0 && (
+                <circle
+                  cx="18"
+                  cy="18"
+                  r="14"
+                  fill="transparent"
+                  stroke="#3B82F6"
+                  strokeWidth="4"
+                  strokeDasharray="100 100"
+                  strokeDashoffset="0"
+                />
+              )}
             </svg>
             <div className="absolute text-center font-sans">
               <span className="text-lg font-black text-slate-900 block leading-none font-sans">
@@ -584,17 +524,22 @@ export default function FreelancerDashboard() {
                 <span className="font-bold text-[10px] text-slate-400 font-sans">
                   {totalBudget > 0
                     ? Math.round(((Number(p.budget) || 0) / totalBudget) * 100)
-                    : 50}
+                    : 0}
                   %
                 </span>
               </div>
             ))}
+            {projects.length === 0 && (
+              <span className="text-[10px] text-slate-400 italic block text-center py-1 font-sans">
+                No active projects
+              </span>
+            )}
           </div>
         </div>
       </div>
 
-      {/* ================= 3. BOTTOM ROW: INVOICE OVERVIEW, SCHEDULE TIMELINE, REMINDERS ================= */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 font-sans">
+      {/* ================= 3. BOTTOM ROW ================= */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 font-sans">
         {/* 1. Invoice / Revenue Breakdown in ₹ INR */}
         <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm space-y-4 font-sans">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3 font-sans">
