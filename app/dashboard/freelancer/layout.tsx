@@ -22,6 +22,8 @@ import {
   Menu,
   X,
   ChevronRight,
+  Check,
+  CheckCheck,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
@@ -41,7 +43,12 @@ export default function FreelancerDashboardLayout({
       title: "✅ Login Successful",
       text: "You have securely logged into your Orvixa workspace.",
       time: "Just now",
-      read: false,
+    },
+    {
+      id: 2,
+      title: "💰 Currency Updated",
+      text: "Workspace financial metrics have been synced in ₹ INR.",
+      time: "5m ago",
     },
   ]);
 
@@ -60,7 +67,7 @@ export default function FreelancerDashboardLayout({
       if (cachedAvatar) setAvatarUrl(cachedAvatar);
       if (cachedName) {
         setUserName(cachedName);
-        setUserInitials(cachedName.trim().substring(0, 2).toUpperCase());
+        setUserInitials(getInitialsFromName(cachedName));
       }
       if (cachedProf) setUserProfession(cachedProf);
 
@@ -69,18 +76,23 @@ export default function FreelancerDashboardLayout({
         const user = authData?.user;
 
         if (user) {
-          const metaName = user.user_metadata?.full_name;
-          if (metaName && !cachedName) {
+          const metaName =
+            user.user_metadata?.full_name ||
+            user.user_metadata?.name ||
+            user.email?.split("@")[0] ||
+            "";
+
+          if (metaName) {
             setUserName(metaName);
             localStorage.setItem("orvixa_user_name", metaName);
-            setUserInitials(metaName.trim().substring(0, 2).toUpperCase());
+            setUserInitials(getInitialsFromName(metaName));
           }
 
           const { data: profile } = await supabase
             .from("profiles")
             .select("full_name, profession, avatar_url")
             .or(`user_id.eq.${user.id},id.eq.${user.id}`)
-            .single();
+            .maybeSingle();
 
           if (profile) {
             const finalName =
@@ -88,7 +100,7 @@ export default function FreelancerDashboardLayout({
             if (finalName) {
               setUserName(finalName);
               localStorage.setItem("orvixa_user_name", finalName);
-              setUserInitials(finalName.trim().substring(0, 2).toUpperCase());
+              setUserInitials(getInitialsFromName(finalName));
             }
 
             if (profile.profession) {
@@ -103,12 +115,20 @@ export default function FreelancerDashboardLayout({
           }
         }
       } catch (err) {
-        console.log("Syncing profile...");
+        console.log("Syncing profile...", err);
       }
     }
 
     loadRealUserProfile();
   }, []);
+
+  const getInitialsFromName = (name: string) => {
+    if (!name) return "FL";
+    const parts = name.trim().split(/[\s._-]+/);
+    return parts.length > 1
+      ? (parts[0][0] + parts[1][0]).toUpperCase()
+      : name.trim().slice(0, 2).toUpperCase();
+  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -117,11 +137,17 @@ export default function FreelancerDashboardLayout({
     localStorage.removeItem("orvixa_user_prof");
     document.cookie =
       "orvixa_demo_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
-    window.location.href = "/auth?mode=login";
+    window.location.replace("/login");
   };
 
-  const markAllRead = () => {
-    setNotifications(notifications.map((n) => ({ ...n, read: true })));
+  // Dismiss a single notification
+  const handleDismissNotification = (id: number) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  };
+
+  // Clear all notifications
+  const handleClearAllNotifications = () => {
+    setNotifications([]);
   };
 
   const sidebarLinks = [
@@ -179,20 +205,24 @@ export default function FreelancerDashboardLayout({
         }`}
       >
         <div className="space-y-6">
-          {/* Logo & Workspace Name */}
-          <Link href="/" className="flex items-center gap-3 px-2">
+          {/* Logo & Workspace Name (POINTS TO DASHBOARD) */}
+          <Link
+            href="/dashboard/freelancer"
+            className="flex items-center gap-3 px-2 hover:opacity-90 transition"
+          >
             <Image
               src="/orviax.jpg"
               alt="Orvixa"
               width={32}
               height={32}
               className="rounded-xl object-contain"
+              priority
             />
             <div>
               <span className="font-heading text-lg font-bold text-slate-900 block leading-none">
                 Orvixa
               </span>
-              <span className="text-[10px] font-bold text-[#0047AB]">
+              <span className="text-[10px] font-bold text-[#0047AB] tracking-wider uppercase">
                 Freelancer OS
               </span>
             </div>
@@ -229,7 +259,7 @@ export default function FreelancerDashboardLayout({
         <div className="pt-4 border-t border-slate-100 flex items-center justify-between font-sans">
           <Link
             href="/dashboard/freelancer/profile"
-            className="flex items-center gap-2.5 group font-sans"
+            className="flex items-center gap-2.5 group font-sans min-w-0"
           >
             <div className="w-8 h-8 rounded-full bg-[#0047AB] text-white flex items-center justify-center font-bold text-xs overflow-hidden shrink-0 font-sans shadow-sm ring-1 ring-white/20">
               {avatarUrl ? (
@@ -242,11 +272,11 @@ export default function FreelancerDashboardLayout({
                 userInitials
               )}
             </div>
-            <div>
-              <div className="text-xs font-bold font-sans line-clamp-1 group-hover:text-[#0047AB] text-slate-900">
+            <div className="min-w-0">
+              <div className="text-xs font-bold font-sans truncate group-hover:text-[#0047AB] text-slate-900">
                 {userName}
               </div>
-              <div className="text-[10px] text-slate-400 font-semibold font-sans line-clamp-1">
+              <div className="text-[10px] text-slate-400 font-semibold font-sans truncate">
                 {userProfession}
               </div>
             </div>
@@ -255,7 +285,7 @@ export default function FreelancerDashboardLayout({
           <button
             onClick={handleLogout}
             title="Log Out"
-            className="p-1.5 text-slate-400 hover:text-slate-700"
+            className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition"
           >
             <LogOut className="w-4 h-4" />
           </button>
@@ -297,26 +327,33 @@ export default function FreelancerDashboardLayout({
               title="Notifications"
             >
               <Bell className="w-4 h-4" />
-              {notifications.some((n) => !n.read) && (
-                <span className="w-2 h-2 rounded-full bg-[#0047AB] absolute top-1.5 right-1.5" />
+              {notifications.length > 0 && (
+                <span className="w-2 h-2 rounded-full bg-[#0047AB] absolute top-1.5 right-1.5 animate-pulse" />
               )}
             </button>
 
             {/* NOTIFICATIONS POPUP DRAWER */}
             {showNotifications && (
-              <div className="absolute right-0 top-12 w-80 bg-white border border-slate-200 rounded-3xl shadow-2xl p-4 z-50 font-sans space-y-3">
+              <div className="absolute right-0 top-12 w-80 sm:w-96 bg-white border border-slate-200 rounded-3xl shadow-2xl p-4 z-50 font-sans space-y-3">
                 <div className="flex justify-between items-center pb-2 border-b border-slate-100">
-                  <h4 className="font-bold text-xs text-slate-900">
-                    Notifications ({notifications.filter((n) => !n.read).length}{" "}
-                    Unread)
+                  <h4 className="font-bold text-xs text-slate-900 flex items-center gap-1.5">
+                    <span>Notifications</span>
+                    {notifications.length > 0 && (
+                      <span className="text-[10px] bg-blue-50 text-[#0047AB] px-2 py-0.5 rounded-full font-bold">
+                        {notifications.length}
+                      </span>
+                    )}
                   </h4>
                   <div className="flex items-center gap-2">
-                    <button
-                      onClick={markAllRead}
-                      className="text-[10px] text-[#0047AB] font-bold hover:underline"
-                    >
-                      Mark Read
-                    </button>
+                    {notifications.length > 0 && (
+                      <button
+                        onClick={handleClearAllNotifications}
+                        className="text-[10px] text-[#0047AB] font-bold hover:underline flex items-center gap-1"
+                      >
+                        <CheckCheck className="w-3 h-3" />
+                        <span>Clear All</span>
+                      </button>
+                    )}
                     <button
                       onClick={() => setShowNotifications(false)}
                       className="text-slate-400 hover:text-slate-600"
@@ -326,31 +363,41 @@ export default function FreelancerDashboardLayout({
                   </div>
                 </div>
 
-                <div className="space-y-2 text-xs font-semibold max-h-60 overflow-y-auto">
+                <div className="space-y-2 text-xs font-semibold max-h-64 overflow-y-auto pr-1">
                   {notifications.length > 0 ? (
                     notifications.map((n) => (
                       <div
                         key={n.id}
-                        className={`p-3 rounded-2xl border ${
-                          n.read
-                            ? "bg-slate-50 border-slate-100 opacity-60"
-                            : "bg-blue-50/60 border-blue-100"
-                        }`}
+                        className="p-3 rounded-2xl border bg-slate-50 hover:bg-blue-50/40 border-slate-100 flex items-start justify-between gap-2 transition group"
                       >
-                        <div className="font-bold text-xs text-slate-900">
-                          {n.title}
+                        <div
+                          onClick={() => handleDismissNotification(n.id)}
+                          className="flex-1 cursor-pointer"
+                        >
+                          <div className="font-bold text-xs text-slate-900 group-hover:text-[#0047AB]">
+                            {n.title}
+                          </div>
+                          <p className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">
+                            {n.text}
+                          </p>
+                          <span className="text-[10px] text-slate-400 block mt-1">
+                            {n.time}
+                          </span>
                         </div>
-                        <p className="text-[11px] text-slate-700 opacity-80 mt-0.5 leading-relaxed">
-                          {n.text}
-                        </p>
-                        <span className="text-[10px] text-slate-400 opacity-80 block mt-1">
-                          {n.time}
-                        </span>
+
+                        {/* Dismiss / Mark Read Checkmark Button */}
+                        <button
+                          onClick={() => handleDismissNotification(n.id)}
+                          title="Mark as read & dismiss"
+                          className="text-slate-400 hover:text-emerald-600 hover:bg-white p-1 rounded-lg transition shrink-0"
+                        >
+                          <Check className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                     ))
                   ) : (
-                    <div className="text-center py-6 text-slate-400">
-                      No new notifications.
+                    <div className="text-center py-6 text-xs text-slate-400 font-medium">
+                      ✓ You are all caught up! No notifications.
                     </div>
                   )}
                 </div>
@@ -361,6 +408,7 @@ export default function FreelancerDashboardLayout({
             <Link
               href="/dashboard/freelancer/profile"
               className="flex items-center gap-2 font-sans"
+              title={`Profile: ${userName}`}
             >
               <div className="w-8 h-8 rounded-full bg-[#0047AB] text-white flex items-center justify-center font-bold text-xs ring-2 ring-blue-100 overflow-hidden shrink-0 font-sans shadow-sm">
                 {avatarUrl ? (
@@ -380,14 +428,21 @@ export default function FreelancerDashboardLayout({
         {/* BREADCRUMBS & MAIN PAGE CONTENT */}
         <main className="p-6 sm:p-8 flex-1 font-sans">
           <div className="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-6 font-sans">
-            <Link href="/" className="hover:text-[#0047AB] transition-colors">
+            <Link
+              href="/dashboard/freelancer"
+              className="hover:text-[#0047AB] transition-colors"
+            >
               Home
             </Link>
             {pathSegments.map((segment, index) => (
               <React.Fragment key={index}>
                 <ChevronRight className="w-3 h-3 text-slate-300" />
                 <span
-                  className={`capitalize transition-colors ${index === pathSegments.length - 1 ? "font-bold text-[#0047AB]" : "hover:text-[#0047AB]"}`}
+                  className={`capitalize transition-colors ${
+                    index === pathSegments.length - 1
+                      ? "font-bold text-[#0047AB]"
+                      : "hover:text-[#0047AB]"
+                  }`}
                 >
                   {segment.replace("-", " ")}
                 </span>

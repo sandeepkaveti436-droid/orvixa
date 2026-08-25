@@ -3,10 +3,12 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Loader2, ArrowLeft } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -25,7 +27,7 @@ export default function LoginPage() {
     const cleanEmail = loginData.email.trim().toLowerCase();
 
     try {
-      // Real Supabase Authentication
+      // 1. Real Supabase Authentication
       const { data: authData, error: authError } =
         await supabase.auth.signInWithPassword({
           email: cleanEmail,
@@ -41,20 +43,28 @@ export default function LoginPage() {
         // Set session cookie
         document.cookie = "orvixa_demo_session=true; path=/;";
 
-        // Fetch User Profile Role from Database
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", authData.user.id)
-          .single();
+        // 2. Fetch User Profile Role from Database
+        let targetRoute = "/dashboard/freelancer";
 
-        if (profile?.role === "organization") {
-          window.location.href = "/dashboard/admin";
-        } else if (profile?.role === "employee") {
-          window.location.href = "/dashboard/employee";
-        } else {
-          window.location.href = "/dashboard/freelancer";
+        try {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("role")
+            .eq("id", authData.user.id)
+            .maybeSingle();
+
+          if (profile?.role === "organization") {
+            targetRoute = "/dashboard/admin";
+          } else if (profile?.role === "employee") {
+            targetRoute = "/dashboard/employee";
+          }
+        } catch (roleErr) {
+          console.log("Defaulting to freelancer route:", roleErr);
         }
+
+        // 3. USE REPLACE so the login page is removed from browser history
+        // This prevents the browser back button from returning to the website/login
+        window.location.replace(targetRoute);
       }
     } catch (err: any) {
       setErrorMessage("Invalid email or password. Please try again.");
@@ -168,7 +178,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-sm py-3.5 px-4 rounded-xl transition-all shadow-md shadow-[#0047AB]/25 flex items-center justify-center gap-2"
+            className="w-full bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-sm py-3.5 px-4 rounded-xl transition-all shadow-md shadow-[#0047AB]/25 flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {loading ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -179,7 +189,7 @@ export default function LoginPage() {
         </form>
 
         <div className="text-center text-xs font-semibold text-slate-600 pt-4 border-t border-slate-100 mt-6">
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <Link
             href="/get-started"
             className="text-[#0047AB] font-bold hover:underline"
