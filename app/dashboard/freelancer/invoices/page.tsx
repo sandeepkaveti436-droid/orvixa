@@ -24,6 +24,8 @@ interface InvoiceItem {
   quantity: number;
   rate: number;
   amount: number;
+  price?: number;
+  total?: number;
 }
 
 interface Invoice {
@@ -129,7 +131,7 @@ export default function InvoicesPage() {
     );
 
     if ((!amount || isNaN(amount) || amount === 0) && parsedItems.length > 0) {
-      amount = parsedItems.reduce((acc, it) => {
+      amount = parsedItems.reduce((acc, it: any) => {
         const itPrice = Number(
           it.amount ??
             it.total ??
@@ -1001,10 +1003,11 @@ export default function InvoicesPage() {
                             {item.quantity || 1}
                           </span>
                           <span className="text-right font-semibold text-slate-600">
-                            ₹ {formatINR(item.rate || item.amount)}
+                            ₹{" "}
+                            {formatINR(item.rate || item.price || item.amount)}
                           </span>
                           <span className="text-right font-bold text-slate-900">
-                            ₹ {formatINR(item.amount)}
+                            ₹ {formatINR(item.amount || item.total)}
                           </span>
                         </div>
                       ))
