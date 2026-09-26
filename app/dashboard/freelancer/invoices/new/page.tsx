@@ -2,212 +2,406 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   Plus,
   Trash2,
-  FileText,
-  Send,
-  Download,
+  Receipt,
+  Printer,
+  Check,
+  Building,
+  User,
+  Loader2,
+  Calendar,
 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+
+interface LineItem {
+  id: number;
+  description: string;
+  qty: number;
+  rate: number;
+}
 
 export default function NewInvoicePage() {
-  const [invoiceNumber] = useState(
-    `INV-${Math.floor(1000 + Math.random() * 9000)}`,
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Invoice Details
+  const [invoiceNumber, setInvoiceNumber] = useState(
+    `000${Math.floor(100 + Math.random() * 900)}`,
   );
+  const [issueDate, setIssueDate] = useState(
+    new Date().toISOString().split("T")[0],
+  );
+  const [dueDate, setDueDate] = useState(
+    new Date(Date.now() + 7 * 86400000).toISOString().split("T")[0],
+  );
+
+  // Client Details (BILL TO)
   const [clientName, setClientName] = useState("");
-  const [clientEmail, setClientEmail] = useState("");
-  const [items, setItems] = useState<
-    Array<{ id: number; description: string; hours: number; rate: number }>
-  >([] as any);
+  const [clientContact, setClientContact] = useState("+91-XXXXXXXXXX");
+  const [clientLocation, setClientLocation] = useState("Hyderabad");
+
+  // Items
+  const [items, setItems] = useState<LineItem[]>([
+    {
+      id: 1,
+      description: "26th Dinner Design",
+      qty: 1,
+      rate: 2500,
+    },
+  ]);
 
   const addItem = () => {
-    setItems([
-      ...items,
-      { id: Date.now(), description: "New Invoice Item", hours: 10, rate: 75 },
+    setItems((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        description: "New Creative Work",
+        qty: 1,
+        rate: 1500,
+      },
     ]);
   };
 
   const removeItem = (id: number) => {
-    setItems(items.filter((item) => item.id !== id));
+    if (items.length === 1) return;
+    setItems((prev) => prev.filter((item) => item.id !== id));
   };
 
-  const calculateSubtotal = () => {
-    return items.reduce((sum, item) => sum + item.hours * item.rate, 0);
-  };
-
-  const handleSendInvoice = (e: React.FormEvent) => {
-    e.preventDefault();
-    alert(
-      `Invoice ${invoiceNumber} created and sent to ${clientEmail || "client"}!`,
+  const updateItem = (
+    id: number,
+    field: "description" | "qty" | "rate",
+    val: any,
+  ) => {
+    setItems((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, [field]: val } : item)),
     );
-    window.location.href = "/dashboard/freelancer/invoices";
+  };
+
+  const totalAmount = items.reduce(
+    (sum, item) => sum + (item.qty || 1) * (item.rate || 0),
+    0,
+  );
+
+  // Save Invoice & Redirect
+  const handleSaveInvoice = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!clientName.trim()) {
+      alert("Please enter the client / business name.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const newInvoice = {
+        id: `inv-${Date.now()}`,
+        invoice_number: invoiceNumber,
+        client: clientName.trim(),
+        client_contact: clientContact.trim(),
+        client_location: clientLocation.trim(),
+        amount: totalAmount,
+        status: "Pending" as const,
+        issue_date: issueDate,
+        due_date: dueDate,
+        items,
+        notes:
+          "Fees and payment terms will be established in the contract or agreement prior to the commencement of the project. An initial deposit will be required before any design work begins. We reserve the right to suspend or halt work in the event of non-payment.",
+        created_at: new Date().toISOString(),
+      };
+
+      // 1. Save to localStorage for instant synchronization
+      try {
+        const existing = JSON.parse(
+          localStorage.getItem("orvixa_invoices") || "[]",
+        );
+        const updated = [newInvoice, ...existing];
+        localStorage.setItem("orvixa_invoices", JSON.stringify(updated));
+      } catch {}
+
+      // 2. Save to Supabase
+      try {
+        await supabase.from("invoices").insert([
+          {
+            invoice_number: newInvoice.invoice_number,
+            client: newInvoice.client,
+            amount: newInvoice.amount,
+            status: newInvoice.status,
+            issue_date: newInvoice.issue_date,
+            due_date: newInvoice.due_date,
+            items: JSON.stringify(newInvoice.items),
+            notes: newInvoice.notes,
+          },
+        ]);
+      } catch (err) {
+        console.warn("Supabase insert notice:", err);
+      }
+
+      router.push("/dashboard/freelancer/invoices");
+    } catch (err: any) {
+      alert(`Notice: ${err.message}`);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 font-sans">
+    <div className="font-sans not-italic space-y-6 text-slate-900 pb-16 max-w-4xl mx-auto">
+      {/* Top Navigation */}
       <div className="flex items-center justify-between">
         <Link
           href="/dashboard/freelancer/invoices"
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-[#0047AB]"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-[#0047AB] transition"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Invoices</span>
         </Link>
-        <span className="text-xs font-bold bg-[#0047AB]/10 text-[#0047AB] px-3 py-1 rounded-full">
-          Drafting {invoiceNumber}
-        </span>
+
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold text-slate-400">
+            Invoice Number:
+          </span>
+          <span className="text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-800">
+            N°: {invoiceNumber}
+          </span>
+        </div>
       </div>
 
-      <form
-        onSubmit={handleSendInvoice}
-        className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm space-y-8"
-      >
-        <div className="flex justify-between items-start border-b border-slate-100 pb-6">
-          <div>
-            <h1 className="text-2xl font-black text-slate-900">
-              Create Invoice
-            </h1>
-            <p className="text-xs text-slate-500 font-semibold mt-1">
-              Orvixa Automated Billing Engine
-            </p>
+      <form onSubmit={handleSaveInvoice} className="space-y-6">
+        {/* Bill To & Bill From Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Bill To Card */}
+          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+            <h3 className="text-xs font-bold text-amber-500 uppercase tracking-wider flex items-center gap-1">
+              <User className="w-3.5 h-3.5" />
+              <span>BILL TO (Client Details)</span>
+            </h3>
+
+            <div>
+              <label className="text-[11px] font-semibold text-slate-600 block mb-1">
+                Client / Company Name *
+              </label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. Food Link F&B Holdings LTD"
+                value={clientName}
+                onChange={(e) => setClientName(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-900 focus:outline-none focus:border-[#0047AB]"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-[11px] font-semibold text-slate-600 block mb-1">
+                  Contact Number
+                </label>
+                <input
+                  type="text"
+                  placeholder="+91-XXXXXXXXXX"
+                  value={clientContact}
+                  onChange={(e) => setClientContact(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px] font-semibold text-slate-600 block mb-1">
+                  City / Location
+                </label>
+                <input
+                  type="text"
+                  placeholder="Hyderabad"
+                  value={clientLocation}
+                  onChange={(e) => setClientLocation(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                />
+              </div>
+            </div>
           </div>
-          <div className="text-right">
-            <span className="text-xl font-extrabold text-[#0047AB]">
-              {invoiceNumber}
-            </span>
+
+          {/* Bill From Card (Sky Nova Digitals) */}
+          <div className="bg-slate-50/70 p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+            <h3 className="text-xs font-bold text-amber-500 uppercase tracking-wider flex items-center gap-1">
+              <Building className="w-3.5 h-3.5" />
+              <span>BILL FROM</span>
+            </h3>
+
+            <div className="pt-1">
+              <h4 className="text-sm font-bold text-slate-900">
+                Sky Nova Digitals
+              </h4>
+              <p className="text-xs text-slate-500 mt-1">
+                Contact: +91- 9392525043
+              </p>
+              <p className="text-xs text-slate-500">Beeramguda, Hyderabad</p>
+              <p className="text-xs text-slate-500">Telangana - 502032</p>
+            </div>
+
+            <div className="pt-2 border-t border-slate-200/80 text-[11px] text-slate-500">
+              <span>Account: </span>
+              <span className="font-semibold text-slate-800">
+                SANDEEP KAVETI | Yes Bank | 018391600022849
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Client Meta */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Dates Bar */}
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="text-xs font-bold text-slate-700 block mb-1">
-              Client Business Name
+            <label className="text-xs font-semibold text-slate-700 block mb-1">
+              Issued Date
             </label>
             <input
-              type="text"
-              required
-              placeholder="e.g. Acme Global Inc."
-              value={clientName}
-              onChange={(e) => setClientName(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+              type="date"
+              value={issueDate}
+              onChange={(e) => setIssueDate(e.target.value)}
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
             />
           </div>
 
           <div>
-            <label className="text-xs font-bold text-slate-700 block mb-1">
-              Client Email Address
+            <label className="text-xs font-semibold text-slate-700 block mb-1">
+              Due Date
             </label>
             <input
-              type="email"
-              required
-              placeholder="billing@acme.com"
-              value={clientEmail}
-              onChange={(e) => setClientEmail(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+              type="date"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
             />
           </div>
         </div>
 
-        {/* Line Items Table */}
-        <div className="space-y-3">
-          <div className="flex justify-between items-center">
-            <h3 className="text-xs font-bold uppercase text-slate-400">
-              Line Items
+        {/* Items Table */}
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+              Deliverables & Line Items
             </h3>
             <button
               type="button"
               onClick={addItem}
-              className="text-xs font-bold text-[#0047AB] hover:underline flex items-center gap-1"
+              className="text-xs font-semibold text-[#0047AB] hover:underline flex items-center gap-1"
             >
-              <Plus className="w-3.5 h-3.5" />
+              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
               <span>Add Item</span>
             </button>
           </div>
 
-          <div className="space-y-2">
+          <div className="divide-y divide-slate-100 border border-slate-200 rounded-xl overflow-hidden">
+            <div className="grid grid-cols-12 bg-slate-50 p-2.5 text-[10px] font-bold text-slate-400 uppercase tracking-wide">
+              <div className="col-span-6">Description</div>
+              <div className="col-span-2 text-center">Qty</div>
+              <div className="col-span-3 text-right">Price (₹)</div>
+              <div className="col-span-1 text-center">Del</div>
+            </div>
+
             {items.map((item) => (
               <div
                 key={item.id}
-                className="grid grid-cols-12 gap-2 items-center bg-slate-50 p-3 rounded-xl border border-slate-200"
+                className="grid grid-cols-12 p-3 gap-2 items-center text-xs"
               >
-                <input
-                  type="text"
-                  value={item.description}
-                  onChange={(e) =>
-                    setItems(
-                      items.map((i) =>
-                        i.id === item.id
-                          ? { ...i, description: e.target.value }
-                          : i,
-                      ),
-                    )
-                  }
-                  className="col-span-6 bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-800"
-                />
-                <input
-                  type="number"
-                  placeholder="Hours"
-                  value={item.hours}
-                  onChange={(e) =>
-                    setItems(
-                      items.map((i) =>
-                        i.id === item.id
-                          ? { ...i, hours: Number(e.target.value) }
-                          : i,
-                      ),
-                    )
-                  }
-                  className="col-span-2 bg-white border border-slate-200 px-2 py-1.5 rounded-lg text-xs font-semibold text-slate-800 text-center"
-                />
-                <input
-                  type="number"
-                  placeholder="Rate ($)"
-                  value={item.rate}
-                  onChange={(e) =>
-                    setItems(
-                      items.map((i) =>
-                        i.id === item.id
-                          ? { ...i, rate: Number(e.target.value) }
-                          : i,
-                      ),
-                    )
-                  }
-                  className="col-span-2 bg-white border border-slate-200 px-2 py-1.5 rounded-lg text-xs font-semibold text-slate-800 text-center"
-                />
-                <div className="col-span-1 text-xs font-bold text-slate-900 text-center">
-                  ${item.hours * item.rate}
+                <div className="col-span-6">
+                  <input
+                    type="text"
+                    required
+                    placeholder="Deliverable description"
+                    value={item.description}
+                    onChange={(e) =>
+                      updateItem(item.id, "description", e.target.value)
+                    }
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                  />
                 </div>
-                <button
-                  type="button"
-                  onClick={() => removeItem(item.id)}
-                  className="col-span-1 text-rose-500 hover:text-rose-700 flex justify-center"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+
+                <div className="col-span-2 text-center">
+                  <input
+                    type="number"
+                    min="1"
+                    value={item.qty}
+                    onChange={(e) =>
+                      updateItem(item.id, "qty", parseInt(e.target.value) || 1)
+                    }
+                    className="w-14 bg-slate-50 border border-slate-200 rounded-lg px-1.5 py-1.5 text-xs font-medium text-center text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                  />
+                </div>
+
+                <div className="col-span-3 text-right">
+                  <input
+                    type="number"
+                    min="0"
+                    value={item.rate}
+                    onChange={(e) =>
+                      updateItem(
+                        item.id,
+                        "rate",
+                        parseFloat(e.target.value) || 0,
+                      )
+                    }
+                    className="w-28 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-bold text-right text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                  />
+                </div>
+
+                <div className="col-span-1 text-center">
+                  <button
+                    type="button"
+                    onClick={() => removeItem(item.id)}
+                    className="text-slate-300 hover:text-red-500 transition p-1"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             ))}
           </div>
+
+          {/* Total Amount Box */}
+          <div className="flex justify-end pt-2">
+            <div className="bg-[#F5A623] text-slate-950 px-6 py-3 rounded-2xl text-right">
+              <span className="text-[10px] font-bold uppercase tracking-wider block opacity-80">
+                Amount Due
+              </span>
+              <span className="text-2xl font-black tabular-nums">
+                ₹{" "}
+                {totalAmount.toLocaleString("en-IN", {
+                  minimumFractionDigits: 2,
+                })}
+              </span>
+            </div>
+          </div>
         </div>
 
-        {/* Calculation Total */}
-        <div className="border-t border-slate-100 pt-6 flex justify-between items-center">
-          <span className="text-sm font-bold text-slate-600">
-            Total Amount Due
-          </span>
-          <span className="text-3xl font-black text-[#0047AB]">
-            ${calculateSubtotal().toLocaleString()}.00
-          </span>
-        </div>
+        {/* Submit Actions */}
+        <div className="flex items-center justify-end gap-3 pt-2">
+          <Link
+            href="/dashboard/freelancer/invoices"
+            className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold text-xs hover:bg-slate-50 transition"
+          >
+            Cancel
+          </Link>
 
-        <button
-          type="submit"
-          className="w-full bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-sm py-4 px-6 rounded-xl shadow-lg shadow-[#0047AB]/25 flex items-center justify-center gap-2"
-        >
-          <Send className="w-4 h-4" />
-          <span>Send Invoice to Client</span>
-        </button>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="bg-[#0047AB] hover:bg-[#003680] text-white font-semibold text-xs px-6 py-2.5 rounded-xl shadow-sm flex items-center gap-2 transition disabled:opacity-50"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Creating Invoice...</span>
+              </>
+            ) : (
+              <>
+                <Check className="w-4 h-4 stroke-[2.5]" />
+                <span>Save & Create Invoice</span>
+              </>
+            )}
+          </button>
+        </div>
       </form>
     </div>
   );

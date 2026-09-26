@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
+
 export default function FreelancerDashboard() {
   const [loading, setLoading] = useState(true);
 
