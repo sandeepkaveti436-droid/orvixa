@@ -110,6 +110,9 @@ export default function ProjectsPage() {
   // Create Project Modal State
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [createProjectError, setCreateProjectError] = useState<string | null>(
+    null,
+  );
   const [newProject, setNewProject] = useState({
     title: "",
     client: "",
@@ -157,7 +160,14 @@ export default function ProjectsPage() {
         .order("created_at", { ascending: false });
 
       if (error) console.error("Error loading projects:", error.message);
-      setProjects(data || []);
+
+      // Normalize records so both .title and .name are always available
+      const normalized = (data || []).map((proj: any) => ({
+        ...proj,
+        title: proj.title || proj.name || "Untitled Deliverable",
+        name: proj.name || proj.title || "Untitled Deliverable",
+      }));
+      setProjects(normalized);
     } catch (err: any) {
       console.error("Error:", err.message);
     } finally {
@@ -315,47 +325,66 @@ export default function ProjectsPage() {
     setEditingBudgetProject(null);
   };
 
-  // Create Project
+  // Create Project (Uses 'name' first to match your Supabase schema)
   const handleCreateProject = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newProject.title.trim()) return;
 
+    setCreateProjectError(null);
     setIsSubmitting(true);
     try {
       const budgetVal = parseFloat(newProject.budget) || 1500;
       const clientName =
         newProject.client.trim() || activeFolder || "Direct Client";
+      const trimmedTitle = newProject.title.trim();
 
       const deliverableItem: CreativeWork = {
         id: `deliv-${Date.now()}`,
-        name: newProject.deliverableName.trim() || newProject.title.trim(),
+        name: newProject.deliverableName.trim() || trimmedTitle,
         type: newProject.deliverableType,
         amount: budgetVal,
         date: newProject.date,
         status: newProject.status as any,
       };
 
-      const payload: any = {
-        title: newProject.title.trim(),
+      const basePayload: any = {
         client: clientName,
         category: newProject.category,
         industry: newProject.industry,
         budget: budgetVal,
         status: newProject.status,
         payment_status: "unpaid",
-        date: newProject.date,
         due_date: newProject.dueDate,
         deliverables: JSON.stringify([deliverableItem]),
       };
 
-      const { data, error } = await supabase
+      // 1. Insert with 'name' to match your schema
+      let insertResult = await supabase
         .from("projects")
-        .insert([payload])
+        .insert([{ ...basePayload, name: trimmedTitle }])
         .select();
-      if (error) throw error;
 
+      // 2. Fallback to 'title' only if schema doesn't have 'name'
+      if (
+        insertResult.error &&
+        insertResult.error.message?.toLowerCase().includes("name")
+      ) {
+        insertResult = await supabase
+          .from("projects")
+          .insert([{ ...basePayload, title: trimmedTitle }])
+          .select();
+      }
+
+      if (insertResult.error) throw insertResult.error;
+
+      const data = insertResult.data;
       if (data && data[0]) {
-        setProjects((prev) => [data[0], ...prev]);
+        const createdRecord: ProjectRecord = {
+          ...data[0],
+          title: data[0].title || data[0].name || trimmedTitle,
+          name: data[0].name || data[0].title || trimmedTitle,
+        };
+        setProjects((prev) => [createdRecord, ...prev]);
         if (activeFolder) {
           setActiveFolder(clientName);
         }
@@ -374,8 +403,16 @@ export default function ProjectsPage() {
         deliverableName: "",
         deliverableType: "Flyer",
       });
-    } catch (err: any) {
-      alert(`Failed to create project: ${err.message}`);
+    } catch (err: unknown) {
+      console.error("Failed to create project:", err);
+      const message =
+        err &&
+        typeof err === "object" &&
+        "message" in err &&
+        typeof err.message === "string"
+          ? err.message
+          : "Could not save this project. Please try again.";
+      setCreateProjectError(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -508,7 +545,6 @@ export default function ProjectsPage() {
     );
   }, [invoiceSubtotal, invoiceTax, invoiceData.discountAmount]);
 
-  // FIX: handlePrintInvoice defined properly
   const handlePrintInvoice = () => {
     window.print();
   };
@@ -577,6 +613,7 @@ export default function ProjectsPage() {
 
         <button
           onClick={() => {
+            setCreateProjectError(null);
             if (activeFolder) {
               setNewProject((prev) => ({ ...prev, client: activeFolder }));
             }
@@ -740,6 +777,7 @@ export default function ProjectsPage() {
 
               <button
                 onClick={() => {
+                  setCreateProjectError(null);
                   setNewProject((prev) => ({ ...prev, client: activeFolder }));
                   setShowCreateModal(true);
                 }}
@@ -1350,7 +1388,10 @@ export default function ProjectsPage() {
                 </span>
               </h3>
               <button
-                onClick={() => setShowCreateModal(false)}
+                onClick={() => {
+                  setShowCreateModal(false);
+                  setCreateProjectError(null);
+                }}
                 className="text-slate-400 hover:text-slate-600 transition"
               >
                 <X className="w-5 h-5" />
@@ -1484,6 +1525,15 @@ export default function ProjectsPage() {
                   <option value="Social Media Post">Social Media Post</option>
                 </select>
               </div>
+
+              {createProjectError && (
+                <p
+                  role="alert"
+                  className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700"
+                >
+                  {createProjectError}
+                </p>
+              )}
 
               <button
                 type="submit"

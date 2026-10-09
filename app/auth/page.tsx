@@ -934,7 +934,7 @@ function AuthContent() {
                   </label>
 
                   <Link
-                    href="/auth/forgot-password"
+                    href="/forgot-password"
                     className="text-[#9D00FF] font-bold hover:underline"
                   >
                     Forgot Password?

@@ -3,19 +3,10 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import {
-  Eye,
-  EyeOff,
-  Loader2,
-  ArrowLeft,
-  Sparkles,
-  ShieldCheck,
-} from "lucide-react";
+import { Eye, EyeOff, Loader2, ArrowLeft } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 export default function LoginPage() {
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -72,7 +63,7 @@ export default function LoginPage() {
         // 3. USE REPLACE so the login page is removed from browser history
         window.location.replace(targetRoute);
       }
-    } catch (err: any) {
+    } catch {
       setErrorMessage("Invalid email or password. Please try again.");
     } finally {
       setLoading(false);
@@ -185,6 +176,15 @@ export default function LoginPage() {
                 )}
               </button>
             </div>
+          </div>
+
+          <div className="-mt-2 text-right">
+            <Link
+              href="/forgot-password"
+              className="text-xs font-bold text-[#9D00FF] hover:underline"
+            >
+              Forgot password?
+            </Link>
           </div>
 
           <button
