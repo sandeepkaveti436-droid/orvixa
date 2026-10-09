@@ -28,7 +28,6 @@ export default function HeroSection() {
 
         {/* ================= 2. HEADING ================= */}
         <h1 className="animate-blur-2 text-[24px] sm:text-[32px] md:text-[48px] leading-[1.15] text-slate-900 mb-8 max-w-4xl">
-          {/* Qurova Font for Lines 1 & 2 */}
           <span className="block font-sans font-black tracking-tight">
             Work smarter.
           </span>
@@ -36,7 +35,6 @@ export default function HeroSection() {
             Organize everything.
           </span>
 
-          {/* The Season Italic Font for Line 3 */}
           <span className="block font-heading italic font-bold pr-2 pb-1 bg-clip-text text-transparent bg-gradient-to-r from-[#0047AB] via-indigo-600 to-purple-600">
             Scale without limits.
           </span>

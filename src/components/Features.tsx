@@ -185,12 +185,10 @@ export default function Features() {
                     </span>
                   </div>
 
-                  {/* Title (The Season Font) */}
                   <div className="text-[18px] sm:text-[18px] font-bold text-slate-900 mb-3 group-hover:text-[#0047AB] transition-colors">
                     {feature.title}
                   </div>
 
-                  {/* Description (Qurova Normal Font) */}
                   <p className="text-sm font-medium text-slate-600 leading-relaxed mb-6">
                     {feature.description}
                   </p>

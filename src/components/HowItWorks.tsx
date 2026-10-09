@@ -117,7 +117,6 @@ export default function HowItWorks() {
             transition={{ staggerChildren: 0.1 }}
             className="text-[20px] sm:text-[32px] font-black leading-[1.15] text-slate-900 mb-6"
           >
-            {/* "How" in Qurova font (font-sans) */}
             <motion.span
               variants={blurWordVariants}
               className="inline-block mr-3 font-sans font-black"
@@ -125,7 +124,6 @@ export default function HowItWorks() {
               How
             </motion.span>
 
-            {/* "Orvixa Works." in The Season font (font-heading italic) */}
             <motion.span
               variants={blurWordVariants}
               className="inline-block font-heading italic pr-2 pb-1 bg-clip-text text-transparent bg-gradient-to-r from-[#0047AB] via-indigo-600 to-purple-600"

@@ -174,19 +174,6 @@ export default function ProfileSettingsPage() {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-800 pb-20 font-sans">
-      {/* Plus Jakarta Sans Google Font */}
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        
-        .font-sans, h1, h2, h3, h4, h5, h6, p, span, button, input, select, textarea {
-          font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-        }
-      `,
-        }}
-      />
-
       {/* Hidden File Input for Logo */}
       <input
         type="file"

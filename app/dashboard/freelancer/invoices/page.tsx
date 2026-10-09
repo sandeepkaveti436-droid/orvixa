@@ -423,7 +423,7 @@ export default function InvoicesPage() {
                   justify-content: center;
                   background: #0f172a;
                   color: #ffffff;
-                  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+                  font-family: 'DM Sans', system-ui, sans-serif;
                 }
                 .spinner {
                   width: 44px;
@@ -538,16 +538,10 @@ export default function InvoicesPage() {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-800 pb-16 font-sans">
-      {/* Modern Plus Jakarta Sans Font & Print CSS */}
+      {/* Print CSS */}
       <style
         dangerouslySetInnerHTML={{
           __html: `
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        
-        .font-sans, h1, h2, h3, h4, h5, h6, p, span, button, table, td, th {
-          font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-        }
-
         @media print {
           body * {
             visibility: hidden !important;
