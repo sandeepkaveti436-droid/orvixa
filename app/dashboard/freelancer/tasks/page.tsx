@@ -26,20 +26,6 @@ export interface Task {
   assignees: string[];
 }
 
-interface TaskRow {
-  id: string | number;
-  title?: string | null;
-  name?: string | null;
-  status?: string | null;
-  category?: string | null;
-  priority?: string | null;
-  progress?: number | null;
-  due_date?: string | null;
-  comments_count?: number | null;
-  assignees?: string[] | null;
-  assignee?: string | null;
-}
-
 const COLUMNS = [
   { key: "To do", label: "To do", dot: "bg-slate-400" },
   { key: "In progress", label: "In progress", dot: "bg-amber-500" },
@@ -52,14 +38,14 @@ const CATEGORY_STYLES: Record<
   { bg: string; text: string; border: string }
 > = {
   Frontend: {
-    bg: "bg-[#9D00FF]",
-    text: "text-[#ffffff]",
+    bg: "bg-[#ecfdf5]",
+    text: "text-[#059669]",
     border: "border-[#a7f3d0]",
   },
   Backend: {
-    bg: "bg-[#f4e8ff]",
-    text: "text-[#9D00FF]",
-    border: "border-[#e9d1ff]",
+    bg: "bg-[#eff6ff]",
+    text: "text-[#2563eb]",
+    border: "border-[#bfdbfe]",
   },
   Design: {
     bg: "bg-[#fdf2f8]",
@@ -78,125 +64,53 @@ const CATEGORY_STYLES: Record<
   },
 };
 
-const AVATAR_COLORS: Record<string, string> = {
-  HK: "bg-[#fbf5ff] text-[#5B0099]",
-  PR: "bg-[#fed7aa] text-[#9a3412]",
-  MK: "bg-[#cffafe] text-[#0e7490]",
-  SS: "bg-[#ede9fe] text-[#6d28d9]",
-  MS: "bg-[#d1fae5] text-[#047857]",
-};
-
-const normalizeTask = (db: TaskRow): Task => {
-  const rawStatus = (db.status || "To do").trim();
-  let status = "To do";
-  if (/done|completed/i.test(rawStatus)) status = "Done";
-  else if (/review/i.test(rawStatus)) status = "In review";
-  else if (/progress/i.test(rawStatus)) status = "In progress";
-
-  let assignees: string[] = [];
-  if (db.assignees?.length) {
-    assignees = db.assignees;
-  } else if (db.assignee?.trim()) {
-    assignees = db.assignee.split(",").map((assignee) => assignee.trim());
-  }
-
-  return {
-    id: String(db.id),
-    title: db.title || db.name || "Untitled Task",
-    status,
-    category: db.category || "Frontend",
-    priority: db.priority || "Medium",
-    progress:
-      typeof db.progress === "number"
-        ? db.progress
-        : status === "Done"
-          ? 100
-          : 0,
-    due_date: db.due_date || null,
-    comments_count: db.comments_count ?? 0,
-    assignees,
-  };
-};
+const AVATAR_COLORS = [
+  "bg-[#dbeafe] text-[#1e40af]",
+  "bg-[#fed7aa] text-[#9a3412]",
+  "bg-[#cffafe] text-[#0e7490]",
+  "bg-[#ede9fe] text-[#6d28d9]",
+  "bg-[#d1fae5] text-[#047857]",
+];
 
 export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentAssignee, setCurrentAssignee] = useState("");
   const [activeFilter, setActiveFilter] = useState<
     "All" | "My tasks" | "High priority" | "Due this week"
   >("All");
 
-  // Drag & drop state
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
-
-  // Card menu dropdown state
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
-  // Modal State
   const [showAddModal, setShowAddModal] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [newTask, setNewTask] = useState({
     title: "",
-    category: "Frontend",
-    priority: "Medium",
+    category: "Backend",
+    priority: "High",
     status: "To do",
     due_date: "",
-    assignees: "",
+    assignee: "sandy",
     progress: 50,
   });
 
-  // 1. Fetch live tasks and subscribe to realtime Postgres changes
   useEffect(() => {
-    let isMounted = true;
-
-    const loadTasks = async () => {
-      try {
-        setLoading(true);
-        const { data, error } = await supabase
-          .from("tasks")
-          .select("*")
-          .order("created_at", { ascending: false });
-        if (error) throw error;
-        if (isMounted) setTasks((data || []).map(normalizeTask));
-      } catch (error) {
-        console.error("Error loading tasks:", error);
-        if (isMounted) setTasks([]);
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    };
-
-    loadTasks();
-    supabase.auth.getUser().then(({ data }) => {
-      if (!isMounted) return;
-      const identity =
-        data.user?.user_metadata?.full_name ||
-        data.user?.email?.split("@")[0] ||
-        "";
-      const initials = identity
-        .trim()
-        .split(/[\s._-]+/)
-        .map((part: string) => part[0])
-        .slice(0, 2)
-        .join("")
-        .toUpperCase();
-      setCurrentAssignee(initials);
-    });
+    fetchTasks();
 
     const channel = supabase
-      .channel("realtime-tasks-board")
+      .channel("live-tasks-channel")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "tasks" },
         (payload) => {
           if (payload.eventType === "INSERT") {
-            const normalized = normalizeTask(payload.new as TaskRow);
+            const normalized = mapDbTask(payload.new);
             setTasks((prev) => {
               if (prev.some((t) => t.id === normalized.id)) return prev;
               return [normalized, ...prev];
             });
           } else if (payload.eventType === "UPDATE") {
-            const updated = normalizeTask(payload.new as TaskRow);
+            const updated = mapDbTask(payload.new);
             setTasks((prev) =>
               prev.map((t) => (t.id === updated.id ? updated : t)),
             );
@@ -208,31 +122,86 @@ export default function TasksPage() {
       .subscribe();
 
     return () => {
-      isMounted = false;
       supabase.removeChannel(channel);
     };
   }, []);
 
-  // Close menus on outside click
+  const mapDbTask = (db: any): Task => {
+    const rawStatus = (db.status || "To do").trim();
+    let status = "To do";
+    if (/done|completed/i.test(rawStatus)) status = "Done";
+    else if (/review/i.test(rawStatus)) status = "In review";
+    else if (/progress/i.test(rawStatus)) status = "In progress";
+
+    let assigneesList: string[] = [];
+    if (Array.isArray(db.assignees) && db.assignees.length > 0) {
+      assigneesList = db.assignees;
+    } else if (typeof db.assignee === "string" && db.assignee.trim()) {
+      assigneesList = db.assignee
+        .split(",")
+        .map((s: string) => s.trim().toUpperCase());
+    } else {
+      assigneesList = ["HK"];
+    }
+
+    return {
+      id: String(db.id),
+      title: db.title || db.name || "Untitled Task",
+      status,
+      category: db.category || "Frontend",
+      priority: db.priority || "Medium",
+      progress:
+        typeof db.progress === "number"
+          ? db.progress
+          : status === "Done"
+            ? 100
+            : 0,
+      due_date: db.due_date || null,
+      comments_count: db.comments_count ?? 2,
+      assignees: assigneesList,
+    };
+  };
+
+  const fetchTasks = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("tasks")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) console.error("Tasks fetch error:", error.message);
+
+      if (data && data.length > 0) {
+        setTasks(data.map(mapDbTask));
+      } else {
+        setTasks([]);
+      }
+    } catch (err: any) {
+      console.error("Error loading tasks:", err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     const close = () => setOpenMenuId(null);
     window.addEventListener("click", close);
     return () => window.removeEventListener("click", close);
   }, []);
 
-  // Format date relative display like in the screenshot
-  const formatDueText = (due?: string | null) => {
-    if (!due) return "No due date";
+  const formatDueDisplay = (dateStr?: string | null) => {
+    if (!dateStr) return "No deadline";
     try {
-      const target = new Date(due);
-      const today = new Date();
+      const target = new Date(dateStr);
+      const now = new Date();
       const diffDays = Math.round(
-        (target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
+        (target.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
       );
 
       if (diffDays === 0) return "Today";
       if (diffDays === 1) return "Tomorrow";
-      if (diffDays > 1 && diffDays <= 14) return `In ${diffDays} days`;
+      if (diffDays > 1 && diffDays <= 7) return `In ${diffDays} days`;
       if (diffDays < 0 && diffDays >= -7) return `${Math.abs(diffDays)}d ago`;
 
       return target.toLocaleDateString("en-US", {
@@ -240,11 +209,10 @@ export default function TasksPage() {
         day: "numeric",
       });
     } catch {
-      return due;
+      return dateStr;
     }
   };
 
-  // Move status with optimistic update and Supabase sync
   const handleUpdateStatus = async (taskId: string, targetStatus: string) => {
     const computedProgress =
       targetStatus === "Done"
@@ -255,7 +223,6 @@ export default function TasksPage() {
             ? 50
             : 0;
 
-    // 1. Optimistic UI update
     setTasks((prev) =>
       prev.map((t) =>
         t.id === taskId
@@ -265,29 +232,26 @@ export default function TasksPage() {
     );
     setOpenMenuId(null);
 
-    // 2. Supabase update
     try {
       await supabase
         .from("tasks")
         .update({ status: targetStatus, progress: computedProgress })
         .eq("id", taskId);
     } catch (err) {
-      console.error("Failed to update status in Supabase:", err);
+      console.error("Status update error:", err);
     }
   };
 
-  // Delete task
   const handleDeleteTask = async (taskId: string) => {
     setTasks((prev) => prev.filter((t) => t.id !== taskId));
     setOpenMenuId(null);
     try {
       await supabase.from("tasks").delete().eq("id", taskId);
     } catch (err) {
-      console.error("Failed to delete task:", err);
+      console.error("Delete task error:", err);
     }
   };
 
-  // HTML5 Drag and Drop
   const handleDragStart = (e: React.DragEvent, id: string) => {
     setDraggedTaskId(id);
     e.dataTransfer.setData("text/plain", id);
@@ -306,18 +270,14 @@ export default function TasksPage() {
     setDraggedTaskId(null);
   };
 
-  // Filters logic
   const filteredTasks = useMemo(() => {
     return tasks.filter((t) => {
       if (activeFilter === "All") return true;
       if (activeFilter === "High priority")
         return (t.priority || "").toLowerCase() === "high";
       if (activeFilter === "My tasks") {
-        return (
-          currentAssignee.length > 0 &&
-          (t.assignees || []).some(
-            (assignee) => assignee.toUpperCase() === currentAssignee,
-          )
+        return (t.assignees || []).some(
+          (a) => a.toLowerCase() === "sandy" || a.toLowerCase() === "sk",
         );
       }
       if (activeFilter === "Due this week") {
@@ -329,57 +289,75 @@ export default function TasksPage() {
       }
       return true;
     });
-  }, [tasks, activeFilter, currentAssignee]);
+  }, [tasks, activeFilter]);
 
-  // Create new task
+  // Robust Create Task with automatic column fallbacks
   const handleCreateTask = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTask.title.trim()) return;
 
-    setIsSaving(true);
-    const assigneesList = newTask.assignees
+    setIsSubmitting(true);
+    const trimmedTitle = newTask.title.trim();
+    const assigneeStr = newTask.assignee.trim().toUpperCase() || "SK";
+    const assigneesArr = assigneeStr
       .split(",")
-      .map((a) => a.trim().toUpperCase())
-      .filter(Boolean);
-
-    const taskPayload = {
-      title: newTask.title.trim(),
-      category: newTask.category,
-      priority: newTask.priority,
-      status: newTask.status,
-      due_date: newTask.due_date || null,
-      progress: newTask.status === "Done" ? 100 : newTask.progress,
-      assignees: assigneesList,
-      comments_count: 0,
-    };
+      .map((s) => s.trim().slice(0, 3));
 
     try {
-      const { data, error } = await supabase
-        .from("tasks")
-        .insert([taskPayload])
-        .select();
+      // 1. Build a flexible payload that supports both title and name
+      const payload: any = {
+        title: trimmedTitle,
+        name: trimmedTitle,
+        status: newTask.status || "To do",
+        priority: newTask.priority || "Medium",
+        category: newTask.category || "Frontend",
+        progress:
+          newTask.status === "Done" ? 100 : Number(newTask.progress) || 0,
+        due_date: newTask.due_date || null,
+        assignee: assigneeStr,
+        assignees: assigneesArr,
+      };
 
-      if (error) throw error;
-      if (data && data[0]) {
-        setTasks((prev) => [normalizeTask(data[0]), ...prev]);
+      // 2. Try inserting full payload
+      let result = await supabase.from("tasks").insert([payload]).select();
+
+      // 3. Fallback: If array 'assignees' fails, remove it and try with simple text fields
+      if (result.error && result.error.message?.includes("assignees")) {
+        delete payload.assignees;
+        result = await supabase.from("tasks").insert([payload]).select();
+      }
+
+      // 4. Fallback: If 'title' or 'category' fails on older schemas
+      if (result.error && result.error.message?.includes("category")) {
+        delete payload.category;
+        result = await supabase.from("tasks").insert([payload]).select();
+      }
+
+      if (result.error) throw result.error;
+
+      if (result.data && result.data[0]) {
+        setTasks((prev) => [mapDbTask(result.data[0]), ...prev]);
       }
 
       setShowAddModal(false);
       setNewTask({
         title: "",
-        category: "Frontend",
-        priority: "Medium",
+        category: "Backend",
+        priority: "High",
         status: "To do",
         due_date: "",
-        assignees: "",
+        assignee: "sandy",
         progress: 50,
       });
-    } catch (err) {
-      alert(
-        `Could not create task: ${err instanceof Error ? err.message : "Unknown error"}`,
-      );
+    } catch (err: any) {
+      const errMsg =
+        err?.message ||
+        err?.details ||
+        err?.hint ||
+        "Database schema mismatch. Please run the SQL migration in Supabase.";
+      alert(`Could not create task: ${errMsg}`);
     } finally {
-      setIsSaving(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -396,66 +374,35 @@ export default function TasksPage() {
           </p>
         </div>
 
-        {/* Forest Green Pill Button matching screenshot */}
         <button
           onClick={() => setShowAddModal(true)}
-          className="flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-[#9D00FF] hover:bg-[#103d30] text-white font-medium text-sm transition shadow-sm w-fit"
+          className="flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-[#154c3c] hover:bg-[#103d30] text-white font-medium text-sm transition shadow-sm w-fit"
         >
           <Plus className="w-4 h-4 stroke-[2.5]" />
           <span>New Task</span>
         </button>
       </div>
 
-      {/* 2. FILTER ROW: Rounded Capsule Filter + Task Count */}
+      {/* 2. FILTER PILLS */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
-        {/* Rounded Capsule Bar */}
         <div className="inline-flex items-center bg-white border border-slate-200/90 rounded-full p-1 shadow-xs w-fit">
-          <button
-            onClick={() => setActiveFilter("All")}
-            className={`px-4 py-1.5 rounded-full text-xs font-semibold transition ${
-              activeFilter === "All"
-                ? "bg-[#9D00FF] text-white ring-2 ring-[#9D00FF] shadow-xs"
-                : "text-slate-600 hover:text-slate-900"
-            }`}
-          >
-            All
-          </button>
-
-          <button
-            onClick={() => setActiveFilter("My tasks")}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition ${
-              activeFilter === "My tasks"
-                ? "bg-[#9D00FF] text-white"
-                : "text-slate-600 hover:text-slate-900"
-            }`}
-          >
-            My tasks
-          </button>
-
-          <button
-            onClick={() => setActiveFilter("High priority")}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition ${
-              activeFilter === "High priority"
-                ? "bg-[#9D00FF] text-white"
-                : "text-slate-600 hover:text-slate-900"
-            }`}
-          >
-            High priority
-          </button>
-
-          <button
-            onClick={() => setActiveFilter("Due this week")}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition ${
-              activeFilter === "Due this week"
-                ? "bg-[#9D00FF] text-white"
-                : "text-slate-600 hover:text-slate-900"
-            }`}
-          >
-            Due this week
-          </button>
+          {(["All", "My tasks", "High priority", "Due this week"] as const).map(
+            (tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveFilter(tab)}
+                className={`px-4 py-1.5 rounded-full text-xs font-semibold transition ${
+                  activeFilter === tab
+                    ? "bg-[#154c3c] text-white ring-2 ring-[#227258] shadow-xs"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                {tab}
+              </button>
+            ),
+          )}
         </div>
 
-        {/* Counter */}
         <div className="text-sm text-slate-500 font-normal">
           <strong className="text-slate-900 font-bold">
             {filteredTasks.length}
@@ -468,7 +415,7 @@ export default function TasksPage() {
       {loading ? (
         <div className="py-32 flex flex-col items-center justify-center text-slate-400 gap-2">
           <Loader2 className="w-6 h-6 animate-spin text-[#154c3c]" />
-          <span className="text-xs font-medium">Syncing live tasks...</span>
+          <span className="text-xs font-medium">Loading tasks...</span>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 items-start">
@@ -486,7 +433,6 @@ export default function TasksPage() {
                 onDrop={(e) => handleDrop(e, column.key)}
                 className="bg-slate-50/50 rounded-3xl p-3 sm:p-3.5 border border-slate-200/80 min-h-[640px] flex flex-col justify-start space-y-3"
               >
-                {/* Column Header */}
                 <div className="flex items-center justify-between px-2 pt-1 pb-0.5">
                   <div className="flex items-center gap-2">
                     <span className={`w-2 h-2 rounded-full ${column.dot}`} />
@@ -500,7 +446,6 @@ export default function TasksPage() {
                   </span>
                 </div>
 
-                {/* Cards List */}
                 <div className="space-y-3 flex-1">
                   {columnTasks.map((task) => {
                     const catStyle =
@@ -517,7 +462,6 @@ export default function TasksPage() {
                           draggedTaskId === task.id ? "opacity-30 scale-95" : ""
                         }`}
                       >
-                        {/* Top: Category Tag + Priority Flag + Menu */}
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <span
@@ -542,7 +486,6 @@ export default function TasksPage() {
                             )}
                           </div>
 
-                          {/* Action Menu (•••) */}
                           <div
                             className="relative"
                             onClick={(e) => e.stopPropagation()}
@@ -559,7 +502,7 @@ export default function TasksPage() {
                             </button>
 
                             {openMenuId === task.id && (
-                              <div className="absolute right-0 top-6 z-20 w-44 bg-white rounded-xl shadow-lg border border-slate-100 p-1.5 space-y-1 animate-in fade-in zoom-in-95">
+                              <div className="absolute right-0 top-6 z-20 w-44 bg-white rounded-xl shadow-lg border border-slate-100 p-1.5 space-y-1">
                                 <span className="text-[10px] uppercase font-bold text-slate-400 px-2 py-1 block">
                                   Move to
                                 </span>
@@ -595,7 +538,6 @@ export default function TasksPage() {
                           </div>
                         </div>
 
-                        {/* Title */}
                         <h4
                           className={`text-[13.5px] font-medium leading-snug tracking-tight ${
                             isDone
@@ -606,7 +548,6 @@ export default function TasksPage() {
                           {task.title}
                         </h4>
 
-                        {/* Solid Green Progress Line (matching screenshot) */}
                         {task.progress !== undefined && task.progress > 0 && (
                           <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
                             <div
@@ -616,12 +557,11 @@ export default function TasksPage() {
                           </div>
                         )}
 
-                        {/* Bottom Row: Clock/Time, Comment Count, Avatars */}
                         <div className="flex items-center justify-between pt-0.5 text-slate-500 text-[11px] font-medium">
                           <div className="flex items-center gap-3">
                             <span className="flex items-center gap-1">
                               <Clock className="w-3 h-3 text-slate-400" />
-                              <span>{formatDueText(task.due_date)}</span>
+                              <span>{formatDueDisplay(task.due_date)}</span>
                             </span>
 
                             <span className="flex items-center gap-1">
@@ -630,24 +570,20 @@ export default function TasksPage() {
                             </span>
                           </div>
 
-                          {/* Overlapping Initials Avatars */}
                           <div className="flex items-center -space-x-1.5">
                             {(task.assignees && task.assignees.length > 0
                               ? task.assignees
-                              : ["HK"]
-                            ).map((name, i) => {
-                              const color =
-                                AVATAR_COLORS[name] ||
-                                "bg-slate-100 text-slate-700";
-                              return (
-                                <span
-                                  key={i}
-                                  className={`w-6 h-6 rounded-full border-2 border-white flex items-center justify-center text-[10px] font-semibold ${color}`}
-                                >
-                                  {name}
-                                </span>
-                              );
-                            })}
+                              : ["SK"]
+                            ).map((name, i) => (
+                              <span
+                                key={i}
+                                className={`w-6 h-6 rounded-full border-2 border-white flex items-center justify-center text-[10px] font-semibold ${
+                                  AVATAR_COLORS[i % AVATAR_COLORS.length]
+                                }`}
+                              >
+                                {name.slice(0, 2).toUpperCase()}
+                              </span>
+                            ))}
                           </div>
                         </div>
                       </div>
@@ -777,10 +713,10 @@ export default function TasksPage() {
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. HK, PR, MK"
-                  value={newTask.assignees}
+                  placeholder="e.g. SK, PR, MK"
+                  value={newTask.assignee}
                   onChange={(e) =>
-                    setNewTask({ ...newTask, assignees: e.target.value })
+                    setNewTask({ ...newTask, assignee: e.target.value })
                   }
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-900 focus:outline-none focus:border-[#154c3c]"
                 />
@@ -788,10 +724,10 @@ export default function TasksPage() {
 
               <button
                 type="submit"
-                disabled={isSaving}
-                className="w-full bg-[#9D00FF] hover:bg-[#9D00FF] text-white font-semibold text-xs py-2.5 px-4 rounded-xl shadow-sm flex items-center justify-center gap-2 transition disabled:opacity-50 mt-4"
+                disabled={isSubmitting}
+                className="w-full bg-[#154c3c] hover:bg-[#103d30] text-white font-semibold text-xs py-2.5 px-4 rounded-xl shadow-sm flex items-center justify-center gap-2 transition disabled:opacity-50 mt-4"
               >
-                {isSaving ? (
+                {isSubmitting ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
                     <span>Saving to Database...</span>

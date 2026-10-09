@@ -43,8 +43,9 @@ interface CreativeDeliverable {
 
 interface ProjectRecord {
   id: string;
-  title: string;
-  client: string;
+  title?: string;
+  name?: string;
+  client?: string;
   status: string;
   budget: number | string;
   payment_status?: "paid" | "unpaid" | string;
@@ -98,7 +99,7 @@ export default function ClientsPage() {
     phone: "",
     industry: "Restaurant & Food",
     firstProjectTitle: "",
-    firstProjectBudget: "5000",
+    firstProjectBudget: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -120,11 +121,19 @@ export default function ClientsPage() {
           error.message,
         );
       } else if (data) {
-        setProjects(data);
-        // By default, open first 3 client cards
+        // Normalize records so both .title and .name are always populated
+        const normalized: ProjectRecord[] = data.map((p: any) => ({
+          ...p,
+          title: p.title || p.name || "Untitled Deliverable",
+          name: p.name || p.title || "Untitled Deliverable",
+        }));
+
+        setProjects(normalized);
+
+        // Open first 3 client cards by default
         const initialExpanded: Record<string, boolean> = {};
         const clientNames = Array.from(
-          new Set(data.map((p) => p.client || "Direct Client")),
+          new Set(normalized.map((p) => p.client?.trim() || "Direct Client")),
         );
         clientNames.slice(0, 3).forEach((name) => {
           initialExpanded[name] = true;
@@ -138,7 +147,7 @@ export default function ClientsPage() {
     }
   };
 
-  // Group projects by client
+  // Group real projects by client
   const clientGroups: ClientGroup[] = useMemo(() => {
     const map = new Map<string, ProjectRecord[]>();
 
@@ -186,7 +195,7 @@ export default function ClientsPage() {
     return groups.sort((a, b) => b.totalPending - a.totalPending);
   }, [projects]);
 
-  // Overall Financial KPIs
+  // Overall Financial KPIs (Calculated from real data)
   const metrics = useMemo(() => {
     let pipeline = 0;
     let received = 0;
@@ -255,7 +264,7 @@ export default function ClientsPage() {
         .eq("id", projectId);
 
       if (error) {
-        console.warn("Database column warning:", error.message);
+        console.warn("Database update warning:", error.message);
       }
     } catch (err: any) {
       console.error("Toggle payment status failed:", err.message);
@@ -269,47 +278,71 @@ export default function ClientsPage() {
     }));
   };
 
-  // Add Client with First Project
+  // Add Client with First Project (Satisfies NOT NULL constraint on 'name')
   const handleCreateClient = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newClient.name.trim()) return;
 
     setIsSubmitting(true);
     try {
-      const projectPayload: any = {
-        title:
-          newClient.firstProjectTitle.trim() ||
-          `${newClient.name} - Brand Identity & Creative Works`,
-        client: newClient.name.trim(),
+      const clientName = newClient.name.trim();
+      const projectTitle =
+        newClient.firstProjectTitle.trim() || `${clientName} - Initial Work`;
+      const budgetVal = parseFloat(newClient.firstProjectBudget) || 1500;
+
+      const basePayload: any = {
+        name: projectTitle, // Satisfies NOT NULL constraint on 'name'
+        title: projectTitle, // Also populates 'title'
+        client: clientName,
         category: "Graphic Design",
         industry: newClient.industry,
-        budget: parseFloat(newClient.firstProjectBudget) || 5000,
+        budget: budgetVal,
         status: "In Progress",
         payment_status: "unpaid",
         deliverables: JSON.stringify([
           {
             id: `work-${Date.now()}`,
-            name: "Initial Marketing Creative",
-            type: "Flyer",
-            amount: parseFloat(newClient.firstProjectBudget) || 5000,
+            name: projectTitle,
+            type: "Creative Work",
+            amount: budgetVal,
             date: new Date().toISOString().split("T")[0],
             status: "In Progress",
           },
         ]),
       };
 
-      const { data, error } = await supabase
+      // 1. Try insert with both name and title
+      let insertRes = await supabase
         .from("projects")
-        .insert([projectPayload])
+        .insert([basePayload])
         .select();
 
-      if (error) throw error;
+      // 2. Fallback if schema doesn't have 'title' column
+      if (
+        insertRes.error &&
+        insertRes.error.message?.toLowerCase().includes("title")
+      ) {
+        const { title, ...payloadWithoutTitle } = basePayload;
+        insertRes = await supabase
+          .from("projects")
+          .insert([payloadWithoutTitle])
+          .select();
+      }
+
+      if (insertRes.error) throw insertRes.error;
+      const data = insertRes.data;
 
       if (data && data[0]) {
-        setProjects((prev) => [data[0], ...prev]);
+        const createdRecord: ProjectRecord = {
+          ...data[0],
+          title: data[0].title || data[0].name || projectTitle,
+          name: data[0].name || data[0].title || projectTitle,
+        };
+
+        setProjects((prev) => [createdRecord, ...prev]);
         setExpandedClients((prev) => ({
           ...prev,
-          [newClient.name.trim()]: true,
+          [clientName]: true,
         }));
       }
 
@@ -320,7 +353,7 @@ export default function ClientsPage() {
         phone: "",
         industry: "Restaurant & Food",
         firstProjectTitle: "",
-        firstProjectBudget: "5000",
+        firstProjectBudget: "",
       });
     } catch (err: any) {
       alert(`Could not create client: ${err.message}`);
@@ -366,7 +399,7 @@ export default function ClientsPage() {
         </div>
       </div>
 
-      {/* Graphical Financial Analytics KPIs */}
+      {/* Financial KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Pipeline */}
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
@@ -443,7 +476,6 @@ export default function ClientsPage() {
             <p className="text-2xl font-black text-purple-700">
               {metrics.overallRate}%
             </p>
-            {/* Visual Animated Dual-Color Bar */}
             <div className="w-full bg-amber-100 rounded-full h-2.5 mt-2 overflow-hidden flex">
               <div
                 className="bg-emerald-500 h-full rounded-full transition-all duration-700 ease-out"
@@ -462,9 +494,8 @@ export default function ClientsPage() {
         </div>
       </div>
 
-      {/* Filters & Search Toolbar */}
+      {/* Toolbar */}
       <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
-        {/* Search */}
         <div className="relative w-full md:w-80">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
@@ -476,9 +507,7 @@ export default function ClientsPage() {
           />
         </div>
 
-        {/* Industry & Payment Status Badges */}
         <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-          {/* Industry Dropdown */}
           <select
             value={selectedIndustry}
             onChange={(e) => setSelectedIndustry(e.target.value)}
@@ -491,7 +520,6 @@ export default function ClientsPage() {
             ))}
           </select>
 
-          {/* Payment Status Tabs */}
           <div className="flex items-center bg-slate-100 p-1 rounded-xl">
             <button
               onClick={() => setPaymentFilter("all")}
@@ -632,7 +660,6 @@ export default function ClientsPage() {
                       </span>
                     </div>
 
-                    {/* Due Badge / Settlement status */}
                     <div className="w-24 text-right">
                       {hasDues ? (
                         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black bg-amber-50 text-amber-700 border border-amber-200">
@@ -657,7 +684,7 @@ export default function ClientsPage() {
                   </div>
                 </div>
 
-                {/* Expanded Client Deliverables & Sub-works */}
+                {/* Expanded Client Deliverables */}
                 {isExpanded && (
                   <div className="border-t border-slate-100 bg-slate-50/60 p-5 space-y-4">
                     <div className="flex items-center justify-between">
@@ -677,7 +704,6 @@ export default function ClientsPage() {
                       </Link>
                     </div>
 
-                    {/* Table of Client's Projects */}
                     <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
                       <table className="w-full text-left text-xs">
                         <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[10px]">
@@ -695,6 +721,8 @@ export default function ClientsPage() {
                             const isProjPaid = proj.payment_status === "paid";
                             const pAmount =
                               parseFloat(String(proj.budget)) || 0;
+                            const displayName =
+                              proj.title || proj.name || "Creative Deliverable";
 
                             return (
                               <tr
@@ -704,7 +732,7 @@ export default function ClientsPage() {
                                 <td className="py-3 px-4">
                                   <div className="font-bold text-slate-900 flex items-center gap-1.5">
                                     <FolderOpen className="w-3.5 h-3.5 text-[#9D00FF]" />
-                                    <span>{proj.title}</span>
+                                    <span>{displayName}</span>
                                   </div>
                                   <div className="text-[11px] text-slate-400 mt-0.5">
                                     Created:{" "}
@@ -746,7 +774,6 @@ export default function ClientsPage() {
                                   ₹{pAmount.toLocaleString()}
                                 </td>
 
-                                {/* 1-Click Payment Status Toggle */}
                                 <td className="py-3 px-4">
                                   <button
                                     onClick={() =>
@@ -893,7 +920,7 @@ export default function ClientsPage() {
                   <input
                     type="number"
                     min="0"
-                    placeholder="5000"
+                    placeholder="1500"
                     value={newClient.firstProjectBudget}
                     onChange={(e) =>
                       setNewClient((prev) => ({
