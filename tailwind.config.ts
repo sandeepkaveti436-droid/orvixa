@@ -12,9 +12,9 @@ const config: Config = {
       colors: {
         // Brand Colors
         brand: {
-          primary: "#2563EB",
-          hover: "#1D4ED8",
-          active: "#1E40AF",
+          primary: "#9D00FF",
+          hover: "#7A00CC",
+          active: "#5B0099",
           success: "#22C55E",
           warning: "#F59E0B",
           error: "#EF4444",

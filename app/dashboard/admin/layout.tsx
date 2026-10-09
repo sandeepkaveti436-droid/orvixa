@@ -190,7 +190,7 @@ export default function AdminLayout({
               <span className="font-sans text-lg font-bold text-slate-900 block leading-none">
                 Orvixa Admin
               </span>
-              <span className="text-[10px] font-bold text-[#0047AB]">
+              <span className="text-[10px] font-bold text-[#9D00FF]">
                 Organization OS
               </span>
             </div>
@@ -208,7 +208,7 @@ export default function AdminLayout({
                   onClick={() => setSidebarOpen(false)}
                   className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all font-sans ${
                     isActive
-                      ? "bg-[#0047AB] text-white shadow-md shadow-[#0047AB]/25"
+                      ? "bg-[#9D00FF] text-white shadow-md shadow-[#9D00FF]/25"
                       : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                   }`}
                 >
@@ -227,7 +227,7 @@ export default function AdminLayout({
             className="flex items-center gap-2.5 group hover:opacity-80 transition-opacity"
             title="View Org Settings"
           >
-            <div className="w-8 h-8 rounded-full bg-[#0047AB] text-white flex items-center justify-center font-bold text-xs font-sans overflow-hidden shrink-0 shadow-sm ring-1 ring-slate-200">
+            <div className="w-8 h-8 rounded-full bg-[#9D00FF] text-white flex items-center justify-center font-bold text-xs font-sans overflow-hidden shrink-0 shadow-sm ring-1 ring-slate-200">
               {avatarUrl ? (
                 <img
                   src={avatarUrl}
@@ -239,7 +239,7 @@ export default function AdminLayout({
               )}
             </div>
             <div>
-              <div className="text-xs font-bold text-slate-900 line-clamp-1 font-sans group-hover:text-[#0047AB]">
+              <div className="text-xs font-bold text-slate-900 line-clamp-1 font-sans group-hover:text-[#9D00FF]">
                 {orgDisplayName}
               </div>
               <div className="text-[10px] text-slate-400 font-semibold font-sans capitalize">
@@ -277,7 +277,7 @@ export default function AdminLayout({
               <input
                 type="text"
                 placeholder="Search organization workspace..."
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB] font-sans"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF] font-sans"
               />
             </div>
           </div>
@@ -288,7 +288,7 @@ export default function AdminLayout({
             </span>
             <Link
               href="/dashboard/admin/employees"
-              className="bg-[#0047AB] hover:bg-[#003680] text-white text-xs font-bold px-4 py-2 rounded-xl shadow-sm flex items-center gap-1.5 font-sans"
+              className="bg-[#9D00FF] hover:bg-[#7A00CC] text-white text-xs font-bold px-4 py-2 rounded-xl shadow-sm flex items-center gap-1.5 font-sans"
             >
               <UserPlus className="w-4 h-4" />
               <span>+ Invite Employee</span>

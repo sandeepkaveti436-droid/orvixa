@@ -194,7 +194,7 @@ export default function AnalyticsPage() {
   if (loading) {
     return (
       <div className="min-h-[400px] flex items-center justify-center font-bold text-slate-500 font-sans">
-        <Loader2 className="w-6 h-6 animate-spin text-[#0047AB] mr-2" />
+        <Loader2 className="w-6 h-6 animate-spin text-[#9D00FF] mr-2" />
         <span className="font-sans">Loading Live SaaS Analytics Engine...</span>
       </div>
     );
@@ -206,14 +206,14 @@ export default function AnalyticsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 font-sans">
         <div>
           <div className="flex items-center gap-2 mb-1.5 font-sans">
-            <span className="text-[11px] font-bold text-[#0047AB] bg-blue-50 border border-blue-200 px-3 py-1 rounded-full flex items-center gap-1.5 font-sans">
-              <Activity className="w-3.5 h-3.5 text-[#0047AB]" />
+            <span className="text-[11px] font-bold text-[#9D00FF] bg-blue-50 border border-blue-200 px-3 py-1 rounded-full flex items-center gap-1.5 font-sans">
+              <Activity className="w-3.5 h-3.5 text-[#9D00FF]" />
               <span>Real-Time Workspace Metrics</span>
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 font-sans tracking-tight">
             <span>Analytics & </span>
-            <span className="italic text-[#0047AB]">Insights.</span>
+            <span className="italic text-[#9D00FF]">Insights.</span>
           </h1>
           <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-0.5 font-sans">
             Performance trends, cashflow velocity, and client concentration
@@ -234,7 +234,7 @@ export default function AnalyticsPage() {
                 onClick={() => setTimeRange(range)}
                 className={`px-3 py-1.5 text-xs font-bold rounded-lg transition font-sans ${
                   timeRange === range
-                    ? "bg-[#0047AB] text-white shadow-sm"
+                    ? "bg-[#9D00FF] text-white shadow-sm"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
               >
@@ -258,7 +258,7 @@ export default function AnalyticsPage() {
             </span>
           </div>
           <div>
-            <div className="text-3xl font-black text-[#0047AB] font-sans">
+            <div className="text-3xl font-black text-[#9D00FF] font-sans">
               ₹{totalRevenue.toLocaleString("en-IN")}
             </div>
             <span className="text-[11px] font-semibold text-slate-400 mt-1 block font-sans">
@@ -340,7 +340,7 @@ export default function AnalyticsPage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4 font-sans">
             <div>
               <h3 className="font-bold text-base text-slate-900 flex items-center gap-2 font-sans">
-                <BarChart3 className="w-5 h-5 text-[#0047AB]" />
+                <BarChart3 className="w-5 h-5 text-[#9D00FF]" />
                 <span>Revenue Growth & Monthly Pipeline Trend</span>
               </h3>
               <p className="text-xs font-semibold text-slate-400 mt-0.5 font-sans">
@@ -349,7 +349,7 @@ export default function AnalyticsPage() {
               </p>
             </div>
             <div className="text-right font-sans">
-              <span className="text-sm font-black text-[#0047AB] font-sans">
+              <span className="text-sm font-black text-[#9D00FF] font-sans">
                 ₹{totalRevenue.toLocaleString("en-IN")}
               </span>
               <span className="text-[10px] text-slate-400 font-bold uppercase block font-sans">
@@ -383,7 +383,7 @@ export default function AnalyticsPage() {
                     <div
                       className={`w-full max-w-[48px] rounded-2xl transition-all duration-500 relative ${
                         isCurrent
-                          ? "bg-gradient-to-t from-[#0047AB] to-blue-500 shadow-md shadow-[#0047AB]/25"
+                          ? "bg-gradient-to-t from-[#9D00FF] to-blue-500 shadow-md shadow-[#9D00FF]/25"
                           : "bg-slate-200/80 hover:bg-slate-300"
                       }`}
                       style={{ height: `${heightPercent}%` }}
@@ -391,7 +391,7 @@ export default function AnalyticsPage() {
 
                     <span
                       className={`text-xs font-bold font-sans ${
-                        isCurrent ? "text-[#0047AB]" : "text-slate-400"
+                        isCurrent ? "text-[#9D00FF]" : "text-slate-400"
                       }`}
                     >
                       {data.month}
@@ -404,7 +404,7 @@ export default function AnalyticsPage() {
             <div className="flex items-center justify-between text-xs text-slate-500 pt-2 font-sans">
               <div className="flex items-center gap-4 font-sans">
                 <span className="flex items-center gap-1.5 font-sans">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#0047AB]" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#9D00FF]" />
                   <span>Current Live Month</span>
                 </span>
                 <span className="flex items-center gap-1.5 font-sans">
@@ -426,14 +426,14 @@ export default function AnalyticsPage() {
             <div className="flex items-center justify-between border-b border-slate-100 pb-4 font-sans">
               <div>
                 <h3 className="font-bold text-base text-slate-900 flex items-center gap-2 font-sans">
-                  <Users className="w-5 h-5 text-[#0047AB]" />
+                  <Users className="w-5 h-5 text-[#9D00FF]" />
                   <span>Client Concentration</span>
                 </h3>
                 <span className="text-xs font-semibold text-slate-400 font-sans">
                   Portfolio Revenue Share
                 </span>
               </div>
-              <span className="text-xs font-bold text-[#0047AB] bg-blue-50 px-2 py-0.5 rounded-full font-sans">
+              <span className="text-xs font-bold text-[#9D00FF] bg-blue-50 px-2 py-0.5 rounded-full font-sans">
                 {clientRevenueList.length} Clients
               </span>
             </div>
@@ -456,7 +456,7 @@ export default function AnalyticsPage() {
                   <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden font-sans">
                     <div
                       className={`h-full rounded-full transition-all duration-500 font-sans ${
-                        idx === 0 ? "bg-[#0047AB]" : "bg-emerald-500"
+                        idx === 0 ? "bg-[#9D00FF]" : "bg-emerald-500"
                       }`}
                       style={{ width: `${Math.max(item.share, 4)}%` }}
                     />
@@ -488,7 +488,7 @@ export default function AnalyticsPage() {
         <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-5 font-sans">
           <div className="flex items-center justify-between border-b border-slate-100 pb-4 font-sans">
             <h3 className="font-bold text-base text-slate-900 flex items-center gap-2 font-sans">
-              <FolderKanban className="w-5 h-5 text-[#0047AB]" />
+              <FolderKanban className="w-5 h-5 text-[#9D00FF]" />
               <span>Project Deliverables Pipeline</span>
             </h3>
             <span className="text-xs font-bold text-slate-400 font-sans">
@@ -512,10 +512,10 @@ export default function AnalyticsPage() {
                 >
                   <div className="min-w-0 font-sans">
                     <div className="flex items-center gap-2 mb-1 font-sans">
-                      <span className="text-sm font-bold text-slate-900 group-hover:text-[#0047AB] truncate font-sans">
+                      <span className="text-sm font-bold text-slate-900 group-hover:text-[#9D00FF] truncate font-sans">
                         {p.name}
                       </span>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-[#0047AB] border border-blue-200 font-sans">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-[#9D00FF] border border-blue-200 font-sans">
                         {p.status || "In Progress"}
                       </span>
                     </div>
@@ -526,7 +526,7 @@ export default function AnalyticsPage() {
                   </div>
 
                   <div className="text-right shrink-0 font-sans">
-                    <span className="text-sm font-black text-[#0047AB] block font-sans">
+                    <span className="text-sm font-black text-[#9D00FF] block font-sans">
                       ₹{budgetNum.toLocaleString("en-IN")}
                     </span>
                     <span className="text-[11px] font-semibold text-slate-400 font-sans">
@@ -550,7 +550,7 @@ export default function AnalyticsPage() {
           <div>
             <div className="flex items-center justify-between border-b border-slate-100 pb-4 font-sans">
               <h3 className="font-bold text-base text-slate-900 flex items-center gap-2 font-sans">
-                <Sparkles className="w-5 h-5 text-[#0047AB]" />
+                <Sparkles className="w-5 h-5 text-[#9D00FF]" />
                 <span>AI Portfolio & Cashflow Audit</span>
               </h3>
               <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full font-sans">
@@ -580,7 +580,7 @@ export default function AnalyticsPage() {
                 )}
 
               <div className="p-4 rounded-2xl bg-blue-50/60 border border-blue-100 flex items-start gap-3 font-sans">
-                <CheckCircle2 className="w-5 h-5 text-[#0047AB] shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-5 h-5 text-[#9D00FF] shrink-0 mt-0.5" />
                 <div className="font-sans">
                   <h4 className="text-xs font-bold text-slate-900 font-sans">
                     Average Deal Velocity: ₹
@@ -615,7 +615,7 @@ export default function AnalyticsPage() {
 
           <Link
             href="/dashboard/freelancer/invoices"
-            className="w-full py-2.5 bg-[#0047AB] hover:bg-[#003680] text-white text-xs font-bold rounded-2xl shadow-md shadow-[#0047AB]/20 flex items-center justify-center gap-1.5 transition font-sans"
+            className="w-full py-2.5 bg-[#9D00FF] hover:bg-[#7A00CC] text-white text-xs font-bold rounded-2xl shadow-md shadow-[#9D00FF]/20 flex items-center justify-center gap-1.5 transition font-sans"
           >
             <span>Issue Client Invoices in ₹ INR</span>
             <ArrowRight className="w-3.5 h-3.5" />

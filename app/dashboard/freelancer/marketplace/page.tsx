@@ -30,13 +30,13 @@ export default function MarketplacePage() {
   return (
     <div className="space-y-8 font-sans">
       <div>
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0047AB]/10 text-[#0047AB] text-xs font-bold mb-2">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#9D00FF]/10 text-[#9D00FF] text-xs font-bold mb-2">
           <Store className="w-3.5 h-3.5" />
           <span>Ecosystem Extensions</span>
         </div>
         <h1 className="text-2xl sm:text-4xl font-black text-slate-900">
           <span>Marketplace & </span>
-          <span className="font-heading italic text-[#0047AB]">
+          <span className="font-heading italic text-[#9D00FF]">
             AI Prompts.
           </span>
         </h1>
@@ -60,7 +60,7 @@ export default function MarketplacePage() {
             onClick={() => setFilter(tab.id)}
             className={`px-4 py-2 rounded-xl transition-all ${
               filter === tab.id
-                ? "bg-[#0047AB] text-white shadow-sm"
+                ? "bg-[#9D00FF] text-white shadow-sm"
                 : "hover:bg-slate-100 text-slate-600"
             }`}
           >
@@ -82,7 +82,7 @@ export default function MarketplacePage() {
             >
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <IconComp className="w-4 h-4 text-[#0047AB]" />
+                  <IconComp className="w-4 h-4 text-[#9D00FF]" />
                   <h3 className="font-bold text-base text-slate-900">
                     {item.name}
                   </h3>
@@ -97,7 +97,7 @@ export default function MarketplacePage() {
                 className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
                   isInst
                     ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
-                    : "bg-[#0047AB] hover:bg-[#003680] text-white shadow-md"
+                    : "bg-[#9D00FF] hover:bg-[#7A00CC] text-white shadow-md"
                 }`}
               >
                 {isInst ? "✓ Installed" : "Install"}

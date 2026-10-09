@@ -70,7 +70,7 @@ export default function RolesPage() {
   if (loading) {
     return (
       <div className="min-h-[400px] flex items-center justify-center font-bold text-slate-500 font-sans">
-        <Loader2 className="w-6 h-6 animate-spin text-[#0047AB] mr-2" />
+        <Loader2 className="w-6 h-6 animate-spin text-[#9D00FF] mr-2" />
         <span>Loading Real RBAC Data...</span>
       </div>
     );
@@ -96,12 +96,12 @@ export default function RolesPage() {
           >
             <div className="flex justify-between items-center pb-3 border-b border-slate-100 font-sans">
               <div className="flex items-center gap-2.5 font-sans">
-                <ShieldCheck className="w-5 h-5 text-[#0047AB]" />
+                <ShieldCheck className="w-5 h-5 text-[#9D00FF]" />
                 <h3 className="font-bold text-lg text-slate-900 font-sans">
                   {role.name}
                 </h3>
               </div>
-              <span className="text-xs font-bold bg-blue-50 text-[#0047AB] px-3 py-1 rounded-full font-sans">
+              <span className="text-xs font-bold bg-blue-50 text-[#9D00FF] px-3 py-1 rounded-full font-sans">
                 {role.members} Members
               </span>
             </div>

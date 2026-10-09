@@ -219,7 +219,7 @@ export default function EmployeeDashboard() {
   if (loading) {
     return (
       <div className="min-h-[400px] flex items-center justify-center font-bold text-slate-500 font-sans">
-        <Loader2 className="w-6 h-6 animate-spin text-[#0047AB] mr-2" />
+        <Loader2 className="w-6 h-6 animate-spin text-[#9D00FF] mr-2" />
         <span>Loading Workspace Data...</span>
       </div>
     );
@@ -230,7 +230,7 @@ export default function EmployeeDashboard() {
       {/* 1. GREETING & SHIFT CONTROLS */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 font-sans">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0047AB]/10 text-[#0047AB] text-xs font-bold mb-2 font-sans">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#9D00FF]/10 text-[#9D00FF] text-xs font-bold mb-2 font-sans">
             <span
               className={`w-2 h-2 rounded-full ${clockedIn ? "bg-emerald-500 animate-pulse" : "bg-rose-500"}`}
             />
@@ -307,7 +307,7 @@ export default function EmployeeDashboard() {
           <span className="text-xs font-bold uppercase text-slate-400 font-sans">
             Pending Tasks
           </span>
-          <div className="text-2xl font-black text-[#0047AB] font-sans">
+          <div className="text-2xl font-black text-[#9D00FF] font-sans">
             {pendingTasksCount} Tasks
           </div>
           <span className="text-xs text-slate-500 font-semibold block font-sans">
@@ -344,7 +344,7 @@ export default function EmployeeDashboard() {
       {pendingTasksCount > 0 && (
         <div className="bg-gradient-to-r from-blue-50 via-indigo-50/50 to-white p-5 sm:p-6 rounded-2xl border border-blue-200/80 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 font-sans">
           <div className="flex items-center gap-3 text-left font-sans">
-            <div className="w-10 h-10 rounded-xl bg-[#0047AB] text-white flex items-center justify-center shrink-0 shadow-md shadow-[#0047AB]/25">
+            <div className="w-10 h-10 rounded-xl bg-[#9D00FF] text-white flex items-center justify-center shrink-0 shadow-md shadow-[#9D00FF]/25">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
@@ -364,7 +364,7 @@ export default function EmployeeDashboard() {
       <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-5 font-sans">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 font-sans">
           <h2 className="font-bold text-base text-slate-900 flex items-center gap-2 font-sans">
-            <CheckCircle2 className="w-4 h-4 text-[#0047AB]" />
+            <CheckCircle2 className="w-4 h-4 text-[#9D00FF]" />
             <span>My Assigned Tasks ({pendingTasksCount} Pending)</span>
           </h2>
 
@@ -379,7 +379,7 @@ export default function EmployeeDashboard() {
                 onClick={() => setFilter(tab.id)}
                 className={`px-3 py-1 rounded-lg transition-all font-sans ${
                   filter === tab.id
-                    ? "bg-white text-[#0047AB] shadow-sm"
+                    ? "bg-white text-[#9D00FF] shadow-sm"
                     : "text-slate-600 hover:bg-slate-200"
                 }`}
               >
@@ -440,7 +440,7 @@ export default function EmployeeDashboard() {
                       ? "bg-rose-50 text-rose-600 border border-rose-200"
                       : task.priority === "High"
                         ? "bg-amber-50 text-amber-600 border border-amber-200"
-                        : "bg-blue-50 text-[#0047AB] border border-blue-200"
+                        : "bg-blue-50 text-[#9D00FF] border border-blue-200"
                   }`}
                 >
                   {task.priority}
@@ -464,7 +464,7 @@ export default function EmployeeDashboard() {
         <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4 font-sans">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100 font-sans">
             <h2 className="font-bold text-base text-slate-900 flex items-center gap-2 font-sans">
-              <FolderKanban className="w-4 h-4 text-[#0047AB]" />
+              <FolderKanban className="w-4 h-4 text-[#9D00FF]" />
               <span>Active Org Projects</span>
             </h2>
           </div>
@@ -480,14 +480,14 @@ export default function EmployeeDashboard() {
                     <span className="font-bold text-xs text-slate-900 font-sans">
                       {p.name}
                     </span>
-                    <span className="text-xs font-black text-[#0047AB] font-sans">
+                    <span className="text-xs font-black text-[#9D00FF] font-sans">
                       {p.progress}% Done
                     </span>
                   </div>
                   <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
                     <div
                       style={{ width: `${p.progress}%` }}
-                      className="bg-[#0047AB] h-full rounded-full"
+                      className="bg-[#9D00FF] h-full rounded-full"
                     />
                   </div>
                   <span className="text-[10px] font-semibold text-slate-400 block font-sans">
@@ -507,7 +507,7 @@ export default function EmployeeDashboard() {
         <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4 font-sans">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100 font-sans">
             <h2 className="font-bold text-base text-slate-900 flex items-center gap-2 font-sans">
-              <Megaphone className="w-4 h-4 text-[#0047AB]" />
+              <Megaphone className="w-4 h-4 text-[#9D00FF]" />
               <span>Announcements</span>
             </h2>
           </div>

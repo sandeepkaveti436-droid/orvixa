@@ -27,7 +27,7 @@ export default function EnterpriseSecurityPage() {
       <div>
         <h1 className="text-2xl sm:text-3xl font-black text-slate-900">
           <span>Enterprise Security & </span>
-          <span className="font-heading italic text-[#0047AB]">
+          <span className="font-heading italic text-[#9D00FF]">
             Governance.
           </span>
         </h1>
@@ -64,7 +64,7 @@ export default function EnterpriseSecurityPage() {
               onClick={() => setSsoEnabled(!ssoEnabled)}
               className={`px-4 py-2 rounded-full text-xs font-bold transition-all ${
                 ssoEnabled
-                  ? "bg-[#0047AB] text-white"
+                  ? "bg-[#9D00FF] text-white"
                   : "bg-slate-100 text-slate-600"
               }`}
             >
@@ -91,7 +91,7 @@ export default function EnterpriseSecurityPage() {
             type="text"
             value={ipAllowlist}
             onChange={(e) => setIpAllowlist(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+            className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
           />
         </div>
 
@@ -117,7 +117,7 @@ export default function EnterpriseSecurityPage() {
 
         <button
           type="submit"
-          className="bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs px-6 py-3.5 rounded-xl shadow-md flex items-center gap-2"
+          className="bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-xs px-6 py-3.5 rounded-xl shadow-md flex items-center gap-2"
         >
           <Save className="w-4 h-4" />
           <span>Save Policy</span>

@@ -93,7 +93,7 @@ export default function AdminDashboardPage() {
         });
 
         const colors = [
-          "bg-[#0047AB]",
+          "bg-[#9D00FF]",
           "bg-indigo-600",
           "bg-purple-600",
           "bg-emerald-600",
@@ -135,7 +135,7 @@ export default function AdminDashboardPage() {
   if (loading) {
     return (
       <div className="min-h-[400px] flex items-center justify-center font-bold text-slate-500 font-sans">
-        <Loader2 className="w-6 h-6 animate-spin text-[#0047AB] mr-2" />
+        <Loader2 className="w-6 h-6 animate-spin text-[#9D00FF] mr-2" />
         <span>Loading Live Command Center...</span>
       </div>
     );
@@ -146,8 +146,8 @@ export default function AdminDashboardPage() {
       {/* 1. HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 font-sans">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0047AB]/10 text-[#0047AB] text-xs font-bold mb-2 font-sans">
-            <span className="w-2 h-2 rounded-full bg-[#0047AB] animate-pulse" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#9D00FF]/10 text-[#9D00FF] text-xs font-bold mb-2 font-sans">
+            <span className="w-2 h-2 rounded-full bg-[#9D00FF] animate-pulse" />
             <span>{orgName} Enterprise Hub</span>
           </div>
 
@@ -163,7 +163,7 @@ export default function AdminDashboardPage() {
 
         <Link
           href="/dashboard/admin/employees"
-          className="bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md shadow-[#0047AB]/25 flex items-center gap-2 self-start sm:self-auto font-sans"
+          className="bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md shadow-[#9D00FF]/25 flex items-center gap-2 self-start sm:self-auto font-sans"
         >
           <UserPlus className="w-4 h-4" />
           <span>+ Invite Employee</span>
@@ -177,7 +177,7 @@ export default function AdminDashboardPage() {
             <span className="text-xs font-bold uppercase text-slate-400">
               Total Employees
             </span>
-            <Users className="w-4 h-4 text-[#0047AB]" />
+            <Users className="w-4 h-4 text-[#9D00FF]" />
           </div>
           <div className="text-3xl font-black text-slate-900">
             {employees.length} Members
@@ -192,9 +192,9 @@ export default function AdminDashboardPage() {
             <span className="text-xs font-bold uppercase text-slate-400">
               Avg Sprint Velocity
             </span>
-            <TrendingUp className="w-4 h-4 text-[#0047AB]" />
+            <TrendingUp className="w-4 h-4 text-[#9D00FF]" />
           </div>
-          <div className="text-3xl font-black text-[#0047AB]">
+          <div className="text-3xl font-black text-[#9D00FF]">
             {avgVelocity}%
           </div>
           <span className="text-xs text-slate-500 font-semibold block">
@@ -207,7 +207,7 @@ export default function AdminDashboardPage() {
             <span className="text-xs font-bold uppercase text-slate-400">
               Departments Active
             </span>
-            <Building2 className="w-4 h-4 text-[#0047AB]" />
+            <Building2 className="w-4 h-4 text-[#9D00FF]" />
           </div>
           <div className="text-3xl font-black text-slate-900">
             {deptStats.length || 0} Teams
@@ -224,7 +224,7 @@ export default function AdminDashboardPage() {
             </span>
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
           </div>
-          <div className="text-3xl font-black text-[#0047AB]">SOC2</div>
+          <div className="text-3xl font-black text-[#9D00FF]">SOC2</div>
           <span className="text-xs text-emerald-600 font-bold block">
             ✓ AES-256 Encrypted
           </span>
@@ -234,7 +234,7 @@ export default function AdminDashboardPage() {
       {/* 3. AI COPILOT AUDIT BANNER */}
       <div className="bg-gradient-to-r from-blue-50 via-indigo-50/50 to-white p-5 sm:p-6 rounded-3xl border border-blue-200/80 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 font-sans">
         <div className="flex items-center gap-3 text-left">
-          <div className="w-10 h-10 rounded-2xl bg-[#0047AB] text-white flex items-center justify-center shrink-0 shadow-md shadow-[#0047AB]/25">
+          <div className="w-10 h-10 rounded-2xl bg-[#9D00FF] text-white flex items-center justify-center shrink-0 shadow-md shadow-[#9D00FF]/25">
             <Sparkles className="w-5 h-5" />
           </div>
           <div>
@@ -250,7 +250,7 @@ export default function AdminDashboardPage() {
         </div>
         <Link
           href="/dashboard/admin/reports"
-          className="bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition-all shrink-0 font-sans"
+          className="bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition-all shrink-0 font-sans"
         >
           View AI Report →
         </Link>
@@ -262,12 +262,12 @@ export default function AdminDashboardPage() {
         <div className="lg:col-span-7 bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-4 font-sans">
           <div className="flex justify-between items-center pb-3 border-b border-slate-100">
             <h2 className="font-bold text-base text-slate-900 flex items-center gap-2 font-sans">
-              <Building2 className="w-4 h-4 text-[#0047AB]" />
+              <Building2 className="w-4 h-4 text-[#9D00FF]" />
               <span>Department Sprint Velocity</span>
             </h2>
             <Link
               href="/dashboard/admin/reports"
-              className="text-xs font-bold text-[#0047AB] hover:underline font-sans"
+              className="text-xs font-bold text-[#9D00FF] hover:underline font-sans"
             >
               View Analytics
             </Link>
@@ -284,7 +284,7 @@ export default function AdminDashboardPage() {
                     <span className="font-bold text-xs text-slate-900 font-sans">
                       {d.dept}
                     </span>
-                    <span className="text-xs font-black text-[#0047AB] font-sans">
+                    <span className="text-xs font-black text-[#9D00FF] font-sans">
                       {d.velocity}
                     </span>
                   </div>
@@ -314,12 +314,12 @@ export default function AdminDashboardPage() {
         <div className="lg:col-span-5 bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-4 font-sans">
           <div className="flex justify-between items-center pb-3 border-b border-slate-100">
             <h2 className="font-bold text-base text-slate-900 flex items-center gap-2 font-sans">
-              <FolderKanban className="w-4 h-4 text-[#0047AB]" />
+              <FolderKanban className="w-4 h-4 text-[#9D00FF]" />
               <span>Pending Org Tasks ({tasks.length})</span>
             </h2>
             <Link
               href="/dashboard/admin/tasks"
-              className="text-xs font-bold text-[#0047AB] hover:underline font-sans"
+              className="text-xs font-bold text-[#9D00FF] hover:underline font-sans"
             >
               Manage
             </Link>

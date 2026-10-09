@@ -209,7 +209,7 @@ export default function TeamsChatPage() {
   if (loading) {
     return (
       <div className="h-[calc(100vh-140px)] flex items-center justify-center font-bold text-slate-500 font-sans bg-white rounded-3xl border border-slate-200">
-        <Loader2 className="w-6 h-6 animate-spin text-[#0047AB] mr-2" />
+        <Loader2 className="w-6 h-6 animate-spin text-[#9D00FF] mr-2" />
         <span>Syncing Real-Time Chat Data...</span>
       </div>
     );
@@ -225,7 +225,7 @@ export default function TeamsChatPage() {
           <div className="flex-1 flex flex-col items-center justify-center text-white space-y-4">
             {/* Avatar Profile during call */}
             <div
-              className={`w-28 h-28 rounded-full flex items-center justify-center text-4xl font-black shadow-lg ring-4 ring-white/10 ${isGroupCall ? "bg-indigo-600" : "bg-[#0047AB]"}`}
+              className={`w-28 h-28 rounded-full flex items-center justify-center text-4xl font-black shadow-lg ring-4 ring-white/10 ${isGroupCall ? "bg-indigo-600" : "bg-[#9D00FF]"}`}
             >
               {isGroupCall ? (
                 <Users className="w-12 h-12 text-white" />
@@ -289,7 +289,7 @@ export default function TeamsChatPage() {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-black text-slate-900 flex items-center gap-2 font-sans">
-                <MessageSquare className="w-4 h-4 text-[#0047AB]" />
+                <MessageSquare className="w-4 h-4 text-[#9D00FF]" />
                 <span>Teams Chat</span>
               </h2>
             </div>
@@ -305,7 +305,7 @@ export default function TeamsChatPage() {
                   onClick={() => setActiveChannel(ch.name)}
                   className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-all ${
                     activeChannel === ch.name
-                      ? "bg-[#0047AB] text-white shadow-sm"
+                      ? "bg-[#9D00FF] text-white shadow-sm"
                       : "text-slate-700 hover:bg-slate-200/60"
                   }`}
                 >
@@ -326,7 +326,7 @@ export default function TeamsChatPage() {
                     onClick={() => setActiveChannel(dm.full_name)}
                     className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-between transition-all ${
                       activeChannel === dm.full_name
-                        ? "bg-[#0047AB] text-white shadow-sm"
+                        ? "bg-[#9D00FF] text-white shadow-sm"
                         : "text-slate-700 hover:bg-slate-200/60"
                     }`}
                   >
@@ -361,14 +361,14 @@ export default function TeamsChatPage() {
             <div className="flex items-center gap-1.5">
               <button
                 onClick={() => startCall("video")}
-                className="p-2 text-slate-500 hover:text-[#0047AB] hover:bg-blue-50 rounded-xl transition-all"
+                className="p-2 text-slate-500 hover:text-[#9D00FF] hover:bg-blue-50 rounded-xl transition-all"
                 title="Video Call"
               >
                 <Video className="w-4 h-4" />
               </button>
               <button
                 onClick={() => startCall("audio")}
-                className="p-2 text-slate-500 hover:text-[#0047AB] hover:bg-blue-50 rounded-xl transition-all"
+                className="p-2 text-slate-500 hover:text-[#9D00FF] hover:bg-blue-50 rounded-xl transition-all"
                 title="Audio Call"
               >
                 <Phone className="w-4 h-4" />
@@ -402,7 +402,7 @@ export default function TeamsChatPage() {
                   <div
                     className={`p-3.5 rounded-2xl text-xs font-semibold max-w-md ${
                       msg.sender_name === currentUser
-                        ? "bg-[#0047AB] text-white rounded-br-none shadow-sm"
+                        ? "bg-[#9D00FF] text-white rounded-br-none shadow-sm"
                         : "bg-white border border-slate-200 text-slate-800 rounded-bl-none shadow-sm"
                     }`}
                   >
@@ -423,7 +423,7 @@ export default function TeamsChatPage() {
                     {/* File Attachment Render */}
                     {msg.file_name && (
                       <div
-                        className={`mt-2 p-2 rounded-xl flex items-center gap-2 border ${msg.sender_name === currentUser ? "bg-white/20 border-white/30 text-white" : "bg-slate-50 border-slate-200 text-[#0047AB]"}`}
+                        className={`mt-2 p-2 rounded-xl flex items-center gap-2 border ${msg.sender_name === currentUser ? "bg-white/20 border-white/30 text-white" : "bg-slate-50 border-slate-200 text-[#9D00FF]"}`}
                       >
                         <FileText className="w-4 h-4" />
                         <span className="text-[10px] underline cursor-pointer">
@@ -444,15 +444,15 @@ export default function TeamsChatPage() {
 
           {/* ================= MS TEAMS STYLE INPUT BAR ================= */}
           <div className="p-4 sm:p-6 pt-0 bg-white">
-            <div className="border border-slate-300 rounded-2xl bg-white shadow-sm flex flex-col overflow-hidden focus-within:border-[#0047AB] focus-within:ring-1 focus-within:ring-[#0047AB]/20 transition-all font-sans">
+            <div className="border border-slate-300 rounded-2xl bg-white shadow-sm flex flex-col overflow-hidden focus-within:border-[#9D00FF] focus-within:ring-1 focus-within:ring-[#9D00FF]/20 transition-all font-sans">
               {/* File Attachment Preview */}
               {attachedFile && (
                 <div className="px-4 pt-3 flex items-center gap-2">
                   <div className="bg-slate-100 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-2 text-[11px] font-bold">
                     {attachedFile.type.includes("image") ? (
-                      <ImageIcon className="w-3.5 h-3.5 text-[#0047AB]" />
+                      <ImageIcon className="w-3.5 h-3.5 text-[#9D00FF]" />
                     ) : (
-                      <FileText className="w-3.5 h-3.5 text-[#0047AB]" />
+                      <FileText className="w-3.5 h-3.5 text-[#9D00FF]" />
                     )}
                     <span>{attachedFile.name}</span>
                     <button
@@ -559,7 +559,7 @@ export default function TeamsChatPage() {
                   type="button"
                   onClick={handleSendMessage}
                   disabled={!messageInput.trim() && !attachedFile}
-                  className="bg-[#0047AB] hover:bg-[#003680] disabled:opacity-50 disabled:hover:bg-[#0047AB] text-white p-2.5 rounded-xl transition-all shadow-sm"
+                  className="bg-[#9D00FF] hover:bg-[#7A00CC] disabled:opacity-50 disabled:hover:bg-[#9D00FF] text-white p-2.5 rounded-xl transition-all shadow-sm"
                 >
                   <Send className="w-4 h-4 ml-0.5" />
                 </button>

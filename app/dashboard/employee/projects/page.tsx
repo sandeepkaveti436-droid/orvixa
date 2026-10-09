@@ -31,7 +31,7 @@ export default function EmployeeProjectsPage() {
   if (loading) {
     return (
       <div className="min-h-[400px] flex items-center justify-center font-bold text-slate-500 font-sans">
-        <Loader2 className="w-6 h-6 animate-spin text-[#0047AB] mr-2" />
+        <Loader2 className="w-6 h-6 animate-spin text-[#9D00FF] mr-2" />
         <span>Loading Department Projects...</span>
       </div>
     );
@@ -58,7 +58,7 @@ export default function EmployeeProjectsPage() {
             >
               <div className="flex justify-between items-start font-sans">
                 <div>
-                  <span className="text-xs font-bold text-[#0047AB] uppercase tracking-wider block font-sans mb-1">
+                  <span className="text-xs font-bold text-[#9D00FF] uppercase tracking-wider block font-sans mb-1">
                     {p.department || "General Department"}
                   </span>
                   <h3 className="font-bold text-xl text-slate-900 font-sans">
@@ -86,7 +86,7 @@ export default function EmployeeProjectsPage() {
                 <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
                   <div
                     style={{ width: `${p.progress || 0}%` }}
-                    className="bg-[#0047AB] h-full rounded-full"
+                    className="bg-[#9D00FF] h-full rounded-full"
                   />
                 </div>
               </div>

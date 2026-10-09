@@ -52,14 +52,14 @@ const CATEGORY_STYLES: Record<
   { bg: string; text: string; border: string }
 > = {
   Frontend: {
-    bg: "bg-[#2563eb]",
+    bg: "bg-[#9D00FF]",
     text: "text-[#ffffff]",
     border: "border-[#a7f3d0]",
   },
   Backend: {
-    bg: "bg-[#eff6ff]",
-    text: "text-[#2563eb]",
-    border: "border-[#bfdbfe]",
+    bg: "bg-[#f4e8ff]",
+    text: "text-[#9D00FF]",
+    border: "border-[#e9d1ff]",
   },
   Design: {
     bg: "bg-[#fdf2f8]",
@@ -79,7 +79,7 @@ const CATEGORY_STYLES: Record<
 };
 
 const AVATAR_COLORS: Record<string, string> = {
-  HK: "bg-[#dbeafe] text-[#1e40af]",
+  HK: "bg-[#fbf5ff] text-[#5B0099]",
   PR: "bg-[#fed7aa] text-[#9a3412]",
   MK: "bg-[#cffafe] text-[#0e7490]",
   SS: "bg-[#ede9fe] text-[#6d28d9]",
@@ -399,7 +399,7 @@ export default function TasksPage() {
         {/* Forest Green Pill Button matching screenshot */}
         <button
           onClick={() => setShowAddModal(true)}
-          className="flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-[#2563eb] hover:bg-[#103d30] text-white font-medium text-sm transition shadow-sm w-fit"
+          className="flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-[#9D00FF] hover:bg-[#103d30] text-white font-medium text-sm transition shadow-sm w-fit"
         >
           <Plus className="w-4 h-4 stroke-[2.5]" />
           <span>New Task</span>
@@ -414,7 +414,7 @@ export default function TasksPage() {
             onClick={() => setActiveFilter("All")}
             className={`px-4 py-1.5 rounded-full text-xs font-semibold transition ${
               activeFilter === "All"
-                ? "bg-[#2563eb] text-white ring-2 ring-[#2563eb] shadow-xs"
+                ? "bg-[#9D00FF] text-white ring-2 ring-[#9D00FF] shadow-xs"
                 : "text-slate-600 hover:text-slate-900"
             }`}
           >
@@ -425,7 +425,7 @@ export default function TasksPage() {
             onClick={() => setActiveFilter("My tasks")}
             className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition ${
               activeFilter === "My tasks"
-                ? "bg-[#2563eb] text-white"
+                ? "bg-[#9D00FF] text-white"
                 : "text-slate-600 hover:text-slate-900"
             }`}
           >
@@ -436,7 +436,7 @@ export default function TasksPage() {
             onClick={() => setActiveFilter("High priority")}
             className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition ${
               activeFilter === "High priority"
-                ? "bg-[#2563eb] text-white"
+                ? "bg-[#9D00FF] text-white"
                 : "text-slate-600 hover:text-slate-900"
             }`}
           >
@@ -447,7 +447,7 @@ export default function TasksPage() {
             onClick={() => setActiveFilter("Due this week")}
             className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition ${
               activeFilter === "Due this week"
-                ? "bg-[#2563eb] text-white"
+                ? "bg-[#9D00FF] text-white"
                 : "text-slate-600 hover:text-slate-900"
             }`}
           >
@@ -789,7 +789,7 @@ export default function TasksPage() {
               <button
                 type="submit"
                 disabled={isSaving}
-                className="w-full bg-[#2563eb] hover:bg-[#2563eb] text-white font-semibold text-xs py-2.5 px-4 rounded-xl shadow-sm flex items-center justify-center gap-2 transition disabled:opacity-50 mt-4"
+                className="w-full bg-[#9D00FF] hover:bg-[#9D00FF] text-white font-semibold text-xs py-2.5 px-4 rounded-xl shadow-sm flex items-center justify-center gap-2 transition disabled:opacity-50 mt-4"
               >
                 {isSaving ? (
                   <>

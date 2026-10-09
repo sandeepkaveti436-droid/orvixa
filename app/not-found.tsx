@@ -23,7 +23,7 @@ export default function NotFound() {
           </span>
         </div>
 
-        <h1 className="text-6xl font-black text-[#0047AB] mb-2 font-sans">
+        <h1 className="text-6xl font-black text-[#9D00FF] mb-2 font-sans">
           404
         </h1>
         <h2 className="text-xl font-black text-slate-900 mb-2 font-sans">
@@ -36,7 +36,7 @@ export default function NotFound() {
 
         <Link
           href="/"
-          className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs shadow-md transition-all font-sans"
+          className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-xs shadow-md transition-all font-sans"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Home</span>

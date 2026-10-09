@@ -78,7 +78,7 @@ export default function PeopleDirectoryPage() {
   if (loading) {
     return (
       <div className="min-h-[400px] flex items-center justify-center font-bold text-slate-500 dark:text-slate-300 font-sans">
-        <Loader2 className="w-6 h-6 animate-spin text-[#0047AB] dark:text-cyan-400 mr-2" />
+        <Loader2 className="w-6 h-6 animate-spin text-[#9D00FF] dark:text-cyan-400 mr-2" />
         <span>Syncing Company Directory...</span>
       </div>
     );
@@ -91,7 +91,7 @@ export default function PeopleDirectoryPage() {
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white leading-tight">
             <span>People & </span>
-            <span className="font-heading italic text-[#0047AB] dark:text-cyan-400">
+            <span className="font-heading italic text-[#9D00FF] dark:text-cyan-400">
               Directory.
             </span>
           </h1>
@@ -115,7 +115,7 @@ export default function PeopleDirectoryPage() {
               onClick={() => setActiveTab("all")}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
                 activeTab === "all"
-                  ? "bg-[#0047AB] dark:bg-white/15 text-white dark:border dark:border-white/20 shadow-sm"
+                  ? "bg-[#9D00FF] dark:bg-white/15 text-white dark:border dark:border-white/20 shadow-sm"
                   : "text-slate-700 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-white/5"
               }`}
             >
@@ -127,7 +127,7 @@ export default function PeopleDirectoryPage() {
               onClick={() => setActiveTab("active")}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
                 activeTab === "active"
-                  ? "bg-[#0047AB] dark:bg-white/15 text-white dark:border dark:border-white/20 shadow-sm"
+                  ? "bg-[#9D00FF] dark:bg-white/15 text-white dark:border dark:border-white/20 shadow-sm"
                   : "text-slate-700 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-white/5"
               }`}
             >
@@ -160,7 +160,7 @@ export default function PeopleDirectoryPage() {
                 placeholder="Find a contact..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-slate-100 dark:bg-black/30 border border-transparent dark:border-white/10 rounded-lg pl-9 pr-4 py-1.5 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#0047AB] dark:focus:ring-cyan-500"
+                className="w-full bg-slate-100 dark:bg-black/30 border border-transparent dark:border-white/10 rounded-lg pl-9 pr-4 py-1.5 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#9D00FF] dark:focus:ring-cyan-500"
               />
             </div>
           </div>
@@ -175,12 +175,12 @@ export default function PeopleDirectoryPage() {
                   return (
                     <div
                       key={person.id}
-                      className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-4 flex flex-col gap-4 shadow-sm hover:border-[#0047AB]/50 dark:hover:border-cyan-500/50 transition-colors"
+                      className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-4 flex flex-col gap-4 shadow-sm hover:border-[#9D00FF]/50 dark:hover:border-cyan-500/50 transition-colors"
                     >
                       <div className="flex items-center gap-3">
                         {/* Avatar */}
                         <div className="relative">
-                          <div className="w-12 h-12 rounded-full bg-[#0047AB] text-white flex items-center justify-center font-bold text-sm shadow-sm overflow-hidden border border-slate-100 dark:border-white/10">
+                          <div className="w-12 h-12 rounded-full bg-[#9D00FF] text-white flex items-center justify-center font-bold text-sm shadow-sm overflow-hidden border border-slate-100 dark:border-white/10">
                             {person.avatar_url ? (
                               <img
                                 src={person.avatar_url}
@@ -213,26 +213,26 @@ export default function PeopleDirectoryPage() {
                       <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-white/5">
                         <Link
                           href={`/dashboard/employee/chat?user=${person.id}`}
-                          className="p-2 rounded-lg bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 hover:bg-[#0047AB] hover:text-white dark:hover:bg-cyan-500 dark:hover:text-slate-900 transition-colors"
+                          className="p-2 rounded-lg bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 hover:bg-[#9D00FF] hover:text-white dark:hover:bg-cyan-500 dark:hover:text-slate-900 transition-colors"
                           title="Message"
                         >
                           <MessageSquare className="w-4 h-4" />
                         </Link>
                         <button
-                          className="p-2 rounded-lg bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 hover:bg-[#0047AB] hover:text-white dark:hover:bg-cyan-500 dark:hover:text-slate-900 transition-colors"
+                          className="p-2 rounded-lg bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 hover:bg-[#9D00FF] hover:text-white dark:hover:bg-cyan-500 dark:hover:text-slate-900 transition-colors"
                           title="Audio Call"
                         >
                           <Phone className="w-4 h-4" />
                         </button>
                         <button
-                          className="p-2 rounded-lg bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 hover:bg-[#0047AB] hover:text-white dark:hover:bg-cyan-500 dark:hover:text-slate-900 transition-colors"
+                          className="p-2 rounded-lg bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 hover:bg-[#9D00FF] hover:text-white dark:hover:bg-cyan-500 dark:hover:text-slate-900 transition-colors"
                           title="Video Call"
                         >
                           <Video className="w-4 h-4" />
                         </button>
                         <a
                           href={`mailto:${person.email}`}
-                          className="p-2 rounded-lg bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 hover:bg-[#0047AB] hover:text-white dark:hover:bg-cyan-500 dark:hover:text-slate-900 transition-colors"
+                          className="p-2 rounded-lg bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 hover:bg-[#9D00FF] hover:text-white dark:hover:bg-cyan-500 dark:hover:text-slate-900 transition-colors"
                           title="Email"
                         >
                           <Mail className="w-4 h-4" />
@@ -247,7 +247,7 @@ export default function PeopleDirectoryPage() {
               <div className="h-full flex flex-col items-center justify-center text-center space-y-4 font-sans">
                 <div className="relative">
                   <div className="w-24 h-24 bg-slate-100 dark:bg-white/5 rounded-3xl rotate-12 absolute -z-10" />
-                  <Users className="w-16 h-16 text-[#0047AB] dark:text-cyan-400 drop-shadow-lg" />
+                  <Users className="w-16 h-16 text-[#9D00FF] dark:text-cyan-400 drop-shadow-lg" />
                 </div>
                 <div>
                   <h3 className="text-lg font-black text-slate-900 dark:text-white">
@@ -257,7 +257,7 @@ export default function PeopleDirectoryPage() {
                     Sync your device contacts, or invite folks to {currentOrg}.
                   </p>
                 </div>
-                <button className="bg-[#0047AB] dark:bg-white/20 hover:bg-[#003680] text-white font-bold text-xs px-6 py-3 rounded-xl shadow-md transition-all mt-2">
+                <button className="bg-[#9D00FF] dark:bg-white/20 hover:bg-[#7A00CC] text-white font-bold text-xs px-6 py-3 rounded-xl shadow-md transition-all mt-2">
                   Sync device contacts
                 </button>
               </div>

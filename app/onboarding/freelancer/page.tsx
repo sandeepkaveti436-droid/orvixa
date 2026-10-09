@@ -30,7 +30,7 @@ export default function FreelancerOnboardingPage() {
     <main className="min-h-screen bg-[#FAF6EE] flex items-center justify-center p-4 sm:p-6 lg:p-8 font-sans relative overflow-hidden">
       {/* Background Ambient Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-7xl h-[600px] pointer-events-none z-0">
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[700px] h-[380px] bg-gradient-to-tr from-[#0047AB]/15 via-indigo-300/15 to-purple-400/10 blur-[140px] rounded-full" />
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[700px] h-[380px] bg-gradient-to-tr from-[#9D00FF]/15 via-indigo-300/15 to-purple-400/10 blur-[140px] rounded-full" />
       </div>
 
       <div className="w-full max-w-xl bg-white/90 backdrop-blur-2xl border border-slate-200/90 rounded-3xl p-6 sm:p-10 shadow-xl relative z-10 font-sans">
@@ -50,7 +50,7 @@ export default function FreelancerOnboardingPage() {
             </span>
           </div>
 
-          <span className="text-xs font-bold text-[#0047AB] bg-[#0047AB]/10 px-3 py-1 rounded-full">
+          <span className="text-xs font-bold text-[#9D00FF] bg-[#9D00FF]/10 px-3 py-1 rounded-full">
             Step {step} of 3
           </span>
         </div>
@@ -68,7 +68,7 @@ export default function FreelancerOnboardingPage() {
               <div>
                 <h1 className="text-2xl font-black text-slate-900 mb-1 font-sans">
                   <span>Upload Photo & </span>
-                  <span className="font-heading italic text-[#0047AB]">
+                  <span className="font-heading italic text-[#9D00FF]">
                     Skills
                   </span>
                 </h1>
@@ -91,7 +91,7 @@ export default function FreelancerOnboardingPage() {
                   )}
                 </div>
                 <div>
-                  <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0047AB] text-white text-xs font-bold shadow-sm hover:bg-[#003680]">
+                  <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#9D00FF] text-white text-xs font-bold shadow-sm hover:bg-[#7A00CC]">
                     <Upload className="w-3.5 h-3.5" />
                     <span>Upload Photo</span>
                     <input
@@ -120,13 +120,13 @@ export default function FreelancerOnboardingPage() {
                       skills: e.target.value,
                     })
                   }
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
                 />
               </div>
 
               <button
                 onClick={() => setStep(2)}
-                className="w-full bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-sm py-3.5 px-4 rounded-xl transition-all shadow-md flex items-center justify-center gap-2"
+                className="w-full bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-sm py-3.5 px-4 rounded-xl transition-all shadow-md flex items-center justify-center gap-2"
               >
                 <span>Continue</span>
                 <ArrowRight className="w-4 h-4" />
@@ -146,7 +146,7 @@ export default function FreelancerOnboardingPage() {
               <div>
                 <h1 className="text-2xl font-black text-slate-900 mb-1 font-sans">
                   <span>Billing Rates & </span>
-                  <span className="font-heading italic text-[#0047AB]">
+                  <span className="font-heading italic text-[#9D00FF]">
                     Currency
                   </span>
                 </h1>
@@ -169,7 +169,7 @@ export default function FreelancerOnboardingPage() {
                         hourlyRate: e.target.value,
                       })
                     }
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
                   />
                 </div>
 
@@ -185,7 +185,7 @@ export default function FreelancerOnboardingPage() {
                         currency: e.target.value,
                       })
                     }
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
                   >
                     <option>USD ($)</option>
                     <option>EUR (€)</option>
@@ -204,7 +204,7 @@ export default function FreelancerOnboardingPage() {
                 </button>
                 <button
                   onClick={() => setStep(3)}
-                  className="w-2/3 bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-sm py-3.5 px-4 rounded-xl transition-all shadow-md flex items-center justify-center gap-2"
+                  className="w-2/3 bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-sm py-3.5 px-4 rounded-xl transition-all shadow-md flex items-center justify-center gap-2"
                 >
                   <span>Complete Setup</span>
                   <ArrowRight className="w-4 h-4" />
@@ -228,7 +228,7 @@ export default function FreelancerOnboardingPage() {
               <div>
                 <h1 className="text-2xl font-black text-slate-900 mb-1 font-sans">
                   <span>Profile Setup </span>
-                  <span className="font-heading italic text-[#0047AB]">
+                  <span className="font-heading italic text-[#9D00FF]">
                     Complete!
                   </span>
                 </h1>
@@ -239,7 +239,7 @@ export default function FreelancerOnboardingPage() {
 
               <button
                 onClick={handleComplete}
-                className="w-full bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-sm py-3.5 px-4 rounded-xl transition-all shadow-md shadow-[#0047AB]/25 flex items-center justify-center gap-2"
+                className="w-full bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-sm py-3.5 px-4 rounded-xl transition-all shadow-md shadow-[#9D00FF]/25 flex items-center justify-center gap-2"
               >
                 <span>Go to Freelancer Dashboard</span>
                 <ArrowRight className="w-4 h-4" />

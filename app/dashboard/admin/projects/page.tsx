@@ -28,7 +28,7 @@ export default function OrgProjectsPage() {
   if (loading) {
     return (
       <div className="min-h-[400px] flex items-center justify-center font-bold text-slate-500 font-sans">
-        <Loader2 className="w-6 h-6 animate-spin text-[#0047AB] mr-2" />
+        <Loader2 className="w-6 h-6 animate-spin text-[#9D00FF] mr-2" />
         <span>Loading Real Organization Projects...</span>
       </div>
     );
@@ -45,7 +45,7 @@ export default function OrgProjectsPage() {
             Cross-department milestones, budgets, and project managers.
           </p>
         </div>
-        <button className="bg-[#0047AB] text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md flex items-center gap-2 font-sans">
+        <button className="bg-[#9D00FF] text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md flex items-center gap-2 font-sans">
           <Plus className="w-4 h-4" />
           <span>New Org Project</span>
         </button>
@@ -63,7 +63,7 @@ export default function OrgProjectsPage() {
                   <h3 className="font-bold text-lg text-slate-900 font-sans">
                     {p.name}
                   </h3>
-                  <span className="text-[10px] font-bold bg-blue-50 text-[#0047AB] px-2.5 py-0.5 rounded-full font-sans">
+                  <span className="text-[10px] font-bold bg-blue-50 text-[#9D00FF] px-2.5 py-0.5 rounded-full font-sans">
                     {p.department || "General"}
                   </span>
                 </div>
@@ -81,7 +81,7 @@ export default function OrgProjectsPage() {
                   <span className="text-xs font-bold text-slate-400 uppercase block font-sans">
                     Budget
                   </span>
-                  <span className="text-lg font-black text-[#0047AB] font-sans">
+                  <span className="text-lg font-black text-[#9D00FF] font-sans">
                     ${Number(p.budget || 0).toLocaleString()}
                   </span>
                 </div>
@@ -94,7 +94,7 @@ export default function OrgProjectsPage() {
                   <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden font-sans">
                     <div
                       style={{ width: `${p.progress || 0}%` }}
-                      className="bg-[#0047AB] h-full rounded-full font-sans"
+                      className="bg-[#9D00FF] h-full rounded-full font-sans"
                     />
                   </div>
                 </div>

@@ -68,13 +68,13 @@ export default function DeveloperPortalPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0047AB]/10 text-[#0047AB] text-xs font-bold mb-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#9D00FF]/10 text-[#9D00FF] text-xs font-bold mb-2">
             <Code2 className="w-3.5 h-3.5" />
             <span>Developer Platform v1.0</span>
           </div>
           <h1 className="text-2xl sm:text-4xl font-black text-slate-900">
             <span>Developer </span>
-            <span className="font-heading italic text-[#0047AB]">
+            <span className="font-heading italic text-[#9D00FF]">
               Platform & API.
             </span>
           </h1>
@@ -86,7 +86,7 @@ export default function DeveloperPortalPage() {
 
         <button
           onClick={handleCreateKey}
-          className="bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md shadow-[#0047AB]/25 flex items-center gap-2"
+          className="bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md shadow-[#9D00FF]/25 flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />
           <span>Generate New API Key</span>
@@ -122,7 +122,7 @@ export default function DeveloperPortalPage() {
             >
               <div className="flex justify-between items-center text-xs font-bold">
                 <span className="text-slate-900">{sdk.name}</span>
-                <span className="text-[10px] bg-blue-50 text-[#0047AB] px-2 py-0.5 rounded">
+                <span className="text-[10px] bg-blue-50 text-[#9D00FF] px-2 py-0.5 rounded">
                   {sdk.ver}
                 </span>
               </div>
@@ -137,7 +137,7 @@ export default function DeveloperPortalPage() {
       {/* API Keys Table */}
       <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-4">
         <h3 className="font-bold text-base text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
-          <Key className="w-4 h-4 text-[#0047AB]" />
+          <Key className="w-4 h-4 text-[#9D00FF]" />
           <span>Active API Keys ({apiKeys.length})</span>
         </h3>
 
@@ -158,7 +158,7 @@ export default function DeveloperPortalPage() {
                 <span className="text-slate-400">Created: {item.created}</span>
                 <button
                   onClick={() => copyKey(item.key)}
-                  className="p-2 text-[#0047AB] hover:bg-blue-50 rounded-lg flex items-center gap-1 font-bold"
+                  className="p-2 text-[#9D00FF] hover:bg-blue-50 rounded-lg flex items-center gap-1 font-bold"
                 >
                   {copiedKey ? (
                     <Check className="w-3.5 h-3.5 text-emerald-600" />
@@ -176,7 +176,7 @@ export default function DeveloperPortalPage() {
       {/* Webhooks Section */}
       <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
         <h3 className="font-bold text-base text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
-          <Webhook className="w-4 h-4 text-[#0047AB]" />
+          <Webhook className="w-4 h-4 text-[#9D00FF]" />
           <span>Webhook Endpoints</span>
         </h3>
 
@@ -187,11 +187,11 @@ export default function DeveloperPortalPage() {
             placeholder="https://api.yourdomain.com/webhooks/orvixa"
             value={newWebhookUrl}
             onChange={(e) => setNewWebhookUrl(e.target.value)}
-            className="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+            className="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
           />
           <button
             type="submit"
-            className="bg-[#0047AB] text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-md"
+            className="bg-[#9D00FF] text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-md"
           >
             Add Webhook
           </button>

@@ -3,6 +3,17 @@
 @theme {
   --font-sans: var(--font-dm-sans), "DM Sans", system-ui, sans-serif;
   --font-heading: var(--font-dm-sans), "DM Sans", system-ui, sans-serif;
+  --color-blue-50: #fbf5ff;
+  --color-blue-100: #f4e8ff;
+  --color-blue-200: #e9d1ff;
+  --color-blue-300: #d7adff;
+  --color-blue-400: #bf7dff;
+  --color-blue-500: #9d00ff;
+  --color-blue-600: #8700db;
+  --color-blue-700: #7000b8;
+  --color-blue-800: #5a0096;
+  --color-blue-900: #470078;
+  --color-blue-950: #2e004f;
 }
 
 /* Fallback for Tailwind v3 */

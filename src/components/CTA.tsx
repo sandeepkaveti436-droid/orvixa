@@ -20,8 +20,8 @@ export default function CTA() {
           className="bg-white p-8 sm:p-14 lg:p-6 relative overflow-hidden text-center flex flex-col items-center font-sans"
         >
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#0047AB]/10 border border-[#0047AB]/20 text-[#0047AB] text-xs font-bold mb-6 font-sans">
-            <Sparkles className="w-3.5 h-3.5 text-[#0047AB]" />
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#9D00FF]/10 border border-[#9D00FF]/20 text-[#9D00FF] text-xs font-bold mb-6 font-sans">
+            <Sparkles className="w-3.5 h-3.5 text-[#9D00FF]" />
             <span className="font-sans">Start Your 14-Day Free Trial</span>
           </div>
 
@@ -30,7 +30,7 @@ export default function CTA() {
             <span>
               Ready to transform <br />
             </span>
-            <span className="inline-block font-heading italic pr-2 pb-1 bg-clip-text text-transparent bg-gradient-to-r from-[#0047AB] via-indigo-600 to-purple-600">
+            <span className="inline-block font-heading italic pr-2 pb-1 bg-clip-text text-transparent bg-gradient-to-r from-[#9D00FF] via-indigo-600 to-purple-600">
               the way you work?
             </span>
           </h2>
@@ -46,7 +46,7 @@ export default function CTA() {
             {/* Primary Button */}
             <a
               href="/get-started"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-10 py-2.5 rounded-xl bg-[#0047AB] hover:bg-[#003680] text-white font-medium text-base shadow-lg shadow-[#0047AB]/25 hover:shadow-xl transition-all duration-200 active:scale-95 font-sans"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-10 py-2.5 rounded-xl bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-medium text-base shadow-lg shadow-[#9D00FF]/25 hover:shadow-xl transition-all duration-200 active:scale-95 font-sans"
             >
               <span>Start Free</span>
               <ArrowRight className="w-5 h-5" />
@@ -55,10 +55,10 @@ export default function CTA() {
             {/* Secondary Button */}
             <button
               onClick={() => alert("Book Demo clicked")}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-10 py-2 rounded-xl bg-white text-[#0047AB] border-2 border-[#0047AB] hover:bg-[#0047AB]/5 font-medium text-base shadow-sm transition-all duration-200 active:scale-95 font-sans"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-10 py-2 rounded-xl bg-white text-[#9D00FF] border-2 border-[#9D00FF] hover:bg-[#9D00FF]/5 font-medium text-base shadow-sm transition-all duration-200 active:scale-95 font-sans"
             >
-              <div className="w-6 h-6 rounded-full bg-[#0047AB]/10 flex items-center justify-center">
-                <Play className="w-3 h-3 text-[#0047AB] fill-current ml-0.5" />
+              <div className="w-6 h-6 rounded-full bg-[#9D00FF]/10 flex items-center justify-center">
+                <Play className="w-3 h-3 text-[#9D00FF] fill-current ml-0.5" />
               </div>
               <span>Book Demo</span>
             </button>
@@ -67,15 +67,15 @@ export default function CTA() {
           {/* Trust Badges */}
           <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-xs sm:text-sm font-semibold text-slate-500 font-sans">
             <div className="flex items-center gap-1.5 font-sans">
-              <CheckCircle2 className="w-4 h-4 text-[#0047AB]" />
+              <CheckCircle2 className="w-4 h-4 text-[#9D00FF]" />
               <span>No credit card required</span>
             </div>
             <div className="flex items-center gap-1.5 font-sans">
-              <CheckCircle2 className="w-4 h-4 text-[#0047AB]" />
+              <CheckCircle2 className="w-4 h-4 text-[#9D00FF]" />
               <span>Instant 2-minute setup</span>
             </div>
             <div className="flex items-center gap-1.5 font-sans">
-              <CheckCircle2 className="w-4 h-4 text-[#0047AB]" />
+              <CheckCircle2 className="w-4 h-4 text-[#9D00FF]" />
               <span>Cancel anytime</span>
             </div>
           </div>

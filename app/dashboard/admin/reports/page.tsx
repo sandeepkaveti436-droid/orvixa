@@ -52,7 +52,7 @@ export default function ReportsPage() {
   if (loading) {
     return (
       <div className="min-h-[400px] flex items-center justify-center font-bold text-slate-500 font-sans">
-        <Loader2 className="w-6 h-6 animate-spin text-[#0047AB] mr-2" />
+        <Loader2 className="w-6 h-6 animate-spin text-[#9D00FF] mr-2" />
         <span>Computing Live AI Analytics...</span>
       </div>
     );
@@ -72,7 +72,7 @@ export default function ReportsPage() {
 
         <button
           onClick={handleExport}
-          className="bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md flex items-center gap-2 font-sans"
+          className="bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md flex items-center gap-2 font-sans"
         >
           <Download className="w-4 h-4" />
           <span>Export Report PDF</span>
@@ -85,9 +85,9 @@ export default function ReportsPage() {
             <span className="text-xs font-bold uppercase text-slate-400 font-sans">
               Org Average Velocity
             </span>
-            <TrendingUp className="w-4 h-4 text-[#0047AB]" />
+            <TrendingUp className="w-4 h-4 text-[#9D00FF]" />
           </div>
-          <div className="text-3xl font-black text-[#0047AB] font-sans">
+          <div className="text-3xl font-black text-[#9D00FF] font-sans">
             {velocity}%
           </div>
           <p className="text-xs text-slate-500 font-sans">
@@ -100,7 +100,7 @@ export default function ReportsPage() {
             <span className="text-xs font-bold uppercase text-slate-400 font-sans">
               AI Standup Report
             </span>
-            <Sparkles className="w-4 h-4 text-[#0047AB]" />
+            <Sparkles className="w-4 h-4 text-[#9D00FF]" />
           </div>
           <div className="text-sm font-bold text-slate-800 font-sans">
             {taskCount} Tasks Live in Database

@@ -48,7 +48,7 @@ export default function NotificationsPage() {
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900">
             <span>Notifications </span>
-            <span className="font-heading italic text-[#0047AB]">Center.</span>
+            <span className="font-heading italic text-[#9D00FF]">Center.</span>
           </h1>
           <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
             Task reminders, deadline alerts, invoice payments, and AI
@@ -59,9 +59,9 @@ export default function NotificationsPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={markAllAsRead}
-            className="bg-white border border-slate-300 hover:border-[#0047AB] text-slate-800 text-xs font-bold px-4 py-2 rounded-xl shadow-sm flex items-center gap-1.5"
+            className="bg-white border border-slate-300 hover:border-[#9D00FF] text-slate-800 text-xs font-bold px-4 py-2 rounded-xl shadow-sm flex items-center gap-1.5"
           >
-            <Check className="w-3.5 h-3.5 text-[#0047AB]" />
+            <Check className="w-3.5 h-3.5 text-[#9D00FF]" />
             <span>Mark All Read</span>
           </button>
           <button
@@ -89,7 +89,7 @@ export default function NotificationsPage() {
             onClick={() => setFilter(tab.id)}
             className={`px-3.5 py-2 rounded-xl transition-all ${
               filter === tab.id
-                ? "bg-[#0047AB] text-white shadow-sm"
+                ? "bg-[#9D00FF] text-white shadow-sm"
                 : "hover:bg-slate-100 text-slate-600"
             }`}
           >
@@ -123,7 +123,7 @@ export default function NotificationsPage() {
                         {n.title}
                       </h3>
                       {!n.read && (
-                        <span className="w-2 h-2 rounded-full bg-[#0047AB]" />
+                        <span className="w-2 h-2 rounded-full bg-[#9D00FF]" />
                       )}
                     </div>
                     <p className="text-xs font-medium text-slate-600 mt-1 leading-relaxed">

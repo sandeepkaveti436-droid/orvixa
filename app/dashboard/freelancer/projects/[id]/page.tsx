@@ -504,7 +504,7 @@ export default function ProjectDetailPage() {
   if (loading) {
     return (
       <div className="min-h-[450px] flex items-center justify-center font-bold text-slate-500 font-sans">
-        <Loader2 className="w-7 h-7 animate-spin text-[#0047AB] mr-2" />
+        <Loader2 className="w-7 h-7 animate-spin text-[#9D00FF] mr-2" />
         <span>Loading Client Workspace...</span>
       </div>
     );
@@ -517,7 +517,7 @@ export default function ProjectDetailPage() {
         <h2 className="text-lg font-bold text-slate-800">Project Not Found</h2>
         <Link
           href="/dashboard/freelancer/projects"
-          className="inline-flex items-center gap-2 bg-[#0047AB] text-white px-4 py-2 rounded-xl text-xs font-bold"
+          className="inline-flex items-center gap-2 bg-[#9D00FF] text-white px-4 py-2 rounded-xl text-xs font-bold"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to All Projects</span>
@@ -549,7 +549,7 @@ export default function ProjectDetailPage() {
           Projects
         </Link>
         <ChevronRight className="w-3.5 h-3.5" />
-        <span className="text-[#0047AB] font-bold truncate max-w-xs">
+        <span className="text-[#9D00FF] font-bold truncate max-w-xs">
           {project.client} Folder
         </span>
       </div>
@@ -567,7 +567,7 @@ export default function ProjectDetailPage() {
 
           <div>
             <div className="flex flex-wrap items-center gap-2 mb-1">
-              <span className="bg-blue-50 text-[#0047AB] border border-blue-200 text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
+              <span className="bg-blue-50 text-[#9D00FF] border border-blue-200 text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
                 <FolderOpen className="w-3 h-3" />
                 <span>Client Creative Workspace</span>
               </span>
@@ -602,7 +602,7 @@ export default function ProjectDetailPage() {
                   ? "text-emerald-600"
                   : isStopped
                     ? "text-rose-600"
-                    : "text-[#0047AB]"
+                    : "text-[#9D00FF]"
               }`}
             >
               <option value="In Progress">In Progress</option>
@@ -616,7 +616,7 @@ export default function ProjectDetailPage() {
           {/* Add Creative Work Button */}
           <button
             onClick={() => setShowAddWorkModal(true)}
-            className="bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-md flex items-center gap-1.5 transition"
+            className="bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-md flex items-center gap-1.5 transition"
           >
             <Plus className="w-4 h-4" />
             <span>Add Creative Work</span>
@@ -629,7 +629,7 @@ export default function ProjectDetailPage() {
               setShowEditModal(true);
             }}
             title="Edit Master Project Details"
-            className="p-2.5 text-slate-500 hover:text-[#0047AB] hover:bg-blue-50 border border-slate-200 rounded-xl transition"
+            className="p-2.5 text-slate-500 hover:text-[#9D00FF] hover:bg-blue-50 border border-slate-200 rounded-xl transition"
           >
             <Pencil className="w-4 h-4" />
           </button>
@@ -687,7 +687,7 @@ export default function ProjectDetailPage() {
           <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wide">
             Total Combined Fee
           </span>
-          <div className="text-2xl font-black text-[#0047AB]">
+          <div className="text-2xl font-black text-[#9D00FF]">
             ₹{Number(project.budget || 0).toLocaleString("en-IN")}
           </div>
           <p className="text-[11px] text-slate-400 font-semibold">
@@ -726,7 +726,7 @@ export default function ProjectDetailPage() {
           <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wide">
             Category & Timeline
           </span>
-          <div className="text-sm font-bold text-[#0047AB] truncate">
+          <div className="text-sm font-bold text-[#9D00FF] truncate">
             {project.category || "Graphic Design"}
           </div>
           <p className="text-[11px] text-slate-400 font-semibold">
@@ -742,7 +742,7 @@ export default function ProjectDetailPage() {
         <div className="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#0047AB]" />
+              <Sparkles className="w-4 h-4 text-[#9D00FF]" />
               <span>
                 {project.client}'s Creative Deliverables ({creativeWorks.length}
                 )
@@ -755,7 +755,7 @@ export default function ProjectDetailPage() {
 
           <button
             onClick={() => setShowAddWorkModal(true)}
-            className="text-xs font-bold text-[#0047AB] bg-blue-50 hover:bg-blue-100 border border-blue-200 px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 self-start sm:self-auto"
+            className="text-xs font-bold text-[#9D00FF] bg-blue-50 hover:bg-blue-100 border border-blue-200 px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 self-start sm:self-auto"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>+ Add Deliverable (Poster, Flyer, Reel...)</span>
@@ -791,7 +791,7 @@ export default function ProjectDetailPage() {
                           className={`flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full cursor-pointer transition select-none ${
                             isDone
                               ? "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
-                              : "bg-blue-50 text-[#0047AB] hover:bg-blue-100"
+                              : "bg-blue-50 text-[#9D00FF] hover:bg-blue-100"
                           }`}
                         >
                           <div
@@ -828,13 +828,13 @@ export default function ProjectDetailPage() {
                       {/* Work Date */}
                       <td className="py-3.5 px-6 font-semibold text-slate-600">
                         <span className="flex items-center gap-1 text-[11px]">
-                          <Calendar className="w-3.5 h-3.5 text-[#0047AB]" />
+                          <Calendar className="w-3.5 h-3.5 text-[#9D00FF]" />
                           <span>{work.date || "Not set"}</span>
                         </span>
                       </td>
 
                       {/* Amount */}
-                      <td className="py-3.5 px-6 font-black text-[#0047AB] text-sm">
+                      <td className="py-3.5 px-6 font-black text-[#9D00FF] text-sm">
                         ₹{Number(work.amount || 0).toLocaleString("en-IN")}
                       </td>
 
@@ -844,7 +844,7 @@ export default function ProjectDetailPage() {
                           <button
                             onClick={() => setEditingWork({ ...work })}
                             title="Edit this creative work & date"
-                            className="p-1.5 text-slate-400 hover:text-[#0047AB] hover:bg-blue-50 rounded-lg transition"
+                            className="p-1.5 text-slate-400 hover:text-[#9D00FF] hover:bg-blue-50 rounded-lg transition"
                           >
                             <Pencil className="w-3.5 h-3.5" />
                           </button>
@@ -878,7 +878,7 @@ export default function ProjectDetailPage() {
             </p>
             <button
               onClick={() => setShowAddWorkModal(true)}
-              className="inline-flex items-center gap-1.5 bg-[#0047AB] text-white font-bold text-xs px-4 py-2 rounded-xl shadow"
+              className="inline-flex items-center gap-1.5 bg-[#9D00FF] text-white font-bold text-xs px-4 py-2 rounded-xl shadow"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Add First Work (Flyer / Poster / Menu)</span>
@@ -892,7 +892,7 @@ export default function ProjectDetailPage() {
         <div className="p-6 border-b border-slate-100 flex items-center justify-between">
           <div>
             <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <FileText className="w-4 h-4 text-[#0047AB]" />
+              <FileText className="w-4 h-4 text-[#9D00FF]" />
               <span>Project Contract & Master Details</span>
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
@@ -905,7 +905,7 @@ export default function ProjectDetailPage() {
               setEditForm({ ...project });
               setShowEditModal(true);
             }}
-            className="text-xs font-bold text-[#0047AB] hover:underline flex items-center gap-1"
+            className="text-xs font-bold text-[#9D00FF] hover:underline flex items-center gap-1"
           >
             <Pencil className="w-3.5 h-3.5" />
             <span>Modify</span>
@@ -946,7 +946,7 @@ export default function ProjectDetailPage() {
                 <td className="py-3.5 px-6 font-bold text-slate-500">
                   Primary Category
                 </td>
-                <td className="py-3.5 px-6 font-bold text-[#0047AB]">
+                <td className="py-3.5 px-6 font-bold text-[#9D00FF]">
                   {project.category}
                 </td>
               </tr>
@@ -977,7 +977,7 @@ export default function ProjectDetailPage() {
                         ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                         : isStopped
                           ? "bg-rose-50 text-rose-700 border border-rose-200"
-                          : "bg-blue-50 text-[#0047AB] border border-blue-200"
+                          : "bg-blue-50 text-[#9D00FF] border border-blue-200"
                     }`}
                   >
                     {project.status || "In Progress"}
@@ -995,7 +995,7 @@ export default function ProjectDetailPage() {
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-2xl max-w-md w-full space-y-4 my-8 font-sans">
             <div className="flex justify-between items-center pb-3 border-b border-slate-100">
               <h3 className="font-bold text-lg text-slate-900 flex items-center gap-2">
-                <Plus className="w-5 h-5 text-[#0047AB]" />
+                <Plus className="w-5 h-5 text-[#9D00FF]" />
                 <span>Add Creative Work to {project.client}</span>
               </h3>
               <button
@@ -1022,7 +1022,7 @@ export default function ProjectDetailPage() {
                   onChange={(e) =>
                     setNewWork({ ...newWork, name: e.target.value })
                   }
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
                 />
               </div>
 
@@ -1043,7 +1043,7 @@ export default function ProjectDetailPage() {
                           : `${project.client} - ${selectedType}`,
                       }));
                     }}
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
                   >
                     {CREATIVE_TYPES.map((t, idx) => (
                       <option key={idx} value={t}>
@@ -1069,7 +1069,7 @@ export default function ProjectDetailPage() {
                       onChange={(e) =>
                         setNewWork({ ...newWork, amount: e.target.value })
                       }
-                      className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-7 pr-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-7 pr-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
                     />
                   </div>
                 </div>
@@ -1088,7 +1088,7 @@ export default function ProjectDetailPage() {
                     onChange={(e) =>
                       setNewWork({ ...newWork, date: e.target.value })
                     }
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
                   />
                 </div>
 
@@ -1101,7 +1101,7 @@ export default function ProjectDetailPage() {
                     onChange={(e: any) =>
                       setNewWork({ ...newWork, status: e.target.value })
                     }
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
                   >
                     <option value="In Progress">In Progress</option>
                     <option value="Completed">Completed</option>
@@ -1113,7 +1113,7 @@ export default function ProjectDetailPage() {
               <button
                 type="submit"
                 disabled={isAddingWork}
-                className="w-full bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs py-3 px-4 rounded-xl shadow-md flex items-center justify-center gap-2 transition disabled:opacity-50 mt-3"
+                className="w-full bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-xs py-3 px-4 rounded-xl shadow-md flex items-center justify-center gap-2 transition disabled:opacity-50 mt-3"
               >
                 {isAddingWork ? (
                   <>
@@ -1135,7 +1135,7 @@ export default function ProjectDetailPage() {
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-2xl max-w-md w-full space-y-4 my-8 font-sans">
             <div className="flex justify-between items-center pb-3 border-b border-slate-100">
               <h3 className="font-bold text-lg text-slate-900 flex items-center gap-2">
-                <Pencil className="w-5 h-5 text-[#0047AB]" />
+                <Pencil className="w-5 h-5 text-[#9D00FF]" />
                 <span>Modify Creative Work</span>
               </h3>
               <button
@@ -1161,7 +1161,7 @@ export default function ProjectDetailPage() {
                   onChange={(e) =>
                     setEditingWork({ ...editingWork, name: e.target.value })
                   }
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
                 />
               </div>
 
@@ -1175,7 +1175,7 @@ export default function ProjectDetailPage() {
                     onChange={(e) =>
                       setEditingWork({ ...editingWork, type: e.target.value })
                     }
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
                   >
                     {CREATIVE_TYPES.map((t, idx) => (
                       <option key={idx} value={t}>
@@ -1203,7 +1203,7 @@ export default function ProjectDetailPage() {
                           amount: parseFloat(e.target.value) || 0,
                         })
                       }
-                      className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-7 pr-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-7 pr-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
                     />
                   </div>
                 </div>
@@ -1222,7 +1222,7 @@ export default function ProjectDetailPage() {
                     onChange={(e) =>
                       setEditingWork({ ...editingWork, date: e.target.value })
                     }
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
                   />
                 </div>
 
@@ -1235,7 +1235,7 @@ export default function ProjectDetailPage() {
                     onChange={(e: any) =>
                       setEditingWork({ ...editingWork, status: e.target.value })
                     }
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
                   >
                     <option value="In Progress">In Progress</option>
                     <option value="Completed">Completed</option>
@@ -1246,7 +1246,7 @@ export default function ProjectDetailPage() {
 
               <button
                 type="submit"
-                className="w-full bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs py-3 px-4 rounded-xl shadow-md flex items-center justify-center gap-2 transition mt-3"
+                className="w-full bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-xs py-3 px-4 rounded-xl shadow-md flex items-center justify-center gap-2 transition mt-3"
               >
                 <span>Save Changes & Update Fee</span>
               </button>
@@ -1261,7 +1261,7 @@ export default function ProjectDetailPage() {
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-2xl max-w-lg w-full space-y-4 my-8 font-sans">
             <div className="flex justify-between items-center pb-4 border-b border-slate-100 font-sans">
               <h3 className="font-bold text-lg text-slate-900 flex items-center gap-2 font-sans">
-                <Pencil className="w-5 h-5 text-[#0047AB]" />
+                <Pencil className="w-5 h-5 text-[#9D00FF]" />
                 <span>Modify Master Project</span>
               </h3>
               <button
@@ -1292,7 +1292,7 @@ export default function ProjectDetailPage() {
                     onChange={(e) =>
                       setEditForm({ ...editForm, name: e.target.value })
                     }
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB] font-sans"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF] font-sans"
                   />
                 </div>
 
@@ -1307,7 +1307,7 @@ export default function ProjectDetailPage() {
                     onChange={(e) =>
                       setEditForm({ ...editForm, client: e.target.value })
                     }
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB] font-sans"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF] font-sans"
                   />
                 </div>
               </div>
@@ -1316,7 +1316,7 @@ export default function ProjectDetailPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 font-sans">
                 <div>
                   <label className="text-xs font-bold text-slate-700 block mb-1 font-sans flex items-center gap-1">
-                    <Briefcase className="w-3 h-3 text-[#0047AB]" />
+                    <Briefcase className="w-3 h-3 text-[#9D00FF]" />
                     <span>Industry Type</span>
                   </label>
                   <select
@@ -1324,7 +1324,7 @@ export default function ProjectDetailPage() {
                     onChange={(e) =>
                       setEditForm({ ...editForm, industry: e.target.value })
                     }
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB] font-sans"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF] font-sans"
                   >
                     {INDUSTRY_LIST.map((ind, i) => (
                       <option key={i} value={ind}>
@@ -1343,7 +1343,7 @@ export default function ProjectDetailPage() {
                     onChange={(e) =>
                       setEditForm({ ...editForm, category: e.target.value })
                     }
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB] font-sans"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF] font-sans"
                   >
                     <option value="Graphic Design">Graphic Design</option>
                     <option value="Video Editing & Reels">
@@ -1372,7 +1372,7 @@ export default function ProjectDetailPage() {
                     onChange={(e) =>
                       setEditForm({ ...editForm, due_date: e.target.value })
                     }
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB] font-sans"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF] font-sans"
                   />
                 </div>
 
@@ -1391,7 +1391,7 @@ export default function ProjectDetailPage() {
                       onChange={(e) =>
                         setEditForm({ ...editForm, budget: e.target.value })
                       }
-                      className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-7 pr-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB] font-sans"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-7 pr-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF] font-sans"
                     />
                   </div>
                 </div>
@@ -1407,7 +1407,7 @@ export default function ProjectDetailPage() {
                   onChange={(e) =>
                     setEditForm({ ...editForm, description: e.target.value })
                   }
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB] font-sans"
+                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF] font-sans"
                 />
               </div>
 
@@ -1421,7 +1421,7 @@ export default function ProjectDetailPage() {
                     onChange={(e) =>
                       setEditForm({ ...editForm, status: e.target.value })
                     }
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB] font-sans"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF] font-sans"
                   >
                     <option value="In Progress">In Progress</option>
                     <option value="Under Review">Under Review</option>
@@ -1440,7 +1440,7 @@ export default function ProjectDetailPage() {
                     onChange={(e) =>
                       setEditForm({ ...editForm, priority: e.target.value })
                     }
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB] font-sans"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF] font-sans"
                   >
                     <option value="High">High</option>
                     <option value="Medium">Medium</option>
@@ -1452,7 +1452,7 @@ export default function ProjectDetailPage() {
               <button
                 type="submit"
                 disabled={isSaving}
-                className="w-full bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs py-3 px-4 rounded-xl shadow-md flex items-center justify-center gap-2 transition disabled:opacity-50 mt-2 font-sans"
+                className="w-full bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-xs py-3 px-4 rounded-xl shadow-md flex items-center justify-center gap-2 transition disabled:opacity-50 mt-2 font-sans"
               >
                 {isSaving ? (
                   <>

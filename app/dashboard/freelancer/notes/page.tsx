@@ -53,7 +53,7 @@ export default function NotesPage() {
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900">
             <span>Notes & </span>
-            <span className="font-heading italic text-[#0047AB]">
+            <span className="font-heading italic text-[#9D00FF]">
               Documentation.
             </span>
           </h1>
@@ -64,7 +64,7 @@ export default function NotesPage() {
 
         <button
           onClick={() => setShowModal(true)}
-          className="bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md shadow-[#0047AB]/25 flex items-center gap-2"
+          className="bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md shadow-[#9D00FF]/25 flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />
           <span>New Note</span>
@@ -79,7 +79,7 @@ export default function NotesPage() {
           placeholder="Search notes or project briefs..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+          className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
         />
       </div>
 
@@ -96,15 +96,15 @@ export default function NotesPage() {
           >
             <div>
               <div className="flex justify-between items-start mb-2">
-                <span className="text-[10px] font-bold text-[#0047AB] bg-white border border-blue-200 px-2 py-0.5 rounded">
+                <span className="text-[10px] font-bold text-[#9D00FF] bg-white border border-blue-200 px-2 py-0.5 rounded">
                   #{note.project}
                 </span>
                 <button
                   onClick={() => togglePin(note.id)}
-                  className="text-slate-400 hover:text-[#0047AB]"
+                  className="text-slate-400 hover:text-[#9D00FF]"
                 >
                   <Pin
-                    className={`w-4 h-4 ${note.pinned ? "fill-[#0047AB] text-[#0047AB]" : ""}`}
+                    className={`w-4 h-4 ${note.pinned ? "fill-[#9D00FF] text-[#9D00FF]" : ""}`}
                   />
                 </button>
               </div>
@@ -149,7 +149,7 @@ export default function NotesPage() {
                 onChange={(e) =>
                   setNewNote({ ...newNote, title: e.target.value })
                 }
-                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
               />
               <textarea
                 rows={4}
@@ -158,11 +158,11 @@ export default function NotesPage() {
                 onChange={(e) =>
                   setNewNote({ ...newNote, content: e.target.value })
                 }
-                className="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
               />
               <button
                 type="submit"
-                className="w-full bg-[#0047AB] text-white font-bold text-xs py-3 rounded-xl shadow-md"
+                className="w-full bg-[#9D00FF] text-white font-bold text-xs py-3 rounded-xl shadow-md"
               >
                 Save Note
               </button>

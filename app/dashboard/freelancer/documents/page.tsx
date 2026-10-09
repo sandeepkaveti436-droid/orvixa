@@ -225,7 +225,7 @@ export default function DocumentsPage() {
       return "bg-purple-50 text-purple-700 border-purple-200";
     }
     if (c === "brief" || c === "sow") {
-      return "bg-blue-50 text-[#0047AB] border-blue-200";
+      return "bg-blue-50 text-[#9D00FF] border-blue-200";
     }
     return "bg-slate-100 text-slate-700 border-slate-200";
   };
@@ -233,7 +233,7 @@ export default function DocumentsPage() {
   if (loading) {
     return (
       <div className="min-h-[400px] flex items-center justify-center font-bold text-slate-500 font-sans">
-        <Loader2 className="w-6 h-6 animate-spin text-[#0047AB] mr-2" />
+        <Loader2 className="w-6 h-6 animate-spin text-[#9D00FF] mr-2" />
         <span className="font-sans">Loading Files & Contracts...</span>
       </div>
     );
@@ -246,7 +246,7 @@ export default function DocumentsPage() {
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 font-sans tracking-tight">
             <span>Files & </span>
-            <span className="italic text-[#0047AB]">Contracts.</span>
+            <span className="italic text-[#9D00FF]">Contracts.</span>
           </h1>
           <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-0.5 font-sans">
             Store client agreements, signed NDAs, project briefs, and design
@@ -256,7 +256,7 @@ export default function DocumentsPage() {
 
         <button
           onClick={() => setShowUploadModal(true)}
-          className="bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md shadow-[#0047AB]/25 flex items-center gap-2 transition font-sans"
+          className="bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md shadow-[#9D00FF]/25 flex items-center gap-2 transition font-sans"
         >
           <Upload className="w-4 h-4" />
           <span>Upload Contract / File</span>
@@ -293,7 +293,7 @@ export default function DocumentsPage() {
           <span className="text-[11px] font-bold uppercase text-slate-400 tracking-wider font-sans">
             PROJECT COVERAGE
           </span>
-          <div className="text-3xl font-black text-[#0047AB] font-sans">
+          <div className="text-3xl font-black text-[#9D00FF] font-sans">
             {linkedProjectsCount} Projects
           </div>
           <span className="text-xs font-bold text-blue-600 font-sans">
@@ -311,7 +311,7 @@ export default function DocumentsPage() {
             placeholder="Search files, contracts, clients..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB] font-sans"
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF] font-sans"
           />
         </div>
 
@@ -330,7 +330,7 @@ export default function DocumentsPage() {
               onClick={() => setCategoryFilter(cat.id)}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap font-sans ${
                 categoryFilter === cat.id
-                  ? "bg-[#0047AB] text-white shadow-sm"
+                  ? "bg-[#9D00FF] text-white shadow-sm"
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
             >
@@ -344,7 +344,7 @@ export default function DocumentsPage() {
       <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-4 font-sans">
         <div className="flex items-center justify-between border-b border-slate-100 pb-4 font-sans">
           <h3 className="font-bold text-base text-slate-900 flex items-center gap-2 font-sans">
-            <FileCode className="w-5 h-5 text-[#0047AB]" />
+            <FileCode className="w-5 h-5 text-[#9D00FF]" />
             <span>Saved Agreements & Files ({filteredDocuments.length})</span>
           </h3>
           <span className="text-xs font-bold text-slate-400 font-sans">
@@ -382,12 +382,12 @@ export default function DocumentsPage() {
 
                   {/* Title & File Type Badge */}
                   <div className="flex items-start gap-3 font-sans">
-                    <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#0047AB] border border-blue-200 flex items-center justify-center font-black text-xs shrink-0 font-sans shadow-sm">
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#9D00FF] border border-blue-200 flex items-center justify-center font-black text-xs shrink-0 font-sans shadow-sm">
                       {doc.file_type || "PDF"}
                     </div>
 
                     <div className="min-w-0">
-                      <h4 className="font-bold text-sm text-slate-900 truncate font-sans group-hover:text-[#0047AB] transition">
+                      <h4 className="font-bold text-sm text-slate-900 truncate font-sans group-hover:text-[#9D00FF] transition">
                         {doc.title}
                       </h4>
                       <p className="text-xs text-slate-500 font-semibold flex items-center gap-1.5 mt-0.5 font-sans">
@@ -445,7 +445,7 @@ export default function DocumentsPage() {
             </p>
             <button
               onClick={() => setShowUploadModal(true)}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0047AB] text-white text-xs font-bold shadow-md font-sans"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#9D00FF] text-white text-xs font-bold shadow-md font-sans"
             >
               <Upload className="w-4 h-4" />
               <span>Upload First Contract</span>
@@ -486,7 +486,7 @@ export default function DocumentsPage() {
                 <label className="text-xs font-bold text-slate-700 block mb-1 font-sans">
                   Select Local File (PDF, DOCX, PNG, ZIP)
                 </label>
-                <div className="border-2 border-dashed border-slate-200 hover:border-[#0047AB] rounded-2xl p-4 text-center cursor-pointer transition bg-slate-50/50">
+                <div className="border-2 border-dashed border-slate-200 hover:border-[#9D00FF] rounded-2xl p-4 text-center cursor-pointer transition bg-slate-50/50">
                   <input
                     type="file"
                     onChange={handleFileChange}
@@ -497,7 +497,7 @@ export default function DocumentsPage() {
                     htmlFor="contract-file-upload"
                     className="cursor-pointer font-sans"
                   >
-                    <Upload className="w-6 h-6 text-[#0047AB] mx-auto mb-1.5" />
+                    <Upload className="w-6 h-6 text-[#9D00FF] mx-auto mb-1.5" />
                     <span className="text-xs font-bold text-slate-800 block font-sans">
                       {selectedFile
                         ? selectedFile.name
@@ -523,7 +523,7 @@ export default function DocumentsPage() {
                   onChange={(e) =>
                     setUploadForm({ ...uploadForm, title: e.target.value })
                   }
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-semibold outline-none focus:border-[#0047AB] font-sans"
+                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-semibold outline-none focus:border-[#9D00FF] font-sans"
                 />
               </div>
 
@@ -538,7 +538,7 @@ export default function DocumentsPage() {
                     onChange={(e) =>
                       setUploadForm({ ...uploadForm, category: e.target.value })
                     }
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold outline-none focus:border-[#0047AB] font-sans"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold outline-none focus:border-[#9D00FF] font-sans"
                   >
                     <option value="Contract">Contract / Agreement</option>
                     <option value="NDA">Signed NDA</option>
@@ -554,7 +554,7 @@ export default function DocumentsPage() {
                   <select
                     value={uploadForm.project_name}
                     onChange={(e) => handleSelectProject(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 outline-none focus:border-[#0047AB] font-sans"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 outline-none focus:border-[#9D00FF] font-sans"
                   >
                     <option value="">-- Choose Project --</option>
                     {projects.map((p) => (
@@ -578,14 +578,14 @@ export default function DocumentsPage() {
                   onChange={(e) =>
                     setUploadForm({ ...uploadForm, file_url: e.target.value })
                   }
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-semibold outline-none focus:border-[#0047AB] font-sans"
+                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-semibold outline-none focus:border-[#9D00FF] font-sans"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={isUploading}
-                className="w-full bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs py-3 rounded-xl shadow-md transition disabled:opacity-50 mt-2 font-sans"
+                className="w-full bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-xs py-3 rounded-xl shadow-md transition disabled:opacity-50 mt-2 font-sans"
               >
                 {isUploading
                   ? "Saving Contract..."

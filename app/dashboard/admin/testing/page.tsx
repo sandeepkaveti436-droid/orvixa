@@ -74,7 +74,7 @@ export default function ProductionTestingPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 font-sans">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0047AB]/10 text-[#0047AB] text-xs font-bold mb-2 font-sans">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#9D00FF]/10 text-[#9D00FF] text-xs font-bold mb-2 font-sans">
             <Database className="w-3.5 h-3.5" />
             <span>Production Testing & Validation</span>
           </div>
@@ -91,7 +91,7 @@ export default function ProductionTestingPage() {
 
         <button
           onClick={runLiveDatabaseAudit}
-          className="bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md flex items-center gap-2 font-sans"
+          className="bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md flex items-center gap-2 font-sans"
         >
           <RefreshCw className="w-4 h-4" />
           <span>Run Live Database Audit</span>
@@ -117,7 +117,7 @@ export default function ProductionTestingPage() {
           <span className="text-xs font-bold uppercase text-slate-400 font-sans">
             API Latency Benchmark
           </span>
-          <div className="text-3xl font-black text-[#0047AB] font-sans">
+          <div className="text-3xl font-black text-[#9D00FF] font-sans">
             {testingState.latencyMs} ms
           </div>
           <span className="text-xs text-emerald-600 font-bold font-sans">
@@ -153,7 +153,7 @@ export default function ProductionTestingPage() {
       {/* Role-Based Permission Testing Matrix */}
       <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-4 font-sans">
         <h3 className="font-bold text-base text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2 font-sans">
-          <ShieldCheck className="w-5 h-5 text-[#0047AB]" />
+          <ShieldCheck className="w-5 h-5 text-[#9D00FF]" />
           <span>Role-Based Access Control (RBAC) Test Matrix</span>
         </h3>
 
@@ -196,7 +196,7 @@ export default function ProductionTestingPage() {
                   {r.status}
                 </span>
               </div>
-              <div className="text-xs font-bold text-[#0047AB] font-sans">
+              <div className="text-xs font-bold text-[#9D00FF] font-sans">
                 {r.access}
               </div>
               <p className="text-[11px] text-slate-500 font-medium font-sans">

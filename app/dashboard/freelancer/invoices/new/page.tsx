@@ -183,7 +183,7 @@ export default function NewInvoicePage() {
       <div className="flex items-center justify-between">
         <Link
           href="/dashboard/freelancer/invoices"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-[#0047AB] transition"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-[#9D00FF] transition"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Invoices</span>
@@ -219,7 +219,7 @@ export default function NewInvoicePage() {
                 placeholder="e.g. Food Link F&B Holdings LTD"
                 value={clientName}
                 onChange={(e) => setClientName(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-900 focus:outline-none focus:border-[#9D00FF]"
               />
             </div>
 
@@ -233,7 +233,7 @@ export default function NewInvoicePage() {
                   placeholder="+91-XXXXXXXXXX"
                   value={clientContact}
                   onChange={(e) => setClientContact(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-900 focus:outline-none focus:border-[#9D00FF]"
                 />
               </div>
 
@@ -246,7 +246,7 @@ export default function NewInvoicePage() {
                   placeholder="Hyderabad"
                   value={clientLocation}
                   onChange={(e) => setClientLocation(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-900 focus:outline-none focus:border-[#9D00FF]"
                 />
               </div>
             </div>
@@ -301,7 +301,7 @@ export default function NewInvoicePage() {
               type="date"
               value={issueDate}
               onChange={(e) => setIssueDate(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
             />
           </div>
 
@@ -313,7 +313,7 @@ export default function NewInvoicePage() {
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
             />
           </div>
         </div>
@@ -327,7 +327,7 @@ export default function NewInvoicePage() {
             <button
               type="button"
               onClick={addItem}
-              className="text-xs font-semibold text-[#0047AB] hover:underline flex items-center gap-1"
+              className="text-xs font-semibold text-[#9D00FF] hover:underline flex items-center gap-1"
             >
               <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
               <span>Add Item</span>
@@ -356,7 +356,7 @@ export default function NewInvoicePage() {
                     onChange={(e) =>
                       updateItem(item.id, "description", e.target.value)
                     }
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-900 focus:outline-none focus:border-[#9D00FF]"
                   />
                 </div>
 
@@ -368,7 +368,7 @@ export default function NewInvoicePage() {
                     onChange={(e) =>
                       updateItem(item.id, "qty", parseInt(e.target.value) || 1)
                     }
-                    className="w-14 bg-slate-50 border border-slate-200 rounded-lg px-1.5 py-1.5 text-xs font-medium text-center text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                    className="w-14 bg-slate-50 border border-slate-200 rounded-lg px-1.5 py-1.5 text-xs font-medium text-center text-slate-900 focus:outline-none focus:border-[#9D00FF]"
                   />
                 </div>
 
@@ -384,7 +384,7 @@ export default function NewInvoicePage() {
                         parseFloat(e.target.value) || 0,
                       )
                     }
-                    className="w-28 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-bold text-right text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                    className="w-28 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-bold text-right text-slate-900 focus:outline-none focus:border-[#9D00FF]"
                   />
                 </div>
 
@@ -429,7 +429,7 @@ export default function NewInvoicePage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="bg-[#0047AB] hover:bg-[#003680] text-white font-semibold text-xs px-6 py-2.5 rounded-xl shadow-sm flex items-center gap-2 transition disabled:opacity-50"
+            className="bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-semibold text-xs px-6 py-2.5 rounded-xl shadow-sm flex items-center gap-2 transition disabled:opacity-50"
           >
             {isSubmitting ? (
               <>

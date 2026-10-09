@@ -313,7 +313,7 @@ export default function ProfileSettingsPage() {
   if (loading) {
     return (
       <div className="min-h-[400px] flex items-center justify-center font-bold text-slate-500 font-sans">
-        <Loader2 className="w-6 h-6 animate-spin text-[#0047AB] mr-2" />
+        <Loader2 className="w-6 h-6 animate-spin text-[#9D00FF] mr-2" />
         <span className="font-sans">Loading Real User Profile...</span>
       </div>
     );
@@ -325,7 +325,7 @@ export default function ProfileSettingsPage() {
       <div>
         <h1 className="text-2xl sm:text-3xl font-black text-slate-900 font-sans tracking-tight">
           <span>User Profile & </span>
-          <span className="italic text-[#0047AB]">Account.</span>
+          <span className="italic text-[#9D00FF]">Account.</span>
         </h1>
         <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1 font-sans">
           Manage your real name, branding logo, photo cropping, and regional
@@ -362,7 +362,7 @@ export default function ProfileSettingsPage() {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <span className="text-white bg-[#0047AB] w-full h-full flex items-center justify-center font-black">
+                <span className="text-white bg-[#9D00FF] w-full h-full flex items-center justify-center font-black">
                   {getInitials()}
                 </span>
               )}
@@ -375,7 +375,7 @@ export default function ProfileSettingsPage() {
               <p className="text-xs text-slate-500 font-medium font-sans">
                 {profile.email}
               </p>
-              <span className="text-[11px] font-bold text-[#0047AB] bg-blue-50 px-2.5 py-0.5 rounded-md mt-1 inline-block font-sans">
+              <span className="text-[11px] font-bold text-[#9D00FF] bg-blue-50 px-2.5 py-0.5 rounded-md mt-1 inline-block font-sans">
                 {profile.profession}
               </span>
             </div>
@@ -385,7 +385,7 @@ export default function ProfileSettingsPage() {
           <div className="flex flex-wrap items-center gap-2 font-sans">
             <label
               htmlFor="branding-logo-upload"
-              className="bg-[#0047AB] hover:bg-[#003680] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm flex items-center gap-2 cursor-pointer transition font-sans"
+              className="bg-[#9D00FF] hover:bg-[#7A00CC] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm flex items-center gap-2 cursor-pointer transition font-sans"
             >
               <Upload className="w-3.5 h-3.5" />
               <span>Upload Branding Logo</span>
@@ -439,7 +439,7 @@ export default function ProfileSettingsPage() {
                 onChange={(e) =>
                   setProfile({ ...profile, fullName: e.target.value })
                 }
-                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB] font-sans"
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF] font-sans"
               />
             </div>
 
@@ -471,7 +471,7 @@ export default function ProfileSettingsPage() {
                 onChange={(e) =>
                   setProfile({ ...profile, profession: e.target.value })
                 }
-                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB] font-sans"
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF] font-sans"
               />
             </div>
 
@@ -485,7 +485,7 @@ export default function ProfileSettingsPage() {
                 onChange={(e) =>
                   setProfile({ ...profile, country: e.target.value })
                 }
-                className="w-full bg-slate-50 border border-slate-300 text-slate-900 text-xs font-bold rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#0047AB] font-sans cursor-pointer"
+                className="w-full bg-slate-50 border border-slate-300 text-slate-900 text-xs font-bold rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#9D00FF] font-sans cursor-pointer"
               >
                 <option value="India (₹ INR)">India (₹ INR)</option>
                 <option value="United States ($ USD)">
@@ -503,7 +503,7 @@ export default function ProfileSettingsPage() {
           <button
             type="submit"
             disabled={isSaving}
-            className="bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs py-3 px-6 rounded-xl shadow-md shadow-[#0047AB]/25 flex items-center gap-2 transition disabled:opacity-50 font-sans"
+            className="bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-xs py-3 px-6 rounded-xl shadow-md shadow-[#9D00FF]/25 flex items-center gap-2 transition disabled:opacity-50 font-sans"
           >
             {isSaving ? (
               <>
@@ -529,7 +529,7 @@ export default function ProfileSettingsPage() {
           >
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 font-sans">
               <div className="flex items-center gap-2 font-sans">
-                <Crop className="w-5 h-5 text-[#0047AB]" />
+                <Crop className="w-5 h-5 text-[#9D00FF]" />
                 <h3 className="font-bold text-base text-slate-900 font-sans">
                   Crop & Adjust Profile Photo
                 </h3>
@@ -585,7 +585,7 @@ export default function ProfileSettingsPage() {
                     step="0.05"
                     value={zoom}
                     onChange={(e) => setZoom(parseFloat(e.target.value))}
-                    className="w-full accent-[#0047AB] cursor-pointer"
+                    className="w-full accent-[#9D00FF] cursor-pointer"
                   />
                   <ZoomIn className="w-4 h-4 text-slate-400" />
                 </div>
@@ -615,7 +615,7 @@ export default function ProfileSettingsPage() {
                 type="button"
                 onClick={handleApplyCropAndSave}
                 disabled={isProcessingCrop}
-                className="px-5 py-2.5 bg-[#0047AB] hover:bg-[#003680] text-white text-xs font-bold rounded-xl shadow-md transition flex items-center gap-1.5 font-sans disabled:opacity-50"
+                className="px-5 py-2.5 bg-[#9D00FF] hover:bg-[#7A00CC] text-white text-xs font-bold rounded-xl shadow-md transition flex items-center gap-1.5 font-sans disabled:opacity-50"
               >
                 {isProcessingCrop ? (
                   <>

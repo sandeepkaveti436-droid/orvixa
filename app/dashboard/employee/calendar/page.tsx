@@ -81,7 +81,7 @@ export default function EmployeeCalendarPage() {
   if (loading) {
     return (
       <div className="min-h-[400px] flex items-center justify-center font-bold text-slate-500 font-sans">
-        <Loader2 className="w-6 h-6 animate-spin text-[#0047AB] mr-2" />
+        <Loader2 className="w-6 h-6 animate-spin text-[#9D00FF] mr-2" />
         <span>Loading Calendar...</span>
       </div>
     );
@@ -172,7 +172,7 @@ export default function EmployeeCalendarPage() {
                   {dayTasks.map((t) => (
                     <div
                       key={t.id}
-                      className="bg-[#0047AB] text-white text-[9px] font-bold p-1 rounded line-clamp-1 shadow-xs font-sans w-full truncate"
+                      className="bg-[#9D00FF] text-white text-[9px] font-bold p-1 rounded line-clamp-1 shadow-xs font-sans w-full truncate"
                       title={t.title}
                     >
                       {t.title}

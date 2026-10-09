@@ -94,22 +94,22 @@ export default function FAQ() {
     >
       {/* Background Ambient Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-7xl h-[600px] pointer-events-none z-0">
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[750px] h-[400px] bg-gradient-to-tr from-[#0047AB]/10 via-indigo-300/15 to-purple-400/10 blur-[140px] rounded-full" />
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[750px] h-[400px] bg-gradient-to-tr from-[#9D00FF]/10 via-indigo-300/15 to-purple-400/10 blur-[140px] rounded-full" />
       </div>
 
       <div className="max-w-7xl mx-auto relative z-10 font-sans">
         {/* ================= 1. SECTION HEADER ================= */}
         <div className="text-center max-w-8xl mx-auto mb-6 sm:mb-20">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/90 border border-[#0047AB]/20 shadow-sm mb-6">
-            <span className="w-2 h-2 rounded-full bg-[#0047AB] animate-pulse" />
-            <span className="text-xs font-bold uppercase tracking-widest text-[#0047AB] font-sans">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/90 border border-[#9D00FF]/20 shadow-sm mb-6">
+            <span className="w-2 h-2 rounded-full bg-[#9D00FF] animate-pulse" />
+            <span className="text-xs font-bold uppercase tracking-widest text-[#9D00FF] font-sans">
               Got Questions?
             </span>
           </div>
 
           <h2 className="text-[20px] sm:text-[24px] lg:text-[32px] font-black leading-[1.15] text-slate-900 mb-6 font-sans">
             <span>Frequently <br/> </span>
-            <span className="inline-block font-heading italic text-[#0047AB] pr-2 pb-1">
+            <span className="inline-block font-heading italic text-[#9D00FF] pr-2 pb-1">
               asked questions.
             </span>
           </h2>
@@ -142,7 +142,7 @@ export default function FAQ() {
                 {/* Top Badge Overlay */}
                 <div className="absolute top-4 left-4 font-sans z-10">
                   <span className="inline-flex items-center gap-2 bg-white/90 backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs font-bold text-slate-900">
-                    <span className="text-[#0047AB]">✨</span>
+                    <span className="text-[#9D00FF]">✨</span>
                     <span>{currentFaq.badge}</span>
                   </span>
                 </div>
@@ -173,7 +173,7 @@ export default function FAQ() {
                     transition={{ duration: 0.4, delay: index * 0.08 }}
                     className={`rounded-2xl border transition-all duration-300 overflow-hidden font-sans ${
                       isOpen
-                        ? "bg-white border-[#0047AB]/50 shadow-lg shadow-[#0047AB]/5 ring-2 ring-[#0047AB]/10"
+                        ? "bg-white border-[#9D00FF]/50 shadow-lg shadow-[#9D00FF]/5 ring-2 ring-[#9D00FF]/10"
                         : "bg-white/80 hover:bg-white border-slate-200/90"
                     }`}
                   >
@@ -187,8 +187,8 @@ export default function FAQ() {
                         <div
                           className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
                             isOpen
-                              ? "bg-[#0047AB] text-white"
-                              : "bg-[#0047AB]/10 text-[#0047AB]"
+                              ? "bg-[#9D00FF] text-white"
+                              : "bg-[#9D00FF]/10 text-[#9D00FF]"
                           }`}
                         >
                           <IconComp className="w-4 h-4" />
@@ -202,7 +202,7 @@ export default function FAQ() {
                         <div
                           className={`w-8 h-8 rounded-full flex items-center justify-center transition-transform duration-300 ${
                             isOpen
-                              ? "rotate-180 bg-[#0047AB]/10 text-[#0047AB]"
+                              ? "rotate-180 bg-[#9D00FF]/10 text-[#9D00FF]"
                               : "text-slate-400"
                           }`}
                         >
@@ -246,7 +246,7 @@ export default function FAQ() {
           className="mt-16 bg-white/90 backdrop-blur-xl border border-slate-200/90 rounded-2xl p-6 sm:p-4 text-center flex flex-col sm:flex-row items-center justify-between gap-6 font-sans"
         >
           <div className="flex items-center gap-4 text-left font-sans">
-            <div className="w-12 h-12 rounded-2xl bg-[#0047AB] text-white flex items-center justify-center shrink-0 ">
+            <div className="w-12 h-12 rounded-2xl bg-[#9D00FF] text-white flex items-center justify-center shrink-0 ">
               <MessageCircle className="w-6 h-6" />
             </div>
             <div>
@@ -262,7 +262,7 @@ export default function FAQ() {
 
           <a
             href="/contact-sales"
-            className="inline-flex items-center gap-2 px-8 py-3 rounded-xl bg-[#0047AB] hover:bg-[#003680] text-white font-medium text-sm shadow-md shadow-[#0047AB]/25 transition-all active:scale-95 shrink-0 font-sans"
+            className="inline-flex items-center gap-2 px-8 py-3 rounded-xl bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-medium text-sm shadow-md shadow-[#9D00FF]/25 transition-all active:scale-95 shrink-0 font-sans"
           >
             <span>Contact Support</span>
             <ArrowRight className="w-4 h-4" />

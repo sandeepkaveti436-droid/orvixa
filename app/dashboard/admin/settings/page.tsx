@@ -113,7 +113,7 @@ export default function OrgSettingsPage() {
   if (loading) {
     return (
       <div className="min-h-[400px] flex items-center justify-center font-bold text-slate-500 font-sans">
-        <Loader2 className="w-6 h-6 animate-spin text-[#0047AB] mr-2" />
+        <Loader2 className="w-6 h-6 animate-spin text-[#9D00FF] mr-2" />
         <span>Loading Organization Settings...</span>
       </div>
     );
@@ -142,7 +142,7 @@ export default function OrgSettingsPage() {
         {/* 1. COMPANY PROFILE & BRANDING CARD */}
         <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6 font-sans">
           <h3 className="font-bold text-base text-slate-900 border-b border-slate-100 pb-4 font-sans flex items-center gap-2">
-            <Building2 className="w-4 h-4 text-[#0047AB]" />
+            <Building2 className="w-4 h-4 text-[#9D00FF]" />
             <span>Company Profile & Branding</span>
           </h3>
 
@@ -160,7 +160,7 @@ export default function OrgSettingsPage() {
               )}
             </div>
             <div>
-              <label className="cursor-pointer inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0047AB] text-white text-xs font-bold shadow-sm hover:bg-[#003680]">
+              <label className="cursor-pointer inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#9D00FF] text-white text-xs font-bold shadow-sm hover:bg-[#7A00CC]">
                 <Upload className="w-3.5 h-3.5" />
                 <span>Upload Brand Logo</span>
                 <input
@@ -189,7 +189,7 @@ export default function OrgSettingsPage() {
                 onChange={(e) =>
                   setOrgProfile({ ...orgProfile, companyName: e.target.value })
                 }
-                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB] font-sans"
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF] font-sans"
               />
             </div>
 
@@ -204,7 +204,7 @@ export default function OrgSettingsPage() {
                 onChange={(e) =>
                   setOrgProfile({ ...orgProfile, industry: e.target.value })
                 }
-                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB] font-sans"
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF] font-sans"
               />
             </div>
 
@@ -231,7 +231,7 @@ export default function OrgSettingsPage() {
                 onChange={(e) =>
                   setOrgProfile({ ...orgProfile, companyPhone: e.target.value })
                 }
-                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB] font-sans"
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF] font-sans"
               />
             </div>
 
@@ -244,7 +244,7 @@ export default function OrgSettingsPage() {
                 onChange={(e) =>
                   setOrgProfile({ ...orgProfile, timezone: e.target.value })
                 }
-                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB] font-sans"
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF] font-sans"
               >
                 <option>UTC - 05:00 (Eastern Time)</option>
                 <option>UTC - 08:00 (Pacific Time)</option>
@@ -262,7 +262,7 @@ export default function OrgSettingsPage() {
                 onChange={(e) =>
                   setOrgProfile({ ...orgProfile, currency: e.target.value })
                 }
-                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB] font-sans"
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF] font-sans"
               >
                 <option>USD ($)</option>
                 <option>EUR (€)</option>
@@ -276,7 +276,7 @@ export default function OrgSettingsPage() {
         {/* 2. SECURITY POLICIES CARD */}
         <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-4 font-sans">
           <h3 className="font-bold text-base text-slate-900 border-b border-slate-100 pb-4 font-sans flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-[#0047AB]" />
+            <ShieldCheck className="w-4 h-4 text-[#9D00FF]" />
             <span>Organization Security Policies</span>
           </h3>
 
@@ -300,7 +300,7 @@ export default function OrgSettingsPage() {
               }
               className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all font-sans ${
                 orgProfile.enforce2FA
-                  ? "bg-[#0047AB] text-white"
+                  ? "bg-[#9D00FF] text-white"
                   : "bg-slate-200 text-slate-600"
               }`}
             >
@@ -312,7 +312,7 @@ export default function OrgSettingsPage() {
         {/* SAVE BUTTON */}
         <button
           type="submit"
-          className="bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs px-8 py-3.5 rounded-xl shadow-md shadow-[#0047AB]/25 flex items-center gap-2 font-sans"
+          className="bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-xs px-8 py-3.5 rounded-xl shadow-md shadow-[#9D00FF]/25 flex items-center gap-2 font-sans"
         >
           <Save className="w-4 h-4" />
           <span>Save Organization Settings</span>

@@ -90,7 +90,7 @@ export default function HowItWorks() {
     >
       {/* Background Ambient Lighting Glows */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-7xl h-[600px] pointer-events-none z-0">
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[700px] h-[380px] bg-gradient-to-tr from-[#0047AB]/10 via-indigo-300/15 to-purple-400/10 blur-[140px] rounded-full" />
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[700px] h-[380px] bg-gradient-to-tr from-[#9D00FF]/10 via-indigo-300/15 to-purple-400/10 blur-[140px] rounded-full" />
       </div>
 
       <div className="max-w-8xl mx-auto relative z-10">
@@ -101,10 +101,10 @@ export default function HowItWorks() {
             whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/90 border border-[#0047AB]/20 shadow-sm mb-6"
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/90 border border-[#9D00FF]/20 shadow-sm mb-6"
           >
-            <span className="w-2 h-2 rounded-full bg-[#0047AB] animate-pulse" />
-            <span className="text-xs font-bold uppercase tracking-widest text-[#0047AB] font-sans">
+            <span className="w-2 h-2 rounded-full bg-[#9D00FF] animate-pulse" />
+            <span className="text-xs font-bold uppercase tracking-widest text-[#9D00FF] font-sans">
               Simple 4-Step Onboarding
             </span>
           </motion.div>
@@ -126,7 +126,7 @@ export default function HowItWorks() {
 
             <motion.span
               variants={blurWordVariants}
-              className="inline-block font-heading italic pr-2 pb-1 bg-clip-text text-transparent bg-gradient-to-r from-[#0047AB] via-indigo-600 to-purple-600"
+              className="inline-block font-heading italic pr-2 pb-1 bg-clip-text text-transparent bg-gradient-to-r from-[#9D00FF] via-indigo-600 to-purple-600"
             >
               Orvixa Works.
             </motion.span>
@@ -139,7 +139,7 @@ export default function HowItWorks() {
         </div>
 
         {/* ================= 2. TOP STEPPER PILL NAVIGATION ================= */}
-        <div className="bg-[#0047AB] backdrop-blur-xl rounded-2xl p-2 shadow-lg shadow-slate-900/5 mb-10 flex flex-wrap sm:flex-nowrap gap-2 font-sans">
+        <div className="bg-[#9D00FF] backdrop-blur-xl rounded-2xl p-2 shadow-lg shadow-slate-900/5 mb-10 flex flex-wrap sm:flex-nowrap gap-2 font-sans">
           {steps.map((step, idx) => {
             const isActive = activeStep === idx;
 
@@ -149,14 +149,14 @@ export default function HowItWorks() {
                 onClick={() => setActiveStep(idx)}
                 className={`flex-1 min-w-[140px] py-3.5 px-4 rounded-xl text-left transition-all duration-300 relative flex items-center justify-between gap-3 font-sans ${
                   isActive
-                    ? "bg-white text-slate-900 shadow-md shadow-[#fff]/25 ring-2 ring-[#0047AB]/30"
+                    ? "bg-white text-slate-900 shadow-md shadow-[#fff]/25 ring-2 ring-[#9D00FF]/30"
                     : "hover:bg-[#fff]/20 text-white hover:text-black hover:shadow-sm hover:shadow-[#fff]/25"
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <span
                     className={`text-[14px] font-black transition-colors ${
-                      isActive ? "text-[#0047AB]" : "text-white"
+                      isActive ? "text-[#9D00FF]" : "text-white"
                     }`}
                   >
                     {step.number}
@@ -167,7 +167,7 @@ export default function HowItWorks() {
                 </div>
 
                 {isActive && (
-                  <span className="w-2 h-2 rounded-full bg-[#0047AB] shrink-0" />
+                  <span className="w-2 h-2 rounded-full bg-[#9D00FF] shrink-0" />
                 )}
               </button>
             );
@@ -188,7 +188,7 @@ export default function HowItWorks() {
               {/* LEFT COLUMN: STEP TEXT DETAILS */}
               <div className="lg:col-span-5 space-y-6">
                 <div className="flex items-center gap-3">
-                  <span className="text-3xl font-black text-[#0047AB]">
+                  <span className="text-3xl font-black text-[#9D00FF]">
                     {steps[activeStep].number}
                   </span>
                   <div className="h-4 w-px bg-slate-200" />
@@ -207,11 +207,11 @@ export default function HowItWorks() {
 
                 <div className="space-y-3 pt-2">
                   <div className="flex items-center gap-2.5 text-xs font-bold text-slate-800">
-                    <CheckCircle2 className="w-4 h-4 text-[#0047AB]" />
+                    <CheckCircle2 className="w-4 h-4 text-[#9D00FF]" />
                     <span>Instant deployment without technical setup</span>
                   </div>
                   <div className="flex items-center gap-2.5 text-xs font-bold text-slate-800">
-                    <CheckCircle2 className="w-4 h-4 text-[#0047AB]" />
+                    <CheckCircle2 className="w-4 h-4 text-[#9D00FF]" />
                     <span>Full enterprise SOC2 encryption & security</span>
                   </div>
                 </div>
@@ -219,7 +219,7 @@ export default function HowItWorks() {
                 <div className="pt-4 flex items-center gap-3">
                   <a
                     href="/get-started"
-                    className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-sm shadow-lg shadow-[#0047AB]/25 transition-all duration-200 active:scale-95"
+                    className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-sm shadow-lg shadow-[#9D00FF]/25 transition-all duration-200 active:scale-95"
                   >
                     <span>Execute Step {activeStep + 1}</span>
                     <ArrowRight className="w-4 h-4" />
@@ -249,7 +249,7 @@ export default function HowItWorks() {
                       app.orvixa.com / setup / step-0{activeStep + 1}
                     </span>
                   </div>
-                  <span className="text-[11px] font-bold bg-[#0047AB]/10 text-[#0047AB] px-3 py-1 rounded-full">
+                  <span className="text-[11px] font-bold bg-[#9D00FF]/10 text-[#9D00FF] px-3 py-1 rounded-full">
                     Live UI Simulation
                   </span>
                 </div>
@@ -267,7 +267,7 @@ export default function HowItWorks() {
                             Instant secure access to Orvixa Cloud
                           </div>
                         </div>
-                        <ShieldCheck className="w-5 h-5 text-[#0047AB]" />
+                        <ShieldCheck className="w-5 h-5 text-[#9D00FF]" />
                       </div>
 
                       <div className="space-y-2.5">
@@ -295,10 +295,10 @@ export default function HowItWorks() {
                 {/* STEP 2 PREVIEW: Mode Selector */}
                 {activeStep === 1 && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="bg-white border-2 border-[#0047AB] p-5 rounded-xl shadow-md">
+                    <div className="bg-white border-2 border-[#9D00FF] p-5 rounded-xl shadow-md">
                       <div className="flex justify-between items-center mb-3">
-                        <User className="w-6 h-6 text-[#0047AB]" />
-                        <span className="text-[10px] bg-[#0047AB] text-white font-bold px-2.5 py-0.5 rounded">
+                        <User className="w-6 h-6 text-[#9D00FF]" />
+                        <span className="text-[10px] bg-[#9D00FF] text-white font-bold px-2.5 py-0.5 rounded">
                           Active
                         </span>
                       </div>
@@ -332,7 +332,7 @@ export default function HowItWorks() {
                       <div className="text-xs font-bold text-slate-900">
                         Workspace Magic Invite Link
                       </div>
-                      <Users className="w-4 h-4 text-[#0047AB]" />
+                      <Users className="w-4 h-4 text-[#9D00FF]" />
                     </div>
 
                     <div className="flex gap-2">
@@ -342,7 +342,7 @@ export default function HowItWorks() {
                         value="https://app.orvixa.com/join/workspace-sprint-v2"
                         className="bg-slate-50 border border-slate-200 text-xs font-mono text-slate-600 px-3 py-2.5 rounded-xl w-full"
                       />
-                      <button className="bg-[#0047AB] text-white font-bold text-xs px-4 py-2.5 rounded-xl shrink-0 hover:bg-[#003680] transition-colors flex items-center gap-1.5">
+                      <button className="bg-[#9D00FF] text-white font-bold text-xs px-4 py-2.5 rounded-xl shrink-0 hover:bg-[#7A00CC] transition-colors flex items-center gap-1.5">
                         <Copy className="w-3.5 h-3.5" />
                         <span>Copy</span>
                       </button>
@@ -359,8 +359,8 @@ export default function HowItWorks() {
                 {activeStep === 3 && (
                   <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-xs font-bold text-[#0047AB]">
-                        <Sparkles className="w-4 h-4 text-[#0047AB]" />
+                      <div className="flex items-center gap-2 text-xs font-bold text-[#9D00FF]">
+                        <Sparkles className="w-4 h-4 text-[#9D00FF]" />
                         <span>Orvixa AI Engine Initialized</span>
                       </div>
                       <span className="text-[10px] bg-emerald-50 text-emerald-600 border border-emerald-200 px-2.5 py-0.5 rounded-full font-bold">

@@ -36,7 +36,7 @@ export default function AdminBillingPage() {
   if (loading) {
     return (
       <div className="min-h-[400px] flex items-center justify-center font-bold text-slate-500 font-sans">
-        <Loader2 className="w-6 h-6 animate-spin text-[#0047AB] mr-2" />
+        <Loader2 className="w-6 h-6 animate-spin text-[#9D00FF] mr-2" />
         <span>Loading Real Billing Data...</span>
       </div>
     );
@@ -89,7 +89,7 @@ export default function AdminBillingPage() {
             Seat Utilization
           </span>
           {/* REAL SEAT UTILIZATION COUNT */}
-          <div className="text-3xl font-black text-[#0047AB]">
+          <div className="text-3xl font-black text-[#9D00FF]">
             {employeeCount} / Unlimited
           </div>
           <span className="text-xs text-slate-500 font-semibold block">

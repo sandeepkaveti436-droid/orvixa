@@ -82,8 +82,8 @@ export default function LoginPage() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-[#020B2D] via-[#001D6E] to-[#0A0526] flex items-center justify-center p-4 sm:p-6 lg:p-8 font-sans relative overflow-hidden">
       {/* ================= PREMIUM AMBIENT GLOW & LIGHT ORBS ================= */}
-      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-gradient-to-tr from-[#0047AB] via-[#3B82F6]/30 to-purple-600/20 blur-[130px] rounded-full pointer-events-none opacity-60" />
-      <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-bl from-indigo-500/25 via-[#0047AB]/40 to-blue-600/20 blur-[140px] rounded-full pointer-events-none opacity-50" />
+      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-gradient-to-tr from-[#9D00FF] via-[#9D00FF]/30 to-purple-600/20 blur-[130px] rounded-full pointer-events-none opacity-60" />
+      <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-bl from-indigo-500/25 via-[#9D00FF]/40 to-blue-600/20 blur-[140px] rounded-full pointer-events-none opacity-50" />
 
       {/* Decorative Grid Overlay Pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
@@ -105,13 +105,13 @@ export default function LoginPage() {
               <span className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 font-sans">
                 Orvixa
               </span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#0047AB]" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#9D00FF]" />
             </div>
           </Link>
 
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-[#0047AB] bg-slate-50 hover:bg-blue-50/60 px-3 py-1.5 rounded-xl border border-slate-200/80 transition-all font-sans"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-[#9D00FF] bg-slate-50 hover:bg-blue-50/60 px-3 py-1.5 rounded-xl border border-slate-200/80 transition-all font-sans"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Home</span>
@@ -122,7 +122,7 @@ export default function LoginPage() {
         <div className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 mb-1 font-sans tracking-tight">
             <span>Welcome </span>
-            <span className="italic text-[#0047AB]">Back</span>
+            <span className="italic text-[#9D00FF]">Back</span>
           </h1>
           <p className="text-xs font-semibold text-slate-500">
             Sign in to continue to your workspace.
@@ -154,7 +154,7 @@ export default function LoginPage() {
               onChange={(e) =>
                 setLoginData({ ...loginData, email: e.target.value })
               }
-              className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB] focus:bg-white transition font-sans shadow-sm"
+              className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF] focus:bg-white transition font-sans shadow-sm"
             />
           </div>
 
@@ -171,7 +171,7 @@ export default function LoginPage() {
                 onChange={(e) =>
                   setLoginData({ ...loginData, password: e.target.value })
                 }
-                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB] focus:bg-white transition font-sans shadow-sm"
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF] focus:bg-white transition font-sans shadow-sm"
               />
               <button
                 type="button"
@@ -190,7 +190,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-[#0047AB] to-[#003680] hover:from-[#003680] hover:to-[#00265C] text-white font-bold text-xs py-3 px-4 rounded-xl transition-all shadow-md shadow-[#0047AB]/25 flex items-center justify-center gap-2 disabled:opacity-50 mt-4"
+            className="w-full bg-gradient-to-r from-[#9D00FF] to-[#7A00CC] hover:from-[#7A00CC] hover:to-[#00265C] text-white font-bold text-xs py-3 px-4 rounded-xl transition-all shadow-md shadow-[#9D00FF]/25 flex items-center justify-center gap-2 disabled:opacity-50 mt-4"
           >
             {loading ? (
               <>
@@ -208,7 +208,7 @@ export default function LoginPage() {
           Don&apos;t have an account?{" "}
           <Link
             href="/get-started"
-            className="text-[#0047AB] font-bold hover:underline ml-1"
+            className="text-[#9D00FF] font-bold hover:underline ml-1"
           >
             Sign Up
           </Link>

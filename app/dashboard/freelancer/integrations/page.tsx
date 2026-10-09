@@ -135,13 +135,13 @@ export default function IntegrationsPage() {
   return (
     <div className="space-y-8 font-sans">
       <div>
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0047AB]/10 text-[#0047AB] text-xs font-bold mb-2">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#9D00FF]/10 text-[#9D00FF] text-xs font-bold mb-2">
           <Zap className="w-3.5 h-3.5" />
           <span>Ecosystem Marketplace</span>
         </div>
         <h1 className="text-2xl sm:text-4xl font-black text-slate-900">
           <span>Integrations </span>
-          <span className="font-heading italic text-[#0047AB]">Hub.</span>
+          <span className="font-heading italic text-[#9D00FF]">Hub.</span>
         </h1>
         <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
           Connect Orvixa with Google Calendar, Slack, Stripe, GitHub, Figma, and
@@ -180,7 +180,7 @@ export default function IntegrationsPage() {
                       className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
                         isConnected
                           ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
-                          : "bg-[#0047AB] hover:bg-[#003680] text-white shadow-sm"
+                          : "bg-[#9D00FF] hover:bg-[#7A00CC] text-white shadow-sm"
                       }`}
                     >
                       {isConnected ? "● Connected" : "Connect"}

@@ -25,13 +25,13 @@ export default function ReferralsPage() {
   return (
     <div className="space-y-8 font-sans">
       <div>
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0047AB]/10 text-[#0047AB] text-xs font-bold mb-2">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#9D00FF]/10 text-[#9D00FF] text-xs font-bold mb-2">
           <Award className="w-3.5 h-3.5" />
           <span>Affiliate & Partner Program</span>
         </div>
         <h1 className="text-2xl sm:text-4xl font-black text-slate-900">
           <span>Referral </span>
-          <span className="font-heading italic text-[#0047AB]">Program.</span>
+          <span className="font-heading italic text-[#9D00FF]">Program.</span>
         </h1>
         <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
           Invite fellow freelancers and organizations to Orvixa. Earn 20%
@@ -55,7 +55,7 @@ export default function ReferralsPage() {
           <span className="text-xs font-bold text-slate-400 uppercase">
             Affiliate Earnings
           </span>
-          <div className="text-3xl font-black text-[#0047AB]">$0.00</div>
+          <div className="text-3xl font-black text-[#9D00FF]">$0.00</div>
           <span className="text-xs text-slate-500 font-semibold block">
             No earnings recorded
           </span>
@@ -86,7 +86,7 @@ export default function ReferralsPage() {
           />
           <button
             onClick={handleCopy}
-            className="bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md shrink-0 flex items-center gap-1.5"
+            className="bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md shrink-0 flex items-center gap-1.5"
           >
             {copied ? (
               <Check className="w-4 h-4" />

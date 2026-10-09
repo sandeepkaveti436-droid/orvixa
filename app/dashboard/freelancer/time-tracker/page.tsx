@@ -107,7 +107,7 @@ export default function TimeTrackerPage() {
   if (loading) {
     return (
       <div className="min-h-[400px] flex items-center justify-center font-bold text-slate-500 font-sans">
-        <Loader2 className="w-6 h-6 animate-spin text-[#0047AB] mr-2" />
+        <Loader2 className="w-6 h-6 animate-spin text-[#9D00FF] mr-2" />
         <span>Loading Real Timesheets...</span>
       </div>
     );
@@ -119,7 +119,7 @@ export default function TimeTrackerPage() {
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 font-sans">
             <span>Time Tracker & </span>
-            <span className="font-heading italic text-[#0047AB]">
+            <span className="font-heading italic text-[#9D00FF]">
               Timesheets.
             </span>
           </h1>
@@ -144,7 +144,7 @@ export default function TimeTrackerPage() {
             <select
               value={selectedProject}
               onChange={(e) => setSelectedProject(e.target.value)}
-              className="bg-slate-100 border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-bold text-[#0047AB] font-sans"
+              className="bg-slate-100 border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-bold text-[#9D00FF] font-sans"
             >
               {realProjects.length > 0 ? (
                 realProjects.map((p) => (
@@ -166,7 +166,7 @@ export default function TimeTrackerPage() {
           {!isRunning ? (
             <button
               onClick={() => setIsRunning(true)}
-              className="bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-sm px-6 py-3.5 rounded-2xl shadow-lg shadow-[#0047AB]/25 flex items-center gap-2 font-sans"
+              className="bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-sm px-6 py-3.5 rounded-2xl shadow-lg shadow-[#9D00FF]/25 flex items-center gap-2 font-sans"
             >
               <Play className="w-4 h-4 fill-current" />
               <span>Start Timer</span>
@@ -196,7 +196,7 @@ export default function TimeTrackerPage() {
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden font-sans">
         <div className="p-5 border-b border-slate-100 flex items-center justify-between font-sans">
           <h2 className="font-bold text-base text-slate-900 flex items-center gap-2 font-sans">
-            <Clock className="w-4 h-4 text-[#0047AB]" />
+            <Clock className="w-4 h-4 text-[#9D00FF]" />
             <span>Real Time Logs ({timeLogs.length})</span>
           </h2>
         </div>
@@ -209,7 +209,7 @@ export default function TimeTrackerPage() {
                 className="p-4 sm:p-5 flex items-center justify-between hover:bg-slate-50 text-xs font-semibold font-sans"
               >
                 <div className="flex items-center gap-3 font-sans">
-                  <div className="w-9 h-9 rounded-xl bg-[#0047AB]/10 text-[#0047AB] flex items-center justify-center font-bold font-sans">
+                  <div className="w-9 h-9 rounded-xl bg-[#9D00FF]/10 text-[#9D00FF] flex items-center justify-center font-bold font-sans">
                     <Clock className="w-4 h-4" />
                   </div>
                   <div>
@@ -223,7 +223,7 @@ export default function TimeTrackerPage() {
                 </div>
 
                 <div className="text-right font-sans">
-                  <div className="font-mono text-sm font-bold text-[#0047AB] font-sans">
+                  <div className="font-mono text-sm font-bold text-[#9D00FF] font-sans">
                     {log.duration}
                   </div>
                   <div className="text-[10px] text-slate-400 font-sans">

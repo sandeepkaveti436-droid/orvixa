@@ -191,14 +191,14 @@ export default function AiAssistantPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 font-sans">
         <div>
           <div className="flex items-center gap-2 mb-1.5 font-sans">
-            <span className="text-[11px] font-bold text-[#0047AB] bg-blue-50 border border-blue-200 px-3 py-1 rounded-full flex items-center gap-1.5 font-sans">
-              <Sparkles className="w-3.5 h-3.5 text-[#0047AB]" />
+            <span className="text-[11px] font-bold text-[#9D00FF] bg-blue-50 border border-blue-200 px-3 py-1 rounded-full flex items-center gap-1.5 font-sans">
+              <Sparkles className="w-3.5 h-3.5 text-[#9D00FF]" />
               <span>Orvixa AI Copilot Engine</span>
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 font-sans tracking-tight">
             <span>AI Proposal & </span>
-            <span className="italic text-[#0047AB]">Contract Studio.</span>
+            <span className="italic text-[#9D00FF]">Contract Studio.</span>
           </h1>
           <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-0.5 font-sans">
             Draft professional client proposals, contracts, and pitch emails in
@@ -233,7 +233,7 @@ export default function AiAssistantPage() {
                   }}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 font-sans ${
                     isActive
-                      ? "bg-white text-[#0047AB] shadow-sm"
+                      ? "bg-white text-[#9D00FF] shadow-sm"
                       : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
@@ -252,14 +252,14 @@ export default function AiAssistantPage() {
         <div className="lg:col-span-5 bg-white rounded-3xl border border-slate-200 p-6 sm:p-7 shadow-sm space-y-5 font-sans">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3.5 font-sans">
             <h3 className="font-bold text-sm text-slate-900 flex items-center gap-2 font-sans">
-              <FileText className="w-4 h-4 text-[#0047AB]" />
+              <FileText className="w-4 h-4 text-[#9D00FF]" />
               <span>Proposal Parameters</span>
             </h3>
 
             <button
               type="button"
               onClick={handleStartNewBlankProposal}
-              className="text-[11px] font-bold text-[#0047AB] hover:underline flex items-center gap-1 font-sans"
+              className="text-[11px] font-bold text-[#9D00FF] hover:underline flex items-center gap-1 font-sans"
             >
               <RotateCcw className="w-3 h-3" />
               <span>Reset Form</span>
@@ -268,13 +268,13 @@ export default function AiAssistantPage() {
 
           {/* Project Auto-Fill Dropdown */}
           <div className="p-3 bg-blue-50/60 border border-blue-100 rounded-2xl space-y-1.5 font-sans">
-            <label className="text-[11px] font-bold text-[#0047AB] block flex items-center gap-1.5 font-sans">
+            <label className="text-[11px] font-bold text-[#9D00FF] block flex items-center gap-1.5 font-sans">
               <FolderKanban className="w-3.5 h-3.5" />
               <span>Auto-Fill from Live Workspace Project</span>
             </label>
             <select
               onChange={(e) => handleAutoFillFromProject(e.target.value)}
-              className="w-full bg-white border border-blue-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 outline-none focus:border-[#0047AB] font-sans cursor-pointer"
+              className="w-full bg-white border border-blue-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 outline-none focus:border-[#9D00FF] font-sans cursor-pointer"
             >
               <option value="">+ Create for New / Custom Client --</option>
               {projects.map((p) => (
@@ -299,7 +299,7 @@ export default function AiAssistantPage() {
                 onChange={(e) =>
                   setParams({ ...params, clientName: e.target.value })
                 }
-                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold outline-none focus:border-[#0047AB] font-sans"
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold outline-none focus:border-[#9D00FF] font-sans"
               />
             </div>
 
@@ -315,7 +315,7 @@ export default function AiAssistantPage() {
                 onChange={(e) =>
                   setParams({ ...params, projectTitle: e.target.value })
                 }
-                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold outline-none focus:border-[#0047AB] font-sans"
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold outline-none focus:border-[#9D00FF] font-sans"
               />
             </div>
 
@@ -331,7 +331,7 @@ export default function AiAssistantPage() {
                 onChange={(e) =>
                   setParams({ ...params, scope: e.target.value })
                 }
-                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold outline-none focus:border-[#0047AB] font-sans leading-relaxed"
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold outline-none focus:border-[#9D00FF] font-sans leading-relaxed"
               />
             </div>
 
@@ -340,7 +340,7 @@ export default function AiAssistantPage() {
               <label className="text-xs font-bold text-slate-700 block mb-1 font-sans">
                 Proposed Budget & Currency
               </label>
-              <div className="flex rounded-xl border border-slate-300 bg-slate-50 overflow-hidden focus-within:border-[#0047AB] transition font-sans">
+              <div className="flex rounded-xl border border-slate-300 bg-slate-50 overflow-hidden focus-within:border-[#9D00FF] transition font-sans">
                 <select
                   value={selectedCurrency}
                   onChange={(e) => setSelectedCurrency(e.target.value)}
@@ -368,7 +368,7 @@ export default function AiAssistantPage() {
             <button
               type="submit"
               disabled={isGenerating}
-              className="w-full bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs py-3.5 px-4 rounded-xl shadow-md shadow-[#0047AB]/20 flex items-center justify-center gap-2 transition disabled:opacity-50 mt-2 font-sans"
+              className="w-full bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-xs py-3.5 px-4 rounded-xl shadow-md shadow-[#9D00FF]/20 flex items-center justify-center gap-2 transition disabled:opacity-50 mt-2 font-sans"
             >
               {isGenerating ? (
                 <>
@@ -393,7 +393,7 @@ export default function AiAssistantPage() {
               <span className="text-xs font-bold text-slate-800 font-sans uppercase">
                 GENERATED AI PROPOSAL
               </span>
-              <span className="text-[10px] font-bold bg-blue-50 text-[#0047AB] px-2 py-0.5 rounded-full font-sans">
+              <span className="text-[10px] font-bold bg-blue-50 text-[#9D00FF] px-2 py-0.5 rounded-full font-sans">
                 {selectedCurrency}
               </span>
             </div>
@@ -404,7 +404,7 @@ export default function AiAssistantPage() {
                   onClick={() => setActiveView("preview")}
                   className={`p-1.5 rounded-lg text-xs font-bold transition font-sans ${
                     activeView === "preview"
-                      ? "bg-white text-[#0047AB] shadow-sm"
+                      ? "bg-white text-[#9D00FF] shadow-sm"
                       : "text-slate-500"
                   }`}
                   title="Document Preview"
@@ -415,7 +415,7 @@ export default function AiAssistantPage() {
                   onClick={() => setActiveView("markdown")}
                   className={`p-1.5 rounded-lg text-xs font-bold transition font-sans ${
                     activeView === "markdown"
-                      ? "bg-white text-[#0047AB] shadow-sm"
+                      ? "bg-white text-[#9D00FF] shadow-sm"
                       : "text-slate-500"
                   }`}
                   title="Markdown"
@@ -438,7 +438,7 @@ export default function AiAssistantPage() {
 
               <button
                 onClick={() => window.print()}
-                className="bg-[#0047AB] hover:bg-[#003680] text-white text-xs font-bold px-3.5 py-1.5 rounded-xl transition flex items-center gap-1.5 font-sans shadow-sm"
+                className="bg-[#9D00FF] hover:bg-[#7A00CC] text-white text-xs font-bold px-3.5 py-1.5 rounded-xl transition flex items-center gap-1.5 font-sans shadow-sm"
               >
                 <Printer className="w-3.5 h-3.5" />
                 <span>Print</span>
@@ -493,7 +493,7 @@ export default function AiAssistantPage() {
                     <span className="text-xs font-bold text-slate-400 block font-sans">
                       {generatedDoc.date}
                     </span>
-                    <span className="text-base font-black text-[#0047AB] block mt-1 font-sans">
+                    <span className="text-base font-black text-[#9D00FF] block mt-1 font-sans">
                       {generatedDoc.currency}
                       {generatedDoc.budget.toLocaleString("en-IN")}
                     </span>
@@ -529,7 +529,7 @@ export default function AiAssistantPage() {
                             {del.details}
                           </span>
                         </div>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-blue-50 text-[#0047AB] border border-blue-100 shrink-0 font-sans">
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-blue-50 text-[#9D00FF] border border-blue-100 shrink-0 font-sans">
                           {del.timeline}
                         </span>
                       </div>
@@ -545,14 +545,14 @@ export default function AiAssistantPage() {
                   <div className="bg-white p-4 rounded-xl border border-slate-200/70 space-y-1.5 text-xs text-slate-700 font-sans">
                     <div className="flex justify-between font-bold text-slate-900 border-b border-slate-100 pb-2 mb-2 font-sans">
                       <span>Total Fixed Consideration:</span>
-                      <span className="text-sm font-black text-[#0047AB] font-sans">
+                      <span className="text-sm font-black text-[#9D00FF] font-sans">
                         {generatedDoc.currency}
                         {generatedDoc.budget.toLocaleString("en-IN")}
                       </span>
                     </div>
                     {generatedDoc.terms.map((term, i) => (
                       <p key={i} className="flex items-start gap-1.5 font-sans">
-                        <span className="text-[#0047AB] font-bold">✓</span>
+                        <span className="text-[#9D00FF] font-bold">✓</span>
                         <span>{term}</span>
                       </p>
                     ))}

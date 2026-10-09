@@ -40,15 +40,15 @@ export default function Pricing() {
     >
       {/* Background Ambient Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-7xl h-[650px] pointer-events-none z-0">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[450px] bg-gradient-to-tr from-[#0047AB]/10 via-indigo-300/15 to-purple-400/10 blur-[150px] rounded-full" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[450px] bg-gradient-to-tr from-[#9D00FF]/10 via-indigo-300/15 to-purple-400/10 blur-[150px] rounded-full" />
       </div>
 
       <div className="max-w-7xl mx-auto relative z-10">
         {/* ================= 1. HEADER ================= */}
         <div className="text-center max-w-9xl mx-auto mb-16 sm:mb-24">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/90 border border-[#0047AB]/20 shadow-sm mb-6">
-            <span className="w-2 h-2 rounded-full bg-[#0047AB] animate-pulse" />
-            <span className="text-xs font-bold uppercase tracking-widest text-[#0047AB] font-sans">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/90 border border-[#9D00FF]/20 shadow-sm mb-6">
+            <span className="w-2 h-2 rounded-full bg-[#9D00FF] animate-pulse" />
+            <span className="text-xs font-bold uppercase tracking-widest text-[#9D00FF] font-sans">
               Transparent Pricing
             </span>
           </div>
@@ -57,7 +57,7 @@ export default function Pricing() {
             <span>
               Simple, predictable <br />{" "}
             </span>
-            <span className="inline-block font-heading italic pr-2 pb-1 bg-clip-text text-transparent bg-gradient-to-r from-[#0047AB] via-indigo-600 to-purple-600">
+            <span className="inline-block font-heading italic pr-2 pb-1 bg-clip-text text-transparent bg-gradient-to-r from-[#9D00FF] via-indigo-600 to-purple-600">
               plans for everyone.
             </span>
           </h2>
@@ -86,7 +86,7 @@ export default function Pricing() {
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
                   Freelancer Basic
                 </span>
-                <span className="text-[12px] font-medium bg-[#0047AB] text-white px-3 py-1 rounded-full border border-slate-200">
+                <span className="text-[12px] font-medium bg-[#9D00FF] text-white px-3 py-1 rounded-full border border-slate-200">
                   Starter
                 </span>
               </div>
@@ -119,7 +119,7 @@ export default function Pricing() {
                     key={idx}
                     className="flex items-center gap-3 text-xs font-bold text-slate-800"
                   >
-                    <div className="w-5 h-5 rounded-full bg-[#0047AB]/10 text-[#0047AB] flex items-center justify-center shrink-0">
+                    <div className="w-5 h-5 rounded-full bg-[#9D00FF]/10 text-[#9D00FF] flex items-center justify-center shrink-0">
                       <Check className="w-3 h-3 stroke-[3]" />
                     </div>
                     <span>{item}</span>
@@ -140,11 +140,11 @@ export default function Pricing() {
           {/* CARD 2: PROFESSIONAL ($12/MONTH) - HIGHLIGHTED COBALT BLUE */}
           <motion.div
             variants={cardVariants}
-            className="bg-[#0047AB] text-white rounded-3xl p-8 shadow-2xl shadow-[#0047AB]/35 border-2 border-[#0047AB] flex flex-col justify-between relative transform md:-translate-y-4 font-sans"
+            className="bg-[#9D00FF] text-white rounded-3xl p-8 shadow-2xl shadow-[#9D00FF]/35 border-2 border-[#9D00FF] flex flex-col justify-between relative transform md:-translate-y-4 font-sans"
           >
             {/* Top Glow & Badge */}
-            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-white text-[#0047AB] text-[11px] font-black uppercase tracking-wider px-4 py-1 rounded-full shadow-md border border-blue-200 flex items-center gap-1.5">
-              <Sparkles className="w-3 h-3 text-[#0047AB]" />
+            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-white text-[#9D00FF] text-[11px] font-black uppercase tracking-wider px-4 py-1 rounded-full shadow-md border border-blue-200 flex items-center gap-1.5">
+              <Sparkles className="w-3 h-3 text-[#9D00FF]" />
               <span>Most Popular</span>
             </div>
 
@@ -201,7 +201,7 @@ export default function Pricing() {
 
             <a
               href="/get-started?plan=pro"
-              className="w-full inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-white hover:bg-slate-100 text-[#0047AB] font-bold text-sm shadow-md transition-all duration-200 active:scale-95"
+              className="w-full inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-white hover:bg-slate-100 text-[#9D00FF] font-bold text-sm shadow-md transition-all duration-200 active:scale-95"
             >
               <span>Get Started</span>
               <ArrowRight className="w-4 h-4" />
@@ -253,7 +253,7 @@ export default function Pricing() {
                     key={idx}
                     className="flex items-center gap-3 text-xs font-bold text-slate-800"
                   >
-                    <div className="w-5 h-5 rounded-full bg-[#0047AB]/10 text-[#0047AB] flex items-center justify-center shrink-0">
+                    <div className="w-5 h-5 rounded-full bg-[#9D00FF]/10 text-[#9D00FF] flex items-center justify-center shrink-0">
                       <Check className="w-3 h-3 stroke-[3]" />
                     </div>
                     <span>{item}</span>
@@ -264,7 +264,7 @@ export default function Pricing() {
 
             <a
               href="/contact-sales"
-              className="w-full inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-sm shadow-lg shadow-[#0047AB]/25 transition-all duration-200 active:scale-95"
+              className="w-full inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-sm shadow-lg shadow-[#9D00FF]/25 transition-all duration-200 active:scale-95"
             >
               <span>Contact Sales</span>
               <ArrowRight className="w-4 h-4" />

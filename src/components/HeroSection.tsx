@@ -13,13 +13,13 @@ export default function HeroSection() {
     <section className="relative min-h-screen pt-32 sm:pt-40 pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden bg-slate-50 font-sans">
       {/* Background Ambient Glows */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[600px] pointer-events-none z-0">
-        <div className="absolute top-[-80px] left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-gradient-to-tr from-[#0047AB]/20 via-indigo-400/20 to-purple-500/20 blur-[130px] rounded-full" />
+        <div className="absolute top-[-80px] left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-gradient-to-tr from-[#9D00FF]/20 via-indigo-400/20 to-purple-500/20 blur-[130px] rounded-full" />
       </div>
 
       <div className="max-w-6xl mx-auto relative z-10 flex flex-col items-center text-center">
         {/* ================= 1. BADGE ================= */}
         <div className="animate-blur-1 mb-8">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/90 backdrop-blur-md border border-[#0047AB]/20 shadow-sm">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/90 backdrop-blur-md border border-[#9D00FF]/20 shadow-sm">
             <span className="text-xs sm:text-sm font-bold text-slate-800">
               ✨ AI Powered Work Management Platform
             </span>
@@ -35,7 +35,7 @@ export default function HeroSection() {
             Organize everything.
           </span>
 
-          <span className="block font-heading italic font-bold pr-2 pb-1 bg-clip-text text-transparent bg-gradient-to-r from-[#0047AB] via-indigo-600 to-purple-600">
+          <span className="block font-heading italic font-bold pr-2 pb-1 bg-clip-text text-transparent bg-gradient-to-r from-[#9D00FF] via-indigo-600 to-purple-600">
             Scale without limits.
           </span>
         </h1>
@@ -55,7 +55,7 @@ export default function HeroSection() {
         <div className="animate-blur-4 flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto mb-10">
           <Link
             href="/get-started"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 md:px-10 md:py-2.5 py-2 rounded-xl bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-base shadow-lg shadow-[#0047AB]/25 transition-all duration-200"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 md:px-10 md:py-2.5 py-2 rounded-xl bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-base shadow-lg shadow-[#9D00FF]/25 transition-all duration-200"
           >
             <span>Start Free</span>
             <svg
@@ -75,10 +75,10 @@ export default function HeroSection() {
 
           <button
             onClick={() => alert("Watch Demo Clicked")}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 md:px-8 md:py-2 py-2 rounded-xl bg-white text-[#0047AB] border-2 border-[#0047AB] font-bold text-base shadow-sm hover:bg-[#0047AB]/5 transition-all duration-200"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 md:px-8 md:py-2 py-2 rounded-xl bg-white text-[#9D00FF] border-2 border-[#9D00FF] font-bold text-base shadow-sm hover:bg-[#9D00FF]/5 transition-all duration-200"
           >
-            <div className="w-6 h-6 rounded-full bg-[#0047AB]/10 flex items-center justify-center">
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="#0047AB">
+            <div className="w-6 h-6 rounded-full bg-[#9D00FF]/10 flex items-center justify-center">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="#9D00FF">
                 <polygon points="5 3 19 12 5 21 5 3" />
               </svg>
             </div>
@@ -89,15 +89,15 @@ export default function HeroSection() {
         {/* ================= 5. TRUST BADGES ================= */}
         <div className="animate-blur-5 flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-xs sm:text-sm font-semibold text-slate-600 mb-16">
           <div className="flex items-center gap-1.5">
-            <span className="text-[#0047AB] font-bold">✓</span> No credit card
+            <span className="text-[#9D00FF] font-bold">✓</span> No credit card
             required
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="text-[#0047AB] font-bold">✓</span> 3-Month Free
+            <span className="text-[#9D00FF] font-bold">✓</span> 3-Month Free
             Trial (Launch Offer)
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="text-[#0047AB] font-bold">✓</span> Setup in 2
+            <span className="text-[#9D00FF] font-bold">✓</span> Setup in 2
             minutes
           </div>
         </div>
@@ -106,7 +106,7 @@ export default function HeroSection() {
         <div className="animate-blur-5 w-full max-w-5xl mb-12">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 bg-white/80 backdrop-blur-xl border border-slate-200/80 rounded-2xl p-6 sm:p-8 shadow-xl shadow-slate-900/5">
             <div className="flex flex-col items-center justify-center p-2 border-r border-slate-100 last:border-r-0 md:border-r">
-              <span className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#0047AB]">
+              <span className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#9D00FF]">
                 50K+
               </span>
               <span className="text-xs sm:text-sm font-bold text-slate-600 mt-1">
@@ -124,7 +124,7 @@ export default function HeroSection() {
             </div>
 
             <div className="flex flex-col items-center justify-center p-2 border-r border-slate-100 last:border-r-0 md:border-r">
-              <span className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#0047AB]">
+              <span className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#9D00FF]">
                 99.9%
               </span>
               <span className="text-xs sm:text-sm font-bold text-slate-600 mt-1">
@@ -145,7 +145,7 @@ export default function HeroSection() {
 
         {/* ================= 7. DASHBOARD MOCKUP ================= */}
         <div className="animate-blur-6 w-full max-w-5xl relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0047AB]/20 via-indigo-500/20 to-purple-500/20 blur-3xl rounded-3xl -z-10 transform scale-95" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#9D00FF]/20 via-indigo-500/20 to-purple-500/20 blur-3xl rounded-3xl -z-10 transform scale-95" />
 
           <div
             className={`rounded-2xl sm:rounded-3xl border transition-all duration-300 p-4 sm:p-6 shadow-2xl ${
@@ -179,7 +179,7 @@ export default function HeroSection() {
                     onClick={() => setThemeMode("light")}
                     className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
                       themeMode === "light"
-                        ? "bg-white text-[#0047AB] shadow-sm"
+                        ? "bg-white text-[#9D00FF] shadow-sm"
                         : "text-slate-400 hover:text-slate-200"
                     }`}
                   >
@@ -189,7 +189,7 @@ export default function HeroSection() {
                     onClick={() => setThemeMode("dark")}
                     className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
                       themeMode === "dark"
-                        ? "bg-[#0047AB] text-white shadow-sm"
+                        ? "bg-[#9D00FF] text-white shadow-sm"
                         : "text-slate-500 hover:text-slate-800"
                     }`}
                   >
@@ -221,7 +221,7 @@ export default function HeroSection() {
                     onClick={() => setActiveTab(tab.id as any)}
                     className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
                       activeTab === tab.id
-                        ? "bg-[#0047AB] text-white shadow-md shadow-[#0047AB]/20"
+                        ? "bg-[#9D00FF] text-white shadow-md shadow-[#9D00FF]/20"
                         : themeMode === "dark"
                           ? "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"
                           : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/60"
@@ -240,7 +240,7 @@ export default function HeroSection() {
                       <h3 className="font-heading text-lg font-bold">
                         Active Sprint Projects
                       </h3>
-                      <span className="text-xs bg-[#0047AB]/15 text-[#0047AB] px-3 py-1 rounded-full font-bold">
+                      <span className="text-xs bg-[#9D00FF]/15 text-[#9D00FF] px-3 py-1 rounded-full font-bold">
                         4 In Progress
                       </span>
                     </div>
@@ -258,7 +258,7 @@ export default function HeroSection() {
                           </span>
                         </div>
                         <div className="w-full bg-slate-200/20 h-2 rounded-full overflow-hidden mt-3">
-                          <div className="bg-[#0047AB] h-full w-[92%]" />
+                          <div className="bg-[#9D00FF] h-full w-[92%]" />
                         </div>
                       </div>
 
@@ -295,7 +295,7 @@ export default function HeroSection() {
                       className={`p-3 rounded-xl border flex items-center justify-between ${themeMode === "dark" ? "bg-slate-900/80 border-slate-800" : "bg-slate-50 border-slate-200"}`}
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-2 h-8 bg-[#0047AB] rounded-full" />
+                        <div className="w-2 h-8 bg-[#9D00FF] rounded-full" />
                         <div>
                           <div className="text-xs font-bold">
                             Product Strategy & AI Roadmap
@@ -357,7 +357,7 @@ export default function HeroSection() {
                     <div
                       className={`p-3 rounded-xl border flex gap-3 ${themeMode === "dark" ? "bg-slate-900/80 border-slate-800" : "bg-slate-50 border-slate-200"}`}
                     >
-                      <div className="w-8 h-8 rounded-full bg-[#0047AB] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-[#9D00FF] text-white flex items-center justify-center font-bold text-xs shrink-0">
                         JD
                       </div>
                       <div>
@@ -382,7 +382,7 @@ export default function HeroSection() {
                       <h3 className="font-heading text-lg font-bold">
                         Real-time Performance
                       </h3>
-                      <span className="text-xs font-bold text-[#0047AB]">
+                      <span className="text-xs font-bold text-[#9D00FF]">
                         +48.2% Growth
                       </span>
                     </div>
@@ -397,7 +397,7 @@ export default function HeroSection() {
                           >
                             <div
                               style={{ height: `${h}%` }}
-                              className="w-full bg-[#0047AB] rounded-t transition-all"
+                              className="w-full bg-[#9D00FF] rounded-t transition-all"
                             />
                           </div>
                         ))}
@@ -410,7 +410,7 @@ export default function HeroSection() {
                   <div
                     className={`p-4 rounded-xl border space-y-3 ${themeMode === "dark" ? "bg-gradient-to-r from-indigo-950/60 to-slate-900 border-indigo-800/50" : "bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200"}`}
                   >
-                    <div className="flex items-center gap-2 text-xs font-bold text-[#0047AB]">
+                    <div className="flex items-center gap-2 text-xs font-bold text-[#9D00FF]">
                       <span>✨</span>
                       <span>Orvixa AI Copilot</span>
                     </div>
@@ -420,7 +420,7 @@ export default function HeroSection() {
                       34%."
                     </p>
                     <div className="flex gap-2 pt-1">
-                      <button className="bg-[#0047AB] text-white text-[11px] font-bold px-3 py-1.5 rounded-lg shadow-sm">
+                      <button className="bg-[#9D00FF] text-white text-[11px] font-bold px-3 py-1.5 rounded-lg shadow-sm">
                         Apply AI Schedule
                       </button>
                       <button className="bg-transparent border border-slate-400/30 text-[11px] font-bold px-3 py-1.5 rounded-lg">
@@ -438,14 +438,14 @@ export default function HeroSection() {
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
-                    <div className="w-6 h-6 rounded-lg bg-[#0047AB] text-white flex items-center justify-center text-xs font-bold">
+                    <div className="w-6 h-6 rounded-lg bg-[#9D00FF] text-white flex items-center justify-center text-xs font-bold">
                       ✨
                     </div>
                     <span className="text-xs font-bold">
                       AI Assistant active in background
                     </span>
                   </div>
-                  <span className="text-[10px] font-extrabold bg-[#0047AB]/15 text-[#0047AB] px-2.5 py-1 rounded-full">
+                  <span className="text-[10px] font-extrabold bg-[#9D00FF]/15 text-[#9D00FF] px-2.5 py-1 rounded-full">
                     Live Sync
                   </span>
                 </div>

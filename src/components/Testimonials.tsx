@@ -49,7 +49,7 @@ export default function Testimonials() {
       >
         <div className="max-w-8xl mx-auto relative z-10">
           <div className="text-center py-12">
-            <p className="text-xs sm:text-sm font-bold text-[#0047AB] uppercase tracking-wider mb-2 font-sans">
+            <p className="text-xs sm:text-sm font-bold text-[#9D00FF] uppercase tracking-wider mb-2 font-sans">
               Testimonials
             </p>
             <h2 className="text-[20px] sm:text-[24px] lg:text-[32px] font-black text-slate-900 leading-tight font-sans mb-4">
@@ -77,12 +77,12 @@ export default function Testimonials() {
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10 font-sans">
           {/* Left Title Block */}
           <div>
-            <p className="text-xs sm:text-sm font-bold text-[#0047AB] uppercase tracking-wider mb-2 font-sans">
+            <p className="text-xs sm:text-sm font-bold text-[#9D00FF] uppercase tracking-wider mb-2 font-sans">
               Testimonials
             </p>
             <h2 className="text-[20px] sm:text-[24px] lg:text-[32px] font-black text-slate-900 leading-tight font-sans">
               <span>What our </span>
-              <span className="inline-block font-heading italic text-[#0047AB] pr-2 pb-1">
+              <span className="inline-block font-heading italic text-[#9D00FF] pr-2 pb-1">
                 Clients Say
               </span>
             </h2>
@@ -93,7 +93,7 @@ export default function Testimonials() {
             <button
               onClick={handlePrev}
               aria-label="Previous Testimonial"
-              className="inline-flex items-center gap-2 px-8 py-2 rounded-[12px] bg-white border border-slate-300 hover:border-[#0047AB] hover:text-[#0047AB] text-slate-700 text-xs sm:text-sm font-bold shadow-sm transition-all active:scale-95"
+              className="inline-flex items-center gap-2 px-8 py-2 rounded-[12px] bg-white border border-slate-300 hover:border-[#9D00FF] hover:text-[#9D00FF] text-slate-700 text-xs sm:text-sm font-bold shadow-sm transition-all active:scale-95"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Previous</span>
@@ -102,7 +102,7 @@ export default function Testimonials() {
             <button
               onClick={handleNext}
               aria-label="Next Testimonial"
-              className="inline-flex items-center gap-2 px-8 py-2 rounded-[12px] bg-[#0047AB] hover:bg-[#003680] text-white text-xs sm:text-sm font-bold shadow-lg shadow-[#0047AB]/25 transition-all active:scale-95"
+              className="inline-flex items-center gap-2 px-8 py-2 rounded-[12px] bg-[#9D00FF] hover:bg-[#7A00CC] text-white text-xs sm:text-sm font-bold shadow-lg shadow-[#9D00FF]/25 transition-all active:scale-95"
             >
               <span>Next</span>
               <ArrowRight className="w-4 h-4" />
@@ -153,7 +153,7 @@ export default function Testimonials() {
                   <h3 className="font-bold text-base sm:text-xl text-slate-900 font-sans leading-tight">
                     {current.role}
                   </h3>
-                  <p className="text-xs sm:text-sm font-bold text-[#0047AB] font-sans mt-1">
+                  <p className="text-xs sm:text-sm font-bold text-[#9D00FF] font-sans mt-1">
                     {current.company}
                   </p>
                 </div>
@@ -187,7 +187,7 @@ export default function Testimonials() {
               aria-label={`Go to testimonial ${idx + 1}`}
               className={`transition-all duration-300 rounded-full ${
                 activeIndex === idx
-                  ? "w-8 h-2.5 bg-[#0047AB] shadow-md shadow-[#0047AB]/30"
+                  ? "w-8 h-2.5 bg-[#9D00FF] shadow-md shadow-[#9D00FF]/30"
                   : "w-2.5 h-2.5 bg-slate-300 hover:bg-slate-400"
               }`}
             />

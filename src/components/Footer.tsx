@@ -30,7 +30,7 @@ export default function Footer() {
             {/* Tagline */}
             <h3 className="font-sans text-2xl sm:text-3xl font-black text-slate-900 max-w-md leading-tight">
               <span>We grow your business with </span>
-              <span className="inline-block font-heading italic text-[#0047AB]">
+              <span className="inline-block font-heading italic text-[#9D00FF]">
                 personal AI manager.
               </span>
             </h3>
@@ -52,7 +52,7 @@ export default function Footer() {
                 <li>
                   <Link
                     href="#pricing"
-                    className="hover:text-[#0047AB] transition-colors"
+                    className="hover:text-[#9D00FF] transition-colors"
                   >
                     Plans & Pricing
                   </Link>
@@ -60,7 +60,7 @@ export default function Footer() {
                 <li>
                   <Link
                     href="#products"
-                    className="hover:text-[#0047AB] transition-colors"
+                    className="hover:text-[#9D00FF] transition-colors"
                   >
                     Personal AI Manager
                   </Link>
@@ -68,7 +68,7 @@ export default function Footer() {
                 <li>
                   <Link
                     href="#how-it-works"
-                    className="hover:text-[#0047AB] transition-colors"
+                    className="hover:text-[#9D00FF] transition-colors"
                   >
                     AI Business Writer
                   </Link>
@@ -85,7 +85,7 @@ export default function Footer() {
                 <li>
                   <Link
                     href="/blog"
-                    className="hover:text-[#0047AB] transition-colors"
+                    className="hover:text-[#9D00FF] transition-colors"
                   >
                     Blog
                   </Link>
@@ -93,7 +93,7 @@ export default function Footer() {
                 <li>
                   <Link
                     href="/careers"
-                    className="hover:text-[#0047AB] transition-colors"
+                    className="hover:text-[#9D00FF] transition-colors"
                   >
                     Careers
                   </Link>
@@ -101,7 +101,7 @@ export default function Footer() {
                 <li>
                   <Link
                     href="/news"
-                    className="hover:text-[#0047AB] transition-colors"
+                    className="hover:text-[#9D00FF] transition-colors"
                   >
                     News
                   </Link>
@@ -118,7 +118,7 @@ export default function Footer() {
                 <li>
                   <Link
                     href="/docs"
-                    className="hover:text-[#0047AB] transition-colors"
+                    className="hover:text-[#9D00FF] transition-colors"
                   >
                     Documentation
                   </Link>
@@ -126,7 +126,7 @@ export default function Footer() {
                 <li>
                   <Link
                     href="/papers"
-                    className="hover:text-[#0047AB] transition-colors"
+                    className="hover:text-[#9D00FF] transition-colors"
                   >
                     Papers
                   </Link>
@@ -134,7 +134,7 @@ export default function Footer() {
                 <li>
                   <Link
                     href="/press"
-                    className="hover:text-[#0047AB] transition-colors"
+                    className="hover:text-[#9D00FF] transition-colors"
                   >
                     Press Conferences
                   </Link>
@@ -151,7 +151,7 @@ export default function Footer() {
                 {/* Windows Button */}
                 <a
                   href="/download/windows"
-                  className="inline-flex items-center gap-2.5 w-full px-4 py-2.5 rounded-xl border border-slate-300 bg-white hover:border-[#0047AB] hover:text-[#0047AB] text-slate-800 text-xs font-bold transition-all shadow-sm"
+                  className="inline-flex items-center gap-2.5 w-full px-4 py-2.5 rounded-xl border border-slate-300 bg-white hover:border-[#9D00FF] hover:text-[#9D00FF] text-slate-800 text-xs font-bold transition-all shadow-sm"
                 >
                   <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
                     <path d="M0 3.449L9.75 2.1v9.451H0m10.95-9.6L24 0v11.4H10.95M0 12.6h9.75v9.451L0 20.701M10.95 12.6H24V24l-13.05-1.8" />
@@ -162,7 +162,7 @@ export default function Footer() {
                 {/* macOS Button */}
                 <a
                   href="/download/macos"
-                  className="inline-flex items-center gap-2.5 w-full px-4 py-2.5 rounded-xl border border-slate-300 bg-white hover:border-[#0047AB] hover:text-[#0047AB] text-slate-800 text-xs font-bold transition-all shadow-sm"
+                  className="inline-flex items-center gap-2.5 w-full px-4 py-2.5 rounded-xl border border-slate-300 bg-white hover:border-[#9D00FF] hover:text-[#9D00FF] text-slate-800 text-xs font-bold transition-all shadow-sm"
                 >
                   <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
                     <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87 1 0 2.5-1.07 4.1-1 1.63.07 2.87.67 3.65 1.76-3.2 1.92-2.67 6.13.52 7.37-.66 1.34-1.53 2.65-2.67 3.62zM15.97 6.32c.63-.82 1.07-1.96.94-3.12-.97.05-2.18.68-2.88 1.48-.61.73-1.12 1.88-.95 3.01 1.09.08 2.22-.55 2.89-1.37z" />
@@ -176,7 +176,7 @@ export default function Footer() {
       </div>
 
       {/* ================= 2. BOTTOM ACCENT BAR (COBALT BLUE BRAND COLOR) ================= */}
-      <div className="bg-[#0047AB] text-white py-4 px-6 sm:px-8 lg:px-12 font-sans">
+      <div className="bg-[#9D00FF] text-white py-4 px-6 sm:px-8 lg:px-12 font-sans">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-bold tracking-wide font-sans">
           <div>© 2026 Orvixa Inc. | Design by Sandeep Kaveti | All rights reserved.</div>
 

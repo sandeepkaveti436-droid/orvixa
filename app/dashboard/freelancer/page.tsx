@@ -229,12 +229,12 @@ export default function FreelancerDashboard() {
     .filter((p) => (p.status || "").toLowerCase() === "completed")
     .reduce((acc, p) => acc + (Number(p.budget) || 0), 0);
 
-  const chartColors = ["#3B82F6", "#10B981", "#EF4444", "#F59E0B", "#8B5CF6"];
+  const chartColors = ["#9D00FF", "#10B981", "#EF4444", "#F59E0B", "#8B5CF6"];
 
   if (loading) {
     return (
       <div className="min-h-[400px] flex items-center justify-center font-bold text-slate-500 font-sans">
-        <Loader2 className="w-6 h-6 animate-spin text-[#0047AB] mr-2" />
+        <Loader2 className="w-6 h-6 animate-spin text-[#9D00FF] mr-2" />
         <span className="font-sans">Loading Workspace Data...</span>
       </div>
     );
@@ -310,12 +310,12 @@ export default function FreelancerDashboard() {
             <span className="text-xs font-bold text-slate-500 font-sans">
               Total Pipeline
             </span>
-            <span className="text-[11px] font-bold text-[#0047AB] bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200 font-sans">
+            <span className="text-[11px] font-bold text-[#9D00FF] bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200 font-sans">
               ₹ INR
             </span>
           </div>
           <div className="mt-3 font-sans">
-            <div className="text-3xl font-black text-[#0047AB] font-sans">
+            <div className="text-3xl font-black text-[#9D00FF] font-sans">
               ₹{totalBudget.toLocaleString("en-IN")}
             </div>
             <span className="text-[11px] font-medium text-slate-400 font-sans">
@@ -341,7 +341,7 @@ export default function FreelancerDashboard() {
             </div>
             <button
               onClick={() => setShowTaskModal(true)}
-              className="text-xs font-bold text-[#0047AB] hover:underline flex items-center gap-1 font-sans"
+              className="text-xs font-bold text-[#9D00FF] hover:underline flex items-center gap-1 font-sans"
             >
               <Plus className="w-3.5 h-3.5" /> Add
             </button>
@@ -359,7 +359,7 @@ export default function FreelancerDashboard() {
                     className={`w-5 h-5 rounded-md flex items-center justify-center border transition shrink-0 ${
                       task.status === "Completed"
                         ? "bg-emerald-500 border-emerald-500 text-white"
-                        : "border-slate-300 hover:border-[#0047AB]"
+                        : "border-slate-300 hover:border-[#9D00FF]"
                     }`}
                   >
                     {task.status === "Completed" && (
@@ -394,7 +394,7 @@ export default function FreelancerDashboard() {
 
           <Link
             href="/dashboard/freelancer/tasks"
-            className="text-right text-[11px] font-bold text-slate-400 hover:text-[#0047AB] block pt-1 font-sans"
+            className="text-right text-[11px] font-bold text-slate-400 hover:text-[#9D00FF] block pt-1 font-sans"
           >
             Manage all →
           </Link>
@@ -413,7 +413,7 @@ export default function FreelancerDashboard() {
             </div>
             <button
               onClick={() => setShowMeetingModal(true)}
-              className="text-xs font-bold text-[#0047AB] hover:underline flex items-center gap-1 font-sans"
+              className="text-xs font-bold text-[#9D00FF] hover:underline flex items-center gap-1 font-sans"
             >
               <Plus className="w-3.5 h-3.5" /> Schedule
             </button>
@@ -426,7 +426,7 @@ export default function FreelancerDashboard() {
                 className="p-2.5 bg-slate-50/80 hover:bg-slate-100/60 rounded-xl border border-slate-100 flex items-center justify-between gap-2 group transition font-sans"
               >
                 <div className="font-sans">
-                  <span className="text-[10px] font-bold text-[#0047AB] bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100 inline-block mb-0.5 font-sans">
+                  <span className="text-[10px] font-bold text-[#9D00FF] bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100 inline-block mb-0.5 font-sans">
                     {m.meeting_time}
                   </span>
                   <div className="text-xs font-bold text-slate-800 line-clamp-1 font-sans">
@@ -487,7 +487,7 @@ export default function FreelancerDashboard() {
                   cy="18"
                   r="14"
                   fill="transparent"
-                  stroke="#3B82F6"
+                  stroke="#9D00FF"
                   strokeWidth="4"
                   strokeDasharray="100 100"
                   strokeDashoffset="0"
@@ -546,7 +546,7 @@ export default function FreelancerDashboard() {
             <h3 className="font-bold text-xs text-slate-700 font-sans">
               Invoice / Revenue Overview
             </h3>
-            <span className="text-xs font-bold text-[#0047AB] font-sans">
+            <span className="text-xs font-bold text-[#9D00FF] font-sans">
               ₹{totalBudget.toLocaleString("en-IN")}
             </span>
           </div>
@@ -676,7 +676,7 @@ export default function FreelancerDashboard() {
             </h3>
             <button
               onClick={() => setShowReminderModal(true)}
-              className="text-xs font-bold text-[#0047AB] hover:underline flex items-center gap-1 font-sans"
+              className="text-xs font-bold text-[#9D00FF] hover:underline flex items-center gap-1 font-sans"
             >
               <Plus className="w-3.5 h-3.5" /> Add
             </button>
@@ -752,7 +752,7 @@ export default function FreelancerDashboard() {
                 onChange={(e) =>
                   setNewTask({ ...newTask, title: e.target.value })
                 }
-                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold outline-none focus:border-[#0047AB] font-sans"
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold outline-none focus:border-[#9D00FF] font-sans"
               />
               <input
                 type="text"
@@ -761,11 +761,11 @@ export default function FreelancerDashboard() {
                 onChange={(e) =>
                   setNewTask({ ...newTask, project_name: e.target.value })
                 }
-                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold outline-none focus:border-[#0047AB] font-sans"
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold outline-none focus:border-[#9D00FF] font-sans"
               />
               <button
                 type="submit"
-                className="w-full bg-[#0047AB] text-white font-bold text-xs py-2.5 rounded-xl shadow-md font-sans"
+                className="w-full bg-[#9D00FF] text-white font-bold text-xs py-2.5 rounded-xl shadow-md font-sans"
               >
                 Save Task
               </button>
@@ -801,7 +801,7 @@ export default function FreelancerDashboard() {
                 onChange={(e) =>
                   setNewMeeting({ ...newMeeting, title: e.target.value })
                 }
-                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold outline-none focus:border-[#0047AB] font-sans"
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold outline-none focus:border-[#9D00FF] font-sans"
               />
               <input
                 type="text"
@@ -810,7 +810,7 @@ export default function FreelancerDashboard() {
                 onChange={(e) =>
                   setNewMeeting({ ...newMeeting, client: e.target.value })
                 }
-                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold outline-none focus:border-[#0047AB] font-sans"
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold outline-none focus:border-[#9D00FF] font-sans"
               />
               <input
                 type="text"
@@ -819,11 +819,11 @@ export default function FreelancerDashboard() {
                 onChange={(e) =>
                   setNewMeeting({ ...newMeeting, meeting_time: e.target.value })
                 }
-                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold outline-none focus:border-[#0047AB] font-sans"
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold outline-none focus:border-[#9D00FF] font-sans"
               />
               <button
                 type="submit"
-                className="w-full bg-[#0047AB] text-white font-bold text-xs py-2.5 rounded-xl shadow-md font-sans"
+                className="w-full bg-[#9D00FF] text-white font-bold text-xs py-2.5 rounded-xl shadow-md font-sans"
               >
                 Save Meeting
               </button>
@@ -859,7 +859,7 @@ export default function FreelancerDashboard() {
                 onChange={(e) =>
                   setNewReminder({ ...newReminder, title: e.target.value })
                 }
-                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold outline-none focus:border-[#0047AB] font-sans"
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold outline-none focus:border-[#9D00FF] font-sans"
               />
               <input
                 type="text"
@@ -871,11 +871,11 @@ export default function FreelancerDashboard() {
                     reminder_time: e.target.value,
                   })
                 }
-                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold outline-none focus:border-[#0047AB] font-sans"
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold outline-none focus:border-[#9D00FF] font-sans"
               />
               <button
                 type="submit"
-                className="w-full bg-[#0047AB] text-white font-bold text-xs py-2.5 rounded-xl shadow-md font-sans"
+                className="w-full bg-[#9D00FF] text-white font-bold text-xs py-2.5 rounded-xl shadow-md font-sans"
               >
                 Save Reminder
               </button>

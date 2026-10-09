@@ -71,7 +71,7 @@ export default function EmployeesPage() {
   if (loading) {
     return (
       <div className="min-h-[400px] flex items-center justify-center font-bold text-slate-500 font-sans">
-        <Loader2 className="w-6 h-6 animate-spin text-[#0047AB] mr-2" />
+        <Loader2 className="w-6 h-6 animate-spin text-[#9D00FF] mr-2" />
         <span>Loading Real Employee Directory...</span>
       </div>
     );
@@ -91,7 +91,7 @@ export default function EmployeesPage() {
 
         <button
           onClick={() => setShowInviteModal(true)}
-          className="bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md shadow-[#0047AB]/25 flex items-center justify-center gap-2 font-sans"
+          className="bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md shadow-[#9D00FF]/25 flex items-center justify-center gap-2 font-sans"
         >
           <UserPlus className="w-4 h-4" />
           <span>+ Invite Employee</span>
@@ -106,7 +106,7 @@ export default function EmployeesPage() {
             placeholder="Search by name or email..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB] font-sans"
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF] font-sans"
           />
         </div>
       </div>
@@ -114,7 +114,7 @@ export default function EmployeesPage() {
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden font-sans">
         <div className="p-5 border-b border-slate-100 flex items-center justify-between font-sans">
           <h2 className="font-bold text-base text-slate-900 flex items-center gap-2 font-sans">
-            <Users className="w-4 h-4 text-[#0047AB]" />
+            <Users className="w-4 h-4 text-[#9D00FF]" />
             <span>Staff Roster ({filteredEmployees.length} Members)</span>
           </h2>
         </div>
@@ -127,7 +127,7 @@ export default function EmployeesPage() {
                 className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50 text-xs font-semibold font-sans"
               >
                 <div className="flex items-center gap-3 font-sans">
-                  <div className="w-10 h-10 rounded-full bg-[#0047AB] text-white flex items-center justify-center font-bold text-xs font-sans">
+                  <div className="w-10 h-10 rounded-full bg-[#9D00FF] text-white flex items-center justify-center font-bold text-xs font-sans">
                     {emp.full_name
                       ? emp.full_name.substring(0, 2).toUpperCase()
                       : "EMP"}
@@ -164,7 +164,7 @@ export default function EmployeesPage() {
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-2xl max-w-md w-full font-sans space-y-4">
             <div className="flex justify-between items-center pb-4 border-b border-slate-100 font-sans">
               <h3 className="font-bold text-lg text-slate-900 flex items-center gap-2 font-sans">
-                <UserPlus className="w-5 h-5 text-[#0047AB]" />
+                <UserPlus className="w-5 h-5 text-[#9D00FF]" />
                 <span>Invite Employee to Workspace</span>
               </h3>
               <button
@@ -186,7 +186,7 @@ export default function EmployeesPage() {
                   placeholder="employee@orvixa.com"
                   value={inviteEmail}
                   onChange={(e) => setInviteEmail(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB] font-sans"
+                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF] font-sans"
                 />
               </div>
 
@@ -214,7 +214,7 @@ export default function EmployeesPage() {
 
               <button
                 type="submit"
-                className="w-full bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs py-3.5 px-4 rounded-xl shadow-md shadow-[#0047AB]/25 font-sans"
+                className="w-full bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-xs py-3.5 px-4 rounded-xl shadow-md shadow-[#9D00FF]/25 font-sans"
               >
                 Send Invite Link
               </button>

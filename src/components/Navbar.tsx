@@ -30,31 +30,31 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-800">
             <Link
               href="#products"
-              className="hover:text-[#0047AB] transition-colors"
+              className="hover:text-[#9D00FF] transition-colors"
             >
               Products ▾
             </Link>
             <Link
               href="#solutions"
-              className="hover:text-[#0047AB] transition-colors"
+              className="hover:text-[#9D00FF] transition-colors"
             >
               Solutions ▾
             </Link>
             <Link
               href="#pricing"
-              className="hover:text-[#0047AB] transition-colors"
+              className="hover:text-[#9D00FF] transition-colors"
             >
               Pricing
             </Link>
             <Link
               href="#about"
-              className="hover:text-[#0047AB] transition-colors"
+              className="hover:text-[#9D00FF] transition-colors"
             >
               About
             </Link>
             <Link
               href="#contact"
-              className="hover:text-[#0047AB] transition-colors"
+              className="hover:text-[#9D00FF] transition-colors"
             >
               Contact
             </Link>
@@ -64,13 +64,13 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             <Link
               href="/login"
-              className="bg-[#0047AB] hover:bg-[#003680] text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-md shadow-[#0047AB]/25 transition-all duration-200"
+              className="bg-[#9D00FF] hover:bg-[#7A00CC] text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-md shadow-[#9D00FF]/25 transition-all duration-200"
             >
               Login
             </Link>
             <Link
               href="/get-started"
-              className="bg-white hover:bg-[#0047AB]/5 text-[#0047AB] border-2 border-[#0047AB] text-sm font-semibold px-5 py-2.5 rounded-xl transition-all duration-200"
+              className="bg-white hover:bg-[#9D00FF]/5 text-[#9D00FF] border-2 border-[#9D00FF] text-sm font-semibold px-5 py-2.5 rounded-xl transition-all duration-200"
             >
               Get Started →
             </Link>
@@ -79,7 +79,7 @@ export default function Navbar() {
           {/* MOBILE HAMBURGER BUTTON */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 text-slate-900 hover:text-[#0047AB] focus:outline-none"
+            className="md:hidden p-2 text-slate-900 hover:text-[#9D00FF] focus:outline-none"
             aria-label="Toggle Menu"
           >
             {mobileMenuOpen ? (
@@ -122,35 +122,35 @@ export default function Navbar() {
               <Link
                 href="#products"
                 onClick={() => setMobileMenuOpen(false)}
-                className="hover:text-[#0047AB] py-1"
+                className="hover:text-[#9D00FF] py-1"
               >
                 Products
               </Link>
               <Link
                 href="#solutions"
                 onClick={() => setMobileMenuOpen(false)}
-                className="hover:text-[#0047AB] py-1"
+                className="hover:text-[#9D00FF] py-1"
               >
                 Solutions
               </Link>
               <Link
                 href="#pricing"
                 onClick={() => setMobileMenuOpen(false)}
-                className="hover:text-[#0047AB] py-1"
+                className="hover:text-[#9D00FF] py-1"
               >
                 Pricing
               </Link>
               <Link
                 href="#about"
                 onClick={() => setMobileMenuOpen(false)}
-                className="hover:text-[#0047AB] py-1"
+                className="hover:text-[#9D00FF] py-1"
               >
                 About
               </Link>
               <Link
                 href="#contact"
                 onClick={() => setMobileMenuOpen(false)}
-                className="hover:text-[#0047AB] py-1"
+                className="hover:text-[#9D00FF] py-1"
               >
                 Contact
               </Link>
@@ -159,14 +159,14 @@ export default function Navbar() {
               <Link
                 href="/login"
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-full text-center bg-[#0047AB] text-white text-sm font-semibold py-2.5 rounded-xl shadow-md"
+                className="w-full text-center bg-[#9D00FF] text-white text-sm font-semibold py-2.5 rounded-xl shadow-md"
               >
                 Login
               </Link>
               <Link
                 href="/get-started"
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-full text-center bg-white text-[#0047AB] border-2 border-[#0047AB] text-sm font-semibold py-2.5 rounded-xl"
+                className="w-full text-center bg-white text-[#9D00FF] border-2 border-[#9D00FF] text-sm font-semibold py-2.5 rounded-xl"
               >
                 Get Started →
               </Link>

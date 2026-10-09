@@ -96,7 +96,7 @@ export default function EmployeeProfilePage() {
   if (loading) {
     return (
       <div className="min-h-[400px] flex items-center justify-center font-bold text-slate-500 font-sans">
-        <Loader2 className="w-6 h-6 animate-spin text-[#0047AB] mr-2" />
+        <Loader2 className="w-6 h-6 animate-spin text-[#9D00FF] mr-2" />
         <span>Loading Profile Details...</span>
       </div>
     );
@@ -126,7 +126,7 @@ export default function EmployeeProfilePage() {
       >
         {/* Photo Upload */}
         <div className="flex items-center gap-4 pb-6 border-b border-slate-100 font-sans">
-          <div className="w-16 h-16 rounded-full bg-[#0047AB] text-white flex items-center justify-center font-bold text-xl overflow-hidden shadow-md shrink-0 font-sans">
+          <div className="w-16 h-16 rounded-full bg-[#9D00FF] text-white flex items-center justify-center font-bold text-xl overflow-hidden shadow-md shrink-0 font-sans">
             {photoPreview ? (
               <img
                 src={photoPreview}
@@ -138,7 +138,7 @@ export default function EmployeeProfilePage() {
             )}
           </div>
           <div>
-            <label className="cursor-pointer inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0047AB] text-white text-xs font-bold shadow-sm hover:bg-[#003680] font-sans">
+            <label className="cursor-pointer inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#9D00FF] text-white text-xs font-bold shadow-sm hover:bg-[#7A00CC] font-sans">
               <Upload className="w-3.5 h-3.5" />
               <span>Upload Photo</span>
               <input
@@ -167,7 +167,7 @@ export default function EmployeeProfilePage() {
               onChange={(e) =>
                 setProfile({ ...profile, fullName: e.target.value })
               }
-              className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB] font-sans"
+              className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF] font-sans"
             />
           </div>
 
@@ -202,7 +202,7 @@ export default function EmployeeProfilePage() {
 
         <button
           type="submit"
-          className="w-full sm:w-auto bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs px-6 py-3.5 rounded-xl shadow-md font-sans flex items-center justify-center gap-2"
+          className="w-full sm:w-auto bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-xs px-6 py-3.5 rounded-xl shadow-md font-sans flex items-center justify-center gap-2"
         >
           <Save className="w-4 h-4" />
           <span>Save Profile</span>

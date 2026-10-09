@@ -174,7 +174,7 @@ export default function EmployeeLayout({
               <span className="font-sans text-lg font-black text-slate-900 block leading-none">
                 Team Member App
               </span>
-              <span className="text-[10px] font-bold text-[#0047AB] font-sans">
+              <span className="text-[10px] font-bold text-[#9D00FF] font-sans">
                 Orvixa Engineering
               </span>
             </div>
@@ -192,7 +192,7 @@ export default function EmployeeLayout({
                   onClick={() => setSidebarOpen(false)}
                   className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all font-sans ${
                     isActive
-                      ? "bg-[#0047AB] text-white shadow-md shadow-[#0047AB]/25"
+                      ? "bg-[#9D00FF] text-white shadow-md shadow-[#9D00FF]/25"
                       : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                   }`}
                 >
@@ -212,7 +212,7 @@ export default function EmployeeLayout({
             href="/dashboard/employee/profile"
             className="flex items-center gap-2.5 group font-sans hover:opacity-80 transition-opacity"
           >
-            <div className="w-8 h-8 rounded-full bg-[#0047AB] text-white flex items-center justify-center font-bold text-xs font-sans overflow-hidden shrink-0 shadow-sm border border-slate-200">
+            <div className="w-8 h-8 rounded-full bg-[#9D00FF] text-white flex items-center justify-center font-bold text-xs font-sans overflow-hidden shrink-0 shadow-sm border border-slate-200">
               {avatarUrl ? (
                 <img
                   src={avatarUrl}
@@ -224,7 +224,7 @@ export default function EmployeeLayout({
               )}
             </div>
             <div>
-              <div className="text-xs font-bold text-slate-900 group-hover:text-[#0047AB] font-sans line-clamp-1">
+              <div className="text-xs font-bold text-slate-900 group-hover:text-[#9D00FF] font-sans line-clamp-1">
                 {userName}
               </div>
               <div className="text-[10px] text-slate-400 font-semibold font-sans line-clamp-1 capitalize">
@@ -263,7 +263,7 @@ export default function EmployeeLayout({
               <input
                 type="text"
                 placeholder="Search tasks, channels, documents..."
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB] font-sans"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF] font-sans"
               />
             </div>
           </div>
@@ -280,7 +280,7 @@ export default function EmployeeLayout({
             >
               <Bell className="w-4 h-4" />
               {notifications.some((n) => !n.read) && (
-                <span className="w-2 h-2 rounded-full bg-[#0047AB] absolute top-1.5 right-1.5" />
+                <span className="w-2 h-2 rounded-full bg-[#9D00FF] absolute top-1.5 right-1.5" />
               )}
             </button>
 
@@ -293,7 +293,7 @@ export default function EmployeeLayout({
                   <div className="flex items-center gap-2">
                     <button
                       onClick={markAllRead}
-                      className="text-[10px] text-[#0047AB] font-bold hover:underline"
+                      className="text-[10px] text-[#9D00FF] font-bold hover:underline"
                     >
                       Mark Read
                     </button>

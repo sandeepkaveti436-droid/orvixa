@@ -28,7 +28,7 @@ export default function AuditLogsPage() {
   if (loading) {
     return (
       <div className="min-h-[400px] flex items-center justify-center font-bold text-slate-500 font-sans">
-        <Loader2 className="w-6 h-6 animate-spin text-[#0047AB] mr-2" />
+        <Loader2 className="w-6 h-6 animate-spin text-[#9D00FF] mr-2" />
         <span>Loading Security Logs...</span>
       </div>
     );
@@ -55,7 +55,7 @@ export default function AuditLogsPage() {
                 className="p-4 sm:p-5 flex items-center justify-between text-xs font-semibold hover:bg-slate-50"
               >
                 <div className="flex items-center gap-3">
-                  <ShieldCheck className="w-4 h-4 text-[#0047AB] shrink-0" />
+                  <ShieldCheck className="w-4 h-4 text-[#9D00FF] shrink-0" />
                   <div>
                     <strong className="text-slate-900">
                       {log.user_name}:{" "}

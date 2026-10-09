@@ -74,7 +74,7 @@ function InviteContent() {
               Orvixa
             </span>
           </Link>
-          <span className="text-xs font-bold text-[#0047AB] bg-[#0047AB]/10 px-3 py-1 rounded-full">
+          <span className="text-xs font-bold text-[#9D00FF] bg-[#9D00FF]/10 px-3 py-1 rounded-full">
             Team Invitation
           </span>
         </div>
@@ -88,7 +88,7 @@ function InviteContent() {
             <div>
               <h1 className="text-2xl font-black text-slate-900 mb-1 font-sans">
                 <span>Joined </span>
-                <span className="font-heading italic text-[#0047AB]">
+                <span className="font-heading italic text-[#9D00FF]">
                   {orgName}!
                 </span>
               </h1>
@@ -99,7 +99,7 @@ function InviteContent() {
 
             <Link
               href="/dashboard/employee"
-              className="w-full inline-flex items-center justify-center gap-2 bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-sm py-3.5 px-4 rounded-xl transition-all shadow-md shadow-[#0047AB]/25"
+              className="w-full inline-flex items-center justify-center gap-2 bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-sm py-3.5 px-4 rounded-xl transition-all shadow-md shadow-[#9D00FF]/25"
             >
               <span>Go to Team Member App</span>
               <ArrowRight className="w-4 h-4" />
@@ -108,13 +108,13 @@ function InviteContent() {
         ) : (
           <div className="space-y-5 font-sans">
             <div>
-              <div className="inline-flex items-center gap-2 text-xs font-bold text-[#0047AB] mb-2">
+              <div className="inline-flex items-center gap-2 text-xs font-bold text-[#9D00FF] mb-2">
                 <Building2 className="w-4 h-4" />
                 <span>Invited by {orgName}</span>
               </div>
               <h1 className="text-2xl font-black text-slate-900 mb-1 font-sans">
                 <span>Accept Team </span>
-                <span className="font-heading italic text-[#0047AB]">
+                <span className="font-heading italic text-[#9D00FF]">
                   Invitation
                 </span>
               </h1>
@@ -138,7 +138,7 @@ function InviteContent() {
                   placeholder="John Doe"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
                 />
               </div>
 
@@ -153,7 +153,7 @@ function InviteContent() {
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
                   />
                   <button
                     type="button"
@@ -172,7 +172,7 @@ function InviteContent() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-sm py-3.5 px-4 rounded-xl transition-all shadow-md shadow-[#0047AB]/25 flex items-center justify-center gap-2"
+                className="w-full bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-sm py-3.5 px-4 rounded-xl transition-all shadow-md shadow-[#9D00FF]/25 flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />

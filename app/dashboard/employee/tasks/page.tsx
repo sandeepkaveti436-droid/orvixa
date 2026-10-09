@@ -77,7 +77,7 @@ export default function EmployeeTasksPage() {
   if (loading) {
     return (
       <div className="min-h-[400px] flex items-center justify-center font-bold text-slate-500 font-sans">
-        <Loader2 className="w-6 h-6 animate-spin text-[#0047AB] mr-2" />
+        <Loader2 className="w-6 h-6 animate-spin text-[#9D00FF] mr-2" />
         <span>Loading Your Real Tasks...</span>
       </div>
     );
@@ -104,7 +104,7 @@ export default function EmployeeTasksPage() {
             placeholder="Search my tasks or projects..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB] font-sans"
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF] font-sans"
           />
         </div>
 
@@ -115,7 +115,7 @@ export default function EmployeeTasksPage() {
               onClick={() => setFilter(tab)}
               className={`px-3.5 py-1.5 rounded-lg capitalize transition-all font-sans ${
                 filter === tab
-                  ? "bg-white text-[#0047AB] shadow-sm"
+                  ? "bg-white text-[#9D00FF] shadow-sm"
                   : "text-slate-600"
               }`}
             >
@@ -129,7 +129,7 @@ export default function EmployeeTasksPage() {
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden font-sans">
         <div className="p-5 border-b border-slate-100 flex items-center justify-between font-sans">
           <h2 className="font-bold text-base text-slate-900 flex items-center gap-2 font-sans">
-            <CheckCircle2 className="w-4 h-4 text-[#0047AB]" />
+            <CheckCircle2 className="w-4 h-4 text-[#9D00FF]" />
             <span>Assigned Deliverables ({filteredTasks.length})</span>
           </h2>
         </div>
@@ -185,7 +185,7 @@ export default function EmployeeTasksPage() {
                         ? "bg-rose-50 text-rose-600 border border-rose-200"
                         : task.priority === "High"
                           ? "bg-amber-50 text-amber-600 border border-amber-200"
-                          : "bg-blue-50 text-[#0047AB] border border-blue-200"
+                          : "bg-blue-50 text-[#9D00FF] border border-blue-200"
                     }`}
                   >
                     {task.priority || "Medium"}

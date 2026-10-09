@@ -338,7 +338,7 @@ export default function ClientsPage() {
             <h1 className="text-2xl font-black text-slate-900 tracking-tight">
               Client Financial Directory & Works
             </h1>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#0047AB]/10 text-[#0047AB]">
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#9D00FF]/10 text-[#9D00FF]">
               {clientGroups.length} Clients
             </span>
           </div>
@@ -358,7 +358,7 @@ export default function ClientsPage() {
           </button>
           <button
             onClick={() => setShowAddModal(true)}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-sm shadow-md transition"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-sm shadow-md transition"
           >
             <Plus className="w-4 h-4 stroke-[3]" />
             <span>Add New Client</span>
@@ -374,7 +374,7 @@ export default function ClientsPage() {
             <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
               Total Contracted Pipeline
             </span>
-            <div className="w-9 h-9 rounded-xl bg-blue-50 text-[#0047AB] flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-blue-50 text-[#9D00FF] flex items-center justify-center">
               <DollarSign className="w-5 h-5" />
             </div>
           </div>
@@ -472,7 +472,7 @@ export default function ClientsPage() {
             placeholder="Search client name or industry..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0047AB] text-sm"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#9D00FF] text-sm"
           />
         </div>
 
@@ -482,7 +482,7 @@ export default function ClientsPage() {
           <select
             value={selectedIndustry}
             onChange={(e) => setSelectedIndustry(e.target.value)}
-            className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#0047AB]"
+            className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#9D00FF]"
           >
             {INDUSTRIES.map((ind) => (
               <option key={ind} value={ind}>
@@ -530,12 +530,12 @@ export default function ClientsPage() {
       {/* Clients Breakdown Section */}
       {loading ? (
         <div className="py-20 text-center font-bold text-slate-400 flex items-center justify-center gap-2">
-          <Loader2 className="w-6 h-6 animate-spin text-[#0047AB]" />
+          <Loader2 className="w-6 h-6 animate-spin text-[#9D00FF]" />
           <span>Loading client directory & billing records...</span>
         </div>
       ) : filteredGroups.length === 0 ? (
         <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center space-y-4">
-          <div className="w-16 h-16 rounded-2xl bg-blue-50 text-[#0047AB] flex items-center justify-center mx-auto">
+          <div className="w-16 h-16 rounded-2xl bg-blue-50 text-[#9D00FF] flex items-center justify-center mx-auto">
             <Building className="w-8 h-8" />
           </div>
           <h3 className="text-lg font-bold text-slate-900">No Clients Found</h3>
@@ -571,7 +571,7 @@ export default function ClientsPage() {
                   className="p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 cursor-pointer hover:bg-slate-50/70 select-none transition"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-[#0047AB]/10 text-[#0047AB] flex items-center justify-center font-black text-lg shrink-0">
+                    <div className="w-12 h-12 rounded-xl bg-[#9D00FF]/10 text-[#9D00FF] flex items-center justify-center font-black text-lg shrink-0">
                       {group.name.charAt(0).toUpperCase()}
                     </div>
                     <div>
@@ -582,7 +582,7 @@ export default function ClientsPage() {
                         <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600">
                           {group.industry}
                         </span>
-                        <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-blue-50 text-[#0047AB]">
+                        <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-blue-50 text-[#9D00FF]">
                           {group.projects.length}{" "}
                           {group.projects.length === 1
                             ? "Work / Project"
@@ -662,7 +662,7 @@ export default function ClientsPage() {
                   <div className="border-t border-slate-100 bg-slate-50/60 p-5 space-y-4">
                     <div className="flex items-center justify-between">
                       <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                        <Layers className="w-3.5 h-3.5 text-[#0047AB]" />
+                        <Layers className="w-3.5 h-3.5 text-[#9D00FF]" />
                         <span>
                           Creative Works & Contract Line Items for {group.name}
                         </span>
@@ -670,7 +670,7 @@ export default function ClientsPage() {
 
                       <Link
                         href={`/dashboard/freelancer/projects`}
-                        className="text-xs font-bold text-[#0047AB] hover:underline flex items-center gap-1"
+                        className="text-xs font-bold text-[#9D00FF] hover:underline flex items-center gap-1"
                       >
                         <span>Open In Project Folders</span>
                         <ArrowUpRight className="w-3.5 h-3.5" />
@@ -703,7 +703,7 @@ export default function ClientsPage() {
                               >
                                 <td className="py-3 px-4">
                                   <div className="font-bold text-slate-900 flex items-center gap-1.5">
-                                    <FolderOpen className="w-3.5 h-3.5 text-[#0047AB]" />
+                                    <FolderOpen className="w-3.5 h-3.5 text-[#9D00FF]" />
                                     <span>{proj.title}</span>
                                   </div>
                                   <div className="text-[11px] text-slate-400 mt-0.5">
@@ -805,7 +805,7 @@ export default function ClientsPage() {
           <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
-                <div className="w-9 h-9 rounded-xl bg-[#0047AB]/10 text-[#0047AB] flex items-center justify-center">
+                <div className="w-9 h-9 rounded-xl bg-[#9D00FF]/10 text-[#9D00FF] flex items-center justify-center">
                   <Building className="w-5 h-5" />
                 </div>
                 <div>
@@ -839,7 +839,7 @@ export default function ClientsPage() {
                   onChange={(e) =>
                     setNewClient((prev) => ({ ...prev, name: e.target.value }))
                   }
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0047AB]"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#9D00FF]"
                 />
               </div>
 
@@ -855,7 +855,7 @@ export default function ClientsPage() {
                       industry: e.target.value,
                     }))
                   }
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#0047AB]"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#9D00FF]"
                 >
                   {INDUSTRIES.filter((i) => i !== "All Industries").map(
                     (ind) => (
@@ -882,7 +882,7 @@ export default function ClientsPage() {
                         firstProjectTitle: e.target.value,
                       }))
                     }
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0047AB]"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#9D00FF]"
                   />
                 </div>
 
@@ -901,7 +901,7 @@ export default function ClientsPage() {
                         firstProjectBudget: e.target.value,
                       }))
                     }
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0047AB]"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#9D00FF]"
                   />
                 </div>
               </div>
@@ -917,7 +917,7 @@ export default function ClientsPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0047AB] hover:bg-[#003680] text-white text-sm font-bold shadow-md transition disabled:opacity-50"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#9D00FF] hover:bg-[#7A00CC] text-white text-sm font-bold shadow-md transition disabled:opacity-50"
                 >
                   {isSubmitting ? (
                     <>

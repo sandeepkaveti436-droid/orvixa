@@ -28,7 +28,7 @@ export default function TeamsPage() {
   if (loading) {
     return (
       <div className="min-h-[400px] flex items-center justify-center font-bold text-slate-500 font-sans">
-        <Loader2 className="w-6 h-6 animate-spin text-[#0047AB] mr-2" />
+        <Loader2 className="w-6 h-6 animate-spin text-[#9D00FF] mr-2" />
         <span>Loading Real Teams...</span>
       </div>
     );
@@ -45,7 +45,7 @@ export default function TeamsPage() {
             Create teams, assign team leads, and track department output.
           </p>
         </div>
-        <button className="bg-[#0047AB] text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md flex items-center gap-2 font-sans">
+        <button className="bg-[#9D00FF] text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md flex items-center gap-2 font-sans">
           <Plus className="w-4 h-4" />
           <span>Create New Team</span>
         </button>
@@ -60,7 +60,7 @@ export default function TeamsPage() {
             >
               <div className="flex justify-between items-center pb-3 border-b border-slate-100 font-sans">
                 <div className="flex items-center gap-3 font-sans">
-                  <div className="w-10 h-10 rounded-xl bg-[#0047AB]/10 text-[#0047AB] flex items-center justify-center font-bold">
+                  <div className="w-10 h-10 rounded-xl bg-[#9D00FF]/10 text-[#9D00FF] flex items-center justify-center font-bold">
                     <Users2 className="w-5 h-5" />
                   </div>
                   <div>

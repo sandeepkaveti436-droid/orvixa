@@ -96,7 +96,7 @@ export default function FreelancerFinancePage() {
         <div>
           <h1 className="text-2xl sm:text-4xl font-black text-slate-900">
             <span>Finance & </span>
-            <span className="font-heading italic text-[#0047AB]">
+            <span className="font-heading italic text-[#9D00FF]">
               Operations.
             </span>
           </h1>
@@ -109,15 +109,15 @@ export default function FreelancerFinancePage() {
         <div className="flex items-center gap-3">
           <button
             onClick={handleExportTaxReport}
-            className="bg-white border border-slate-300 hover:border-[#0047AB] text-slate-800 text-xs font-bold px-4 py-3 rounded-xl shadow-sm flex items-center gap-1.5"
+            className="bg-white border border-slate-300 hover:border-[#9D00FF] text-slate-800 text-xs font-bold px-4 py-3 rounded-xl shadow-sm flex items-center gap-1.5"
           >
-            <Download className="w-4 h-4 text-[#0047AB]" />
+            <Download className="w-4 h-4 text-[#9D00FF]" />
             <span>Export Tax Report</span>
           </button>
 
           <button
             onClick={() => setShowExpenseModal(true)}
-            className="bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md shadow-[#0047AB]/25 flex items-center gap-2"
+            className="bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md shadow-[#9D00FF]/25 flex items-center gap-2"
           >
             <Plus className="w-4 h-4" />
             <span>Log Expense</span>
@@ -155,7 +155,7 @@ export default function FreelancerFinancePage() {
           <span className="text-xs font-bold uppercase text-slate-400">
             Net Profit
           </span>
-          <div className="text-3xl font-black text-[#0047AB]">
+          <div className="text-3xl font-black text-[#9D00FF]">
             ₹{netProfit.toLocaleString("en-IN")}
           </div>
           <span className="text-xs text-slate-500 font-semibold">
@@ -180,12 +180,12 @@ export default function FreelancerFinancePage() {
       <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-4">
         <div className="flex justify-between items-center border-b border-slate-100 pb-4">
           <h3 className="font-bold text-base text-slate-900 flex items-center gap-2">
-            <Receipt className="w-4 h-4 text-[#0047AB]" />
+            <Receipt className="w-4 h-4 text-[#9D00FF]" />
             <span>Deductible Expenses ({expenses.length})</span>
           </h3>
           <button
             onClick={() => setShowExpenseModal(true)}
-            className="text-xs font-bold text-[#0047AB] hover:underline"
+            className="text-xs font-bold text-[#9D00FF] hover:underline"
           >
             + Add Expense
           </button>
@@ -228,7 +228,7 @@ export default function FreelancerFinancePage() {
                 onChange={(e) =>
                   setNewExpense({ ...newExpense, name: e.target.value })
                 }
-                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
               />
 
               <select
@@ -236,7 +236,7 @@ export default function FreelancerFinancePage() {
                 onChange={(e) =>
                   setNewExpense({ ...newExpense, category: e.target.value })
                 }
-                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
               >
                 <option>Software</option>
                 <option>Equipment</option>
@@ -252,7 +252,7 @@ export default function FreelancerFinancePage() {
                 onChange={(e) =>
                   setNewExpense({ ...newExpense, amount: e.target.value })
                 }
-                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
               />
 
               <div className="flex gap-2 pt-2">
@@ -265,7 +265,7 @@ export default function FreelancerFinancePage() {
                 </button>
                 <button
                   type="submit"
-                  className="w-2/3 bg-[#0047AB] text-white font-bold text-xs py-3 rounded-xl shadow-md"
+                  className="w-2/3 bg-[#9D00FF] text-white font-bold text-xs py-3 rounded-xl shadow-md"
                 >
                   Save Expense
                 </button>

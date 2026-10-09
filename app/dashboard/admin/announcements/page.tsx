@@ -28,7 +28,7 @@ export default function AnnouncementsPage() {
   if (loading)
     return (
       <div className="min-h-[400px] flex items-center justify-center font-bold text-slate-500 font-sans">
-        <Loader2 className="w-6 h-6 animate-spin text-[#0047AB] mr-2" />
+        <Loader2 className="w-6 h-6 animate-spin text-[#9D00FF] mr-2" />
         <span>Loading Real Announcements...</span>
       </div>
     );
@@ -44,7 +44,7 @@ export default function AnnouncementsPage() {
             Broadcast organization-wide notices and updates.
           </p>
         </div>
-        <button className="bg-[#0047AB] text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md flex items-center gap-2 font-sans">
+        <button className="bg-[#9D00FF] text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md flex items-center gap-2 font-sans">
           <Plus className="w-4 h-4" />
           <span>New Announcement</span>
         </button>
@@ -59,7 +59,7 @@ export default function AnnouncementsPage() {
             >
               <div className="flex justify-between items-center font-sans">
                 <h3 className="font-bold text-lg text-slate-900 flex items-center gap-2 font-sans">
-                  <Megaphone className="w-4 h-4 text-[#0047AB]" />
+                  <Megaphone className="w-4 h-4 text-[#9D00FF]" />
                   <span>{a.title}</span>
                 </h3>
                 <span className="text-xs text-slate-400 font-semibold font-sans">

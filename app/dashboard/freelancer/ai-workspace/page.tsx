@@ -89,14 +89,14 @@ export default function AiWorkspacePage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 font-sans">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0047AB]/10 text-[#0047AB] text-xs font-bold mb-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#9D00FF]/10 text-[#9D00FF] text-xs font-bold mb-2">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Orvixa AI Engine v2.0</span>
           </div>
 
           <h1 className="text-2xl sm:text-4xl font-black text-slate-900 leading-tight">
             <span>AI Workspace </span>
-            <span className="font-heading italic text-[#0047AB]">
+            <span className="font-heading italic text-[#9D00FF]">
               Command Center.
             </span>
           </h1>
@@ -134,12 +134,12 @@ export default function AiWorkspacePage() {
               }}
               className={`p-3.5 rounded-2xl border text-left flex flex-col justify-between h-24 transition-all ${
                 isActive
-                  ? "bg-[#0047AB] text-white border-[#0047AB] shadow-md shadow-[#0047AB]/25"
-                  : "bg-white text-slate-800 border-slate-200 hover:border-[#0047AB]/40"
+                  ? "bg-[#9D00FF] text-white border-[#9D00FF] shadow-md shadow-[#9D00FF]/25"
+                  : "bg-white text-slate-800 border-slate-200 hover:border-[#9D00FF]/40"
               }`}
             >
               <IconComp
-                className={`w-5 h-5 ${isActive ? "text-white" : "text-[#0047AB]"}`}
+                className={`w-5 h-5 ${isActive ? "text-white" : "text-[#9D00FF]"}`}
               />
               <span className="text-xs font-bold leading-snug line-clamp-1">
                 {tool.label}
@@ -154,13 +154,13 @@ export default function AiWorkspacePage() {
         {/* Tool Title */}
         <div className="flex items-center justify-between pb-4 border-b border-slate-100">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-[#0047AB]" />
+            <Sparkles className="w-5 h-5 text-[#9D00FF]" />
             <h3 className="font-bold text-lg text-slate-900 capitalize">
               {activeAiTool.replace("-", " ")} Tool
             </h3>
           </div>
 
-          <span className="text-xs font-bold bg-[#0047AB]/10 text-[#0047AB] px-3 py-1 rounded-full">
+          <span className="text-xs font-bold bg-[#9D00FF]/10 text-[#9D00FF] px-3 py-1 rounded-full">
             ● AI Copilot Online
           </span>
         </div>
@@ -177,7 +177,7 @@ export default function AiWorkspacePage() {
                   <div
                     className={`max-w-[80%] p-3.5 rounded-2xl text-xs font-semibold leading-relaxed ${
                       msg.sender === "user"
-                        ? "bg-[#0047AB] text-white rounded-br-none"
+                        ? "bg-[#9D00FF] text-white rounded-br-none"
                         : "bg-white text-slate-800 border border-slate-200 rounded-bl-none shadow-xs"
                     }`}
                   >
@@ -193,11 +193,11 @@ export default function AiWorkspacePage() {
                 placeholder="Ask AI Copilot anything about your workspace, projects, or tasks..."
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
               />
               <button
                 type="submit"
-                className="bg-[#0047AB] hover:bg-[#003680] text-white px-5 py-3 rounded-xl font-bold text-xs shadow-md shadow-[#0047AB]/25 shrink-0"
+                className="bg-[#9D00FF] hover:bg-[#7A00CC] text-white px-5 py-3 rounded-xl font-bold text-xs shadow-md shadow-[#9D00FF]/25 shrink-0"
               >
                 <Send className="w-4 h-4" />
               </button>
@@ -220,14 +220,14 @@ export default function AiWorkspacePage() {
                   placeholder={`Describe what you want the AI ${activeAiTool} to generate...`}
                   value={promptInput}
                   onChange={(e) => setPromptInput(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl p-3.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                  className="w-full bg-slate-50 border border-slate-300 rounded-xl p-3.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={isGenerating}
-                className="w-full bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-xs py-3.5 px-4 rounded-xl shadow-md flex items-center justify-center gap-2"
+                className="w-full bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-xs py-3.5 px-4 rounded-xl shadow-md flex items-center justify-center gap-2"
               >
                 <Sparkles className="w-4 h-4" />
                 <span>
@@ -247,7 +247,7 @@ export default function AiWorkspacePage() {
                   {generatedResult && (
                     <button
                       onClick={handleCopy}
-                      className="text-xs font-bold text-[#0047AB] hover:underline flex items-center gap-1"
+                      className="text-xs font-bold text-[#9D00FF] hover:underline flex items-center gap-1"
                     >
                       {copied ? (
                         <Check className="w-3.5 h-3.5 text-emerald-600" />

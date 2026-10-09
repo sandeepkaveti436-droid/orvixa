@@ -116,22 +116,22 @@ export default function Products() {
     >
       {/* Ambient Lighting Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-7xl h-[600px] pointer-events-none z-0">
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[750px] h-[400px] bg-gradient-to-tr from-[#0047AB]/10 via-indigo-300/15 to-purple-400/10 blur-[140px] rounded-full" />
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[750px] h-[400px] bg-gradient-to-tr from-[#9D00FF]/10 via-indigo-300/15 to-purple-400/10 blur-[140px] rounded-full" />
       </div>
 
       <div className="max-w-8xl mx-auto relative z-10">
         {/* ================= 1. HEADER ================= */}
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/90 border border-[#0047AB]/20 shadow-sm mb-6">
-            <span className="w-2 h-2 rounded-full bg-[#0047AB] animate-pulse" />
-            <span className="text-xs font-bold uppercase tracking-widest text-[#0047AB] font-sans">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/90 border border-[#9D00FF]/20 shadow-sm mb-6">
+            <span className="w-2 h-2 rounded-full bg-[#9D00FF] animate-pulse" />
+            <span className="text-xs font-bold uppercase tracking-widest text-[#9D00FF] font-sans">
               Orvixa Flagship Suite
             </span>
           </div>
 
           <h2 className="text-[20px] sm:text-[24px] lg:text-[32px] font-black leading-[1.15] text-slate-900 mb-6 font-sans">
             <span>Two specialized flagships <br/> </span>
-            <span className="inline-block font-heading italic pr-2 pb-1 bg-clip-text text-transparent bg-gradient-to-r from-[#0047AB] via-indigo-600 to-purple-600">
+            <span className="inline-block font-heading italic pr-2 pb-1 bg-clip-text text-transparent bg-gradient-to-r from-[#9D00FF] via-indigo-600 to-purple-600">
               built for scale.
             </span>
           </h2>
@@ -149,7 +149,7 @@ export default function Products() {
               onClick={() => setActiveTab("freelancer")}
               className={`flex items-center gap-2 px-4 py-3 rounded-xl font-bold text-[14px] transition-all duration-300 ${
                 activeTab === "freelancer"
-                  ? "bg-[#0047AB] text-white shadow-md shadow-[#0047AB]/25"
+                  ? "bg-[#9D00FF] text-white shadow-md shadow-[#9D00FF]/25"
                   : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/80"
               }`}
             >
@@ -161,7 +161,7 @@ export default function Products() {
               onClick={() => setActiveTab("admin")}
               className={`flex items-center gap-2.5 px-6 py-3.5 rounded-xl font-bold text-sm transition-all duration-300 ${
                 activeTab === "admin"
-                  ? "bg-[#0047AB] text-white shadow-md shadow-[#0047AB]/25"
+                  ? "bg-[#9D00FF] text-white shadow-md shadow-[#9D00FF]/25"
                   : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/80"
               }`}
             >
@@ -186,7 +186,7 @@ export default function Products() {
               >
                 {/* Left Side Details */}
                 <div className="lg:col-span-6 space-y-6">
-                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0047AB]/10 text-[#0047AB] text-xs font-bold font-sans">
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#9D00FF]/10 text-[#9D00FF] text-xs font-bold font-sans">
                     <User className="w-3.5 h-3.5" />
                     <span>For Independent Professionals</span>
                   </div>
@@ -195,7 +195,7 @@ export default function Products() {
                     <h3 className="text-[20px] sm:text-[24px] font-black text-slate-900 mb-2 font-sans">
                       Freelancer App
                     </h3>
-                    <p className="text-base font-semibold text-[#0047AB] font-sans">
+                    <p className="text-base font-semibold text-[#9D00FF] font-sans">
                       Built for independent professionals.
                     </p>
                   </div>
@@ -219,11 +219,11 @@ export default function Products() {
                             key={feat.name}
                             className={`p-3 rounded-xl border flex items-center gap-3 transition-colors ${
                               feat.isAi
-                                ? "bg-[#0047AB]/5 border-[#0047AB]/30"
+                                ? "bg-[#9D00FF]/5 border-[#9D00FF]/30"
                                 : "bg-slate-50/80 border-slate-200/80"
                             }`}
                           >
-                            <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-[#0047AB] shrink-0 shadow-sm">
+                            <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-[#9D00FF] shrink-0 shadow-sm">
                               <IconComp className="w-4 h-4" />
                             </div>
                             <div>
@@ -243,7 +243,7 @@ export default function Products() {
                   <div className="pt-4">
                     <a
                       href="/get-started?app=freelancer"
-                      className="inline-flex items-center gap-2.5 px-8 py-2.5 rounded-xl bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-sm shadow-lg shadow-[#0047AB]/25 transition-all duration-200 active:scale-95 font-sans"
+                      className="inline-flex items-center gap-2.5 px-8 py-2.5 rounded-xl bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-sm shadow-lg shadow-[#9D00FF]/25 transition-all duration-200 active:scale-95 font-sans"
                     >
                       <span>Explore Freelancer App</span>
                       <ArrowRight className="w-4 h-4" />
@@ -262,7 +262,7 @@ export default function Products() {
                         app.orvixa.com / freelancer
                       </span>
                     </div>
-                    <span className="text-[12px] font-bold bg-[#0047AB]/10 text-[#0047AB] px-3 py-1 rounded-full">
+                    <span className="text-[12px] font-bold bg-[#9D00FF]/10 text-[#9D00FF] px-3 py-1 rounded-full">
                       Solo Cockpit
                     </span>
                   </div>
@@ -283,16 +283,16 @@ export default function Products() {
                   {/* Active Timer Card */}
                   <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
                     <div className="flex items-center gap-2.5 text-xs font-bold text-slate-800">
-                      <Clock className="w-4 h-4 text-[#0047AB]" />
+                      <Clock className="w-4 h-4 text-[#9D00FF]" />
                       <span>Time Tracked Today: 06h 45m</span>
                     </div>
-                    <span className="text-[12px] bg-[#0047AB]/10 text-[#0047AB] px-2.5 py-1 rounded font-bold">
+                    <span className="text-[12px] bg-[#9D00FF]/10 text-[#9D00FF] px-2.5 py-1 rounded font-bold">
                       Active Logger
                     </span>
                   </div>
 
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-200 flex items-center gap-2.5 text-xs font-bold text-[#0047AB]">
-                    <Sparkles className="w-4 h-4 text-[#0047AB]" />
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-200 flex items-center gap-2.5 text-xs font-bold text-[#9D00FF]">
+                    <Sparkles className="w-4 h-4 text-[#9D00FF]" />
                     <span>
                       AI Assistant: Client timesheet and invoice auto-synced
                     </span>
@@ -344,11 +344,11 @@ export default function Products() {
                             key={feat.name}
                             className={`p-3 rounded-xl border flex items-center gap-3 transition-colors ${
                               feat.isAi
-                                ? "bg-[#0047AB]/5 border-[#0047AB]/30"
+                                ? "bg-[#9D00FF]/5 border-[#9D00FF]/30"
                                 : "bg-slate-50/80 border-slate-200/80"
                             }`}
                           >
-                            <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-[#0047AB] shrink-0 shadow-sm">
+                            <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-[#9D00FF] shrink-0 shadow-sm">
                               <IconComp className="w-4 h-4" />
                             </div>
                             <div>
@@ -368,7 +368,7 @@ export default function Products() {
                   <div className="pt-4">
                     <a
                       href="/get-started?app=admin"
-                      className="inline-flex items-center gap-2.5 px-8 py-4 rounded-xl bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-sm shadow-lg shadow-[#0047AB]/25 transition-all duration-200 active:scale-95 font-sans"
+                      className="inline-flex items-center gap-2.5 px-8 py-4 rounded-xl bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-sm shadow-lg shadow-[#9D00FF]/25 transition-all duration-200 active:scale-95 font-sans"
                     >
                       <span>Explore Admin Dashboard</span>
                       <ArrowRight className="w-4 h-4" />
@@ -398,7 +398,7 @@ export default function Products() {
                       <span className="text-slate-500">
                         Organization Status
                       </span>
-                      <span className="text-[#0047AB] bg-[#0047AB]/10 px-2.5 py-0.5 rounded-full">
+                      <span className="text-[#9D00FF] bg-[#9D00FF]/10 px-2.5 py-0.5 rounded-full">
                         32 Active Members
                       </span>
                     </div>
@@ -418,8 +418,8 @@ export default function Products() {
                     </span>
                   </div>
 
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-200 flex items-center gap-2.5 text-xs font-bold text-[#0047AB]">
-                    <Sparkles className="w-4 h-4 text-[#0047AB]" />
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-200 flex items-center gap-2.5 text-xs font-bold text-[#9D00FF]">
+                    <Sparkles className="w-4 h-4 text-[#9D00FF]" />
                     <span>
                       AI Analytics: Team efficiency report auto-generated (+38%
                       output)

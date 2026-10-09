@@ -105,15 +105,15 @@ export default function Features() {
     >
       {/* Background Ambient Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-7xl h-[600px] pointer-events-none z-0">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-gradient-to-tr from-[#0047AB]/10 via-indigo-400/10 to-purple-500/10 blur-[140px] rounded-full" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-gradient-to-tr from-[#9D00FF]/10 via-indigo-400/10 to-purple-500/10 blur-[140px] rounded-full" />
       </div>
 
       <div className="max-w-8xl mx-auto relative z-10">
         {/* ================= HEADER ================= */}
         <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-20">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/90 border border-[#0047AB]/20 shadow-sm mb-6">
-            <span className="w-2 h-2 rounded-full bg-[#0047AB] animate-ping" />
-            <span className="text-xs font-bold uppercase tracking-widest text-[#0047AB]">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/90 border border-[#9D00FF]/20 shadow-sm mb-6">
+            <span className="w-2 h-2 rounded-full bg-[#9D00FF] animate-ping" />
+            <span className="text-xs font-bold uppercase tracking-widest text-[#9D00FF]">
               Features & Capabilities
             </span>
           </div>
@@ -121,7 +121,7 @@ export default function Features() {
           <div className="text-base text-[20px] sm:text-[22px] lg:text-[32px] font-bold text-slate-900 mb-6">
             Everything your business needs
             <h2>
-              <span className="block italic pr-2 pb-1 bg-clip-text text-transparent bg-gradient-to-r from-[#0047AB] via-indigo-600 to-purple-600">
+              <span className="block italic pr-2 pb-1 bg-clip-text text-transparent bg-gradient-to-r from-[#9D00FF] via-indigo-600 to-purple-600">
                 in one platform.
               </span>
             </h2>
@@ -151,13 +151,13 @@ export default function Features() {
                 whileHover={{ y: -6 }}
                 className={`group relative rounded-2xl p-7 sm:p-8 transition-all duration-300 flex flex-col justify-between ${
                   feature.isAiHighlighted
-                    ? "bg-gradient-to-b from-white via-white to-blue-50/50 border-2 border-[#0047AB]/40 shadow-xl shadow-[#0047AB]/10"
-                    : "bg-white/80 hover:bg-white border border-slate-200/80 hover:border-[#0047AB]/30 shadow-md shadow-slate-900/5 hover:shadow-xl hover:shadow-[#0047AB]/10"
+                    ? "bg-gradient-to-b from-white via-white to-blue-50/50 border-2 border-[#9D00FF]/40 shadow-xl shadow-[#9D00FF]/10"
+                    : "bg-white/80 hover:bg-white border border-slate-200/80 hover:border-[#9D00FF]/30 shadow-md shadow-slate-900/5 hover:shadow-xl hover:shadow-[#9D00FF]/10"
                 }`}
               >
                 {/* AI Card Ambient Glow Accent */}
                 {feature.isAiHighlighted && (
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[#0047AB]/20 via-indigo-500/10 to-transparent rounded-tr-2xl pointer-events-none" />
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[#9D00FF]/20 via-indigo-500/10 to-transparent rounded-tr-2xl pointer-events-none" />
                 )}
 
                 <div>
@@ -166,8 +166,8 @@ export default function Features() {
                     <div
                       className={`w-12 h-12 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110 ${
                         feature.isAiHighlighted
-                          ? "bg-[#0047AB] text-white shadow-lg shadow-[#0047AB]/30"
-                          : "bg-[#0047AB]/10 text-[#0047AB] group-hover:bg-[#0047AB] group-hover:text-white"
+                          ? "bg-[#9D00FF] text-white shadow-lg shadow-[#9D00FF]/30"
+                          : "bg-[#9D00FF]/10 text-[#9D00FF] group-hover:bg-[#9D00FF] group-hover:text-white"
                       }`}
                     >
                       <IconComponent className="w-6 h-6" />
@@ -176,7 +176,7 @@ export default function Features() {
                     <span
                       className={`text-[11px] font-bold px-3 py-1 rounded-full border ${
                         feature.isAiHighlighted
-                          ? "bg-[#0047AB]/10 text-[#0047AB] border-[#0047AB]/30 font-extrabold"
+                          ? "bg-[#9D00FF]/10 text-[#9D00FF] border-[#9D00FF]/30 font-extrabold"
                           : "bg-slate-100 text-slate-600 border-slate-200/60"
                       }`}
                     >
@@ -184,7 +184,7 @@ export default function Features() {
                     </span>
                   </div>
 
-                  <div className="text-[18px] sm:text-[18px] font-bold text-slate-900 mb-3 group-hover:text-[#0047AB] transition-colors">
+                  <div className="text-[18px] sm:text-[18px] font-bold text-slate-900 mb-3 group-hover:text-[#9D00FF] transition-colors">
                     {feature.title}
                   </div>
 
@@ -194,7 +194,7 @@ export default function Features() {
                 </div>
 
                 {/* Bottom Action Link */}
-                <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-[#0047AB] opacity-80 group-hover:opacity-100 transition-opacity">
+                <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-[#9D00FF] opacity-80 group-hover:opacity-100 transition-opacity">
                   <span>Explore Capability</span>
                   <ArrowUpRight className="w-4 h-4 transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                 </div>

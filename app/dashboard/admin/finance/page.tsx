@@ -10,7 +10,7 @@ export default function AdminFinancePage() {
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900">
             <span>Organization </span>
-            <span className="font-heading italic text-[#0047AB]">
+            <span className="font-heading italic text-[#9D00FF]">
               Payroll & Finance.
             </span>
           </h1>
@@ -22,7 +22,7 @@ export default function AdminFinancePage() {
 
         <button
           onClick={() => alert("Downloading Payroll Audit PDF...")}
-          className="bg-[#0047AB] text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md flex items-center gap-2"
+          className="bg-[#9D00FF] text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md flex items-center gap-2"
         >
           <Download className="w-4 h-4" />
           <span>Export Payroll Report</span>
@@ -44,7 +44,7 @@ export default function AdminFinancePage() {
           <span className="text-xs font-bold text-slate-400 uppercase">
             Q3 Operating Budget
           </span>
-          <div className="text-3xl font-black text-[#0047AB]">$450,000.00</div>
+          <div className="text-3xl font-black text-[#9D00FF]">$450,000.00</div>
           <span className="text-xs text-slate-500 font-semibold block">
             68.2% Budget Utilized
           </span>

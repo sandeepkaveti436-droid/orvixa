@@ -210,7 +210,7 @@ export default function FreelancerDashboardLayout({
               <span className="font-heading text-lg font-bold text-slate-900 block leading-none">
                 Orvixa
               </span>
-              <span className="text-[10px] font-bold text-[#0047AB] tracking-wider uppercase">
+              <span className="text-[10px] font-bold text-[#9D00FF] tracking-wider uppercase">
                 Freelancer
               </span>
             </div>
@@ -228,9 +228,9 @@ export default function FreelancerDashboardLayout({
                   onClick={() => setSidebarOpen(false)}
                   className={`flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all font-sans ${
                     isActive
-                      ? "bg-[#0047AB] text-white shadow-md shadow-[#0047AB]/25"
+                      ? "bg-[#9D00FF] text-white shadow-md shadow-[#9D00FF]/25"
                       : item.isAi
-                        ? "bg-blue-50 text-[#0047AB] border border-blue-200/80 hover:bg-blue-100"
+                        ? "bg-blue-50 text-[#9D00FF] border border-blue-200/80 hover:bg-blue-100"
                         : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                   }`}
                 >
@@ -248,7 +248,7 @@ export default function FreelancerDashboardLayout({
             href="/dashboard/freelancer/profile"
             className="flex items-center gap-2.5 group font-sans min-w-0"
           >
-            <div className="w-9 h-9 rounded-full bg-[#0047AB] text-white flex items-center justify-center font-bold text-xs overflow-hidden shrink-0 font-sans shadow-sm ring-1 ring-slate-200">
+            <div className="w-9 h-9 rounded-full bg-[#9D00FF] text-white flex items-center justify-center font-bold text-xs overflow-hidden shrink-0 font-sans shadow-sm ring-1 ring-slate-200">
               {avatarUrl ? (
                 <img
                   src={avatarUrl}
@@ -261,7 +261,7 @@ export default function FreelancerDashboardLayout({
             </div>
 
             <div className="min-w-0">
-              <div className="text-xs font-bold font-sans truncate group-hover:text-[#0047AB] text-slate-900">
+              <div className="text-xs font-bold font-sans truncate group-hover:text-[#9D00FF] text-slate-900">
                 {userName}
               </div>
               <div className="text-[10px] text-slate-400 font-semibold font-sans truncate">
@@ -300,7 +300,7 @@ export default function FreelancerDashboardLayout({
               <input
                 type="text"
                 placeholder="Search projects, invoices, clients, tasks..."
-                className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-9 pr-4 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB] font-sans"
+                className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-9 pr-4 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF] font-sans"
               />
             </div>
           </div>
@@ -313,7 +313,7 @@ export default function FreelancerDashboardLayout({
             >
               <Bell className="w-4 h-4" />
               {notifications.length > 0 && (
-                <span className="w-2 h-2 rounded-full bg-[#0047AB] absolute top-1.5 right-1.5 animate-pulse" />
+                <span className="w-2 h-2 rounded-full bg-[#9D00FF] absolute top-1.5 right-1.5 animate-pulse" />
               )}
             </button>
 
@@ -323,7 +323,7 @@ export default function FreelancerDashboardLayout({
               className="flex items-center gap-2 font-sans"
               title={`Profile: ${userName}`}
             >
-              <div className="w-8 h-8 rounded-full bg-[#0047AB] text-white flex items-center justify-center font-bold text-xs ring-2 ring-blue-100 overflow-hidden shrink-0 font-sans shadow-sm">
+              <div className="w-8 h-8 rounded-full bg-[#9D00FF] text-white flex items-center justify-center font-bold text-xs ring-2 ring-blue-100 overflow-hidden shrink-0 font-sans shadow-sm">
                 {avatarUrl ? (
                   <img
                     src={avatarUrl}
@@ -342,7 +342,7 @@ export default function FreelancerDashboardLayout({
           <div className="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-6 font-sans">
             <Link
               href="/dashboard/freelancer"
-              className="hover:text-[#0047AB] transition-colors"
+              className="hover:text-[#9D00FF] transition-colors"
             >
               Home
             </Link>
@@ -352,8 +352,8 @@ export default function FreelancerDashboardLayout({
                 <span
                   className={`capitalize transition-colors ${
                     index === pathSegments.length - 1
-                      ? "font-bold text-[#0047AB]"
-                      : "hover:text-[#0047AB]"
+                      ? "font-bold text-[#9D00FF]"
+                      : "hover:text-[#9D00FF]"
                   }`}
                 >
                   {segment.replace("-", " ")}

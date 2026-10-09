@@ -63,7 +63,7 @@ export default function EmployeeTimesheetsPage() {
   if (loading) {
     return (
       <div className="min-h-[400px] flex items-center justify-center font-bold text-slate-500 font-sans">
-        <Loader2 className="w-6 h-6 animate-spin text-[#0047AB] mr-2" />
+        <Loader2 className="w-6 h-6 animate-spin text-[#9D00FF] mr-2" />
         <span>Loading Real Timesheets...</span>
       </div>
     );
@@ -87,7 +87,7 @@ export default function EmployeeTimesheetsPage() {
           className={`font-bold text-xs px-5 py-3 rounded-xl shadow-md flex items-center gap-2 transition-all font-sans ${
             downloaded
               ? "bg-emerald-500 text-white"
-              : "bg-[#0047AB] hover:bg-[#003680] text-white"
+              : "bg-[#9D00FF] hover:bg-[#7A00CC] text-white"
           }`}
         >
           {isDownloading ? (
@@ -112,7 +112,7 @@ export default function EmployeeTimesheetsPage() {
       <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden font-sans">
         <div className="p-5 border-b border-slate-100 flex items-center justify-between font-sans">
           <h2 className="font-bold text-base text-slate-900 flex items-center gap-2 font-sans">
-            <Clock className="w-4 h-4 text-[#0047AB]" />
+            <Clock className="w-4 h-4 text-[#9D00FF]" />
             <span>Weekly Work Hours Log ({logs.length})</span>
           </h2>
         </div>

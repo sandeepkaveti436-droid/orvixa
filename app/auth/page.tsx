@@ -242,8 +242,8 @@ function AuthContent() {
     <main className="min-h-screen bg-gradient-to-br from-[#020B2D] via-[#001D6E] to-[#0A0526] flex items-center justify-center p-4 sm:p-6 lg:p-8 font-sans relative overflow-hidden">
       {/* Background Glow */}
       {/* ================= PREMIUM AMBIENT GLOW & LIGHT ORBS ================= */}
-      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-gradient-to-tr from-[#0047AB] via-[#3B82F6]/30 to-purple-600/20 blur-[130px] rounded-full pointer-events-none opacity-60" />
-      <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-bl from-indigo-500/25 via-[#0047AB]/40 to-blue-600/20 blur-[140px] rounded-full pointer-events-none opacity-50" />
+      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-gradient-to-tr from-[#9D00FF] via-[#9D00FF]/30 to-purple-600/20 blur-[130px] rounded-full pointer-events-none opacity-60" />
+      <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-bl from-indigo-500/25 via-[#9D00FF]/40 to-blue-600/20 blur-[140px] rounded-full pointer-events-none opacity-50" />
 
       {/* Decorative Grid Overlay Pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
@@ -272,7 +272,7 @@ function AuthContent() {
                 setErrorMessage(null);
                 setView("welcome");
               }}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-[#0047AB] transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-[#9D00FF] transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back</span>
@@ -301,7 +301,7 @@ function AuthContent() {
               <div>
                 <h1 className="text-2xl sm:text-3xl font-black text-slate-900 mb-2 font-sans">
                   <span>Welcome to </span>
-                  <span className="font-heading italic text-[#0047AB]">
+                  <span className="font-heading italic text-[#9D00FF]">
                     Orvixa
                   </span>
                 </h1>
@@ -317,7 +317,7 @@ function AuthContent() {
                     setErrorMessage(null);
                     setView("role_select");
                   }}
-                  className="w-full bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-sm py-3.5 px-4 rounded-xl transition-all shadow-md shadow-[#0047AB]/25 flex items-center justify-center gap-2"
+                  className="w-full bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-sm py-3.5 px-4 rounded-xl transition-all shadow-md shadow-[#9D00FF]/25 flex items-center justify-center gap-2"
                 >
                   <Mail className="w-4 h-4" />
                   <span>Create Free Account</span>
@@ -349,7 +349,7 @@ function AuthContent() {
               <div>
                 <h1 className="text-2xl sm:text-3xl font-black text-slate-900 mb-2 font-sans">
                   <span>Create your </span>
-                  <span className="font-heading italic text-[#0047AB]">
+                  <span className="font-heading italic text-[#9D00FF]">
                     Workspace
                   </span>
                 </h1>
@@ -364,13 +364,13 @@ function AuthContent() {
                     setErrorMessage(null);
                     setView("freelancer_signup");
                   }}
-                  className="p-5 rounded-2xl border-2 border-slate-200 hover:border-[#0047AB] bg-white hover:bg-blue-50/50 transition-all flex items-start gap-4 group"
+                  className="p-5 rounded-2xl border-2 border-slate-200 hover:border-[#9D00FF] bg-white hover:bg-blue-50/50 transition-all flex items-start gap-4 group"
                 >
-                  <div className="w-12 h-12 rounded-xl bg-[#0047AB]/10 group-hover:bg-[#0047AB] text-[#0047AB] group-hover:text-white flex items-center justify-center shrink-0 transition-colors">
+                  <div className="w-12 h-12 rounded-xl bg-[#9D00FF]/10 group-hover:bg-[#9D00FF] text-[#9D00FF] group-hover:text-white flex items-center justify-center shrink-0 transition-colors">
                     <User className="w-6 h-6" />
                   </div>
                   <div>
-                    <div className="font-bold text-base text-slate-900 group-hover:text-[#0047AB] transition-colors">
+                    <div className="font-bold text-base text-slate-900 group-hover:text-[#9D00FF] transition-colors">
                       Freelancer
                     </div>
                     <p className="text-xs font-medium text-slate-500 mt-1 leading-relaxed">
@@ -385,13 +385,13 @@ function AuthContent() {
                     setErrorMessage(null);
                     setView("org_signup");
                   }}
-                  className="p-5 rounded-2xl border-2 border-slate-200 hover:border-[#0047AB] bg-white hover:bg-blue-50/50 transition-all flex items-start gap-4 group"
+                  className="p-5 rounded-2xl border-2 border-slate-200 hover:border-[#9D00FF] bg-white hover:bg-blue-50/50 transition-all flex items-start gap-4 group"
                 >
-                  <div className="w-12 h-12 rounded-xl bg-[#0047AB]/10 group-hover:bg-[#0047AB] text-[#0047AB] group-hover:text-white flex items-center justify-center shrink-0 transition-colors">
+                  <div className="w-12 h-12 rounded-xl bg-[#9D00FF]/10 group-hover:bg-[#9D00FF] text-[#9D00FF] group-hover:text-white flex items-center justify-center shrink-0 transition-colors">
                     <Building2 className="w-6 h-6" />
                   </div>
                   <div>
-                    <div className="font-bold text-base text-slate-900 group-hover:text-[#0047AB] transition-colors">
+                    <div className="font-bold text-base text-slate-900 group-hover:text-[#9D00FF] transition-colors">
                       Organization
                     </div>
                     <p className="text-xs font-medium text-slate-500 mt-1 leading-relaxed">
@@ -417,7 +417,7 @@ function AuthContent() {
               <div>
                 <h1 className="text-2xl font-black text-slate-900 mb-1 font-sans">
                   <span>Create your </span>
-                  <span className="font-heading italic text-[#0047AB]">
+                  <span className="font-heading italic text-[#9D00FF]">
                     Freelancer Account
                   </span>
                 </h1>
@@ -446,7 +446,7 @@ function AuthContent() {
                         fullName: e.target.value,
                       })
                     }
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
                   />
                 </div>
 
@@ -465,7 +465,7 @@ function AuthContent() {
                         email: e.target.value,
                       })
                     }
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
                   />
                 </div>
 
@@ -482,7 +482,7 @@ function AuthContent() {
                           country: e.target.value,
                         })
                       }
-                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
                     >
                       <option>United States</option>
                       <option>United Kingdom</option>
@@ -507,7 +507,7 @@ function AuthContent() {
                           profession: e.target.value,
                         })
                       }
-                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
                     />
                   </div>
                 </div>
@@ -528,7 +528,7 @@ function AuthContent() {
                           password: e.target.value,
                         })
                       }
-                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
                     />
                   </div>
 
@@ -547,7 +547,7 @@ function AuthContent() {
                           confirmPassword: e.target.value,
                         })
                       }
-                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
                     />
                   </div>
                 </div>
@@ -564,7 +564,7 @@ function AuthContent() {
                         agreed: e.target.checked,
                       })
                     }
-                    className="w-4 h-4 text-[#0047AB] rounded border-slate-300 focus:ring-[#0047AB]"
+                    className="w-4 h-4 text-[#9D00FF] rounded border-slate-300 focus:ring-[#9D00FF]"
                   />
                   <label
                     htmlFor="terms"
@@ -577,7 +577,7 @@ function AuthContent() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-sm py-3.5 px-4 rounded-xl transition-all shadow-md shadow-[#0047AB]/25 flex items-center justify-center gap-2"
+                  className="w-full bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-sm py-3.5 px-4 rounded-xl transition-all shadow-md shadow-[#9D00FF]/25 flex items-center justify-center gap-2"
                 >
                   {loading ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -605,7 +605,7 @@ function AuthContent() {
               <div>
                 <h1 className="text-2xl font-black text-slate-900 mb-1 font-sans">
                   <span>Welcome to </span>
-                  <span className="font-heading italic text-[#0047AB]">
+                  <span className="font-heading italic text-[#9D00FF]">
                     Orvixa 👋
                   </span>
                 </h1>
@@ -616,7 +616,7 @@ function AuthContent() {
 
               <Link
                 href="/dashboard/freelancer"
-                className="w-full inline-flex items-center justify-center gap-2 bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-sm py-3.5 px-4 rounded-xl transition-all shadow-md shadow-[#0047AB]/25"
+                className="w-full inline-flex items-center justify-center gap-2 bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-sm py-3.5 px-4 rounded-xl transition-all shadow-md shadow-[#9D00FF]/25"
               >
                 <span>Go to Freelancer Dashboard</span>
                 <ArrowRight className="w-4 h-4" />
@@ -637,7 +637,7 @@ function AuthContent() {
               <div>
                 <h1 className="text-2xl font-black text-slate-900 mb-1 font-sans">
                   <span>Create Organization </span>
-                  <span className="font-heading italic text-[#0047AB]">
+                  <span className="font-heading italic text-[#9D00FF]">
                     Workspace
                   </span>
                 </h1>
@@ -664,7 +664,7 @@ function AuthContent() {
                       onChange={(e) =>
                         setOrgData({ ...orgData, orgName: e.target.value })
                       }
-                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
                     />
                   </div>
 
@@ -680,7 +680,7 @@ function AuthContent() {
                       onChange={(e) =>
                         setOrgData({ ...orgData, ownerName: e.target.value })
                       }
-                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
                     />
                   </div>
                 </div>
@@ -697,7 +697,7 @@ function AuthContent() {
                     onChange={(e) =>
                       setOrgData({ ...orgData, companyEmail: e.target.value })
                     }
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
                   />
                 </div>
 
@@ -714,7 +714,7 @@ function AuthContent() {
                           employeeCount: e.target.value,
                         })
                       }
-                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
                     >
                       <option>1-10 employees</option>
                       <option>11-50 employees</option>
@@ -735,7 +735,7 @@ function AuthContent() {
                       onChange={(e) =>
                         setOrgData({ ...orgData, industry: e.target.value })
                       }
-                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
                     />
                   </div>
                 </div>
@@ -753,7 +753,7 @@ function AuthContent() {
                       onChange={(e) =>
                         setOrgData({ ...orgData, password: e.target.value })
                       }
-                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
                     />
                   </div>
 
@@ -772,7 +772,7 @@ function AuthContent() {
                           confirmPassword: e.target.value,
                         })
                       }
-                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
                     />
                   </div>
                 </div>
@@ -786,7 +786,7 @@ function AuthContent() {
                     onChange={(e) =>
                       setOrgData({ ...orgData, agreed: e.target.checked })
                     }
-                    className="w-4 h-4 text-[#0047AB] rounded border-slate-300 focus:ring-[#0047AB]"
+                    className="w-4 h-4 text-[#9D00FF] rounded border-slate-300 focus:ring-[#9D00FF]"
                   />
                   <label
                     htmlFor="orgTerms"
@@ -799,7 +799,7 @@ function AuthContent() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-sm py-3.5 px-4 rounded-xl transition-all shadow-md shadow-[#0047AB]/25 flex items-center justify-center gap-2"
+                  className="w-full bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-sm py-3.5 px-4 rounded-xl transition-all shadow-md shadow-[#9D00FF]/25 flex items-center justify-center gap-2"
                 >
                   {loading ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -827,7 +827,7 @@ function AuthContent() {
               <div>
                 <h1 className="text-2xl font-black text-slate-900 mb-1 font-sans">
                   <span>Organization created </span>
-                  <span className="font-heading italic text-[#0047AB]">
+                  <span className="font-heading italic text-[#9D00FF]">
                     successfully.
                   </span>
                 </h1>
@@ -838,7 +838,7 @@ function AuthContent() {
 
               <Link
                 href="/dashboard/admin"
-                className="w-full inline-flex items-center justify-center gap-2 bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-sm py-3.5 px-4 rounded-xl transition-all shadow-md shadow-[#0047AB]/25"
+                className="w-full inline-flex items-center justify-center gap-2 bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-sm py-3.5 px-4 rounded-xl transition-all shadow-md shadow-[#9D00FF]/25"
               >
                 <span>Go to Admin Dashboard</span>
                 <ArrowRight className="w-4 h-4" />
@@ -859,7 +859,7 @@ function AuthContent() {
               <div className="text-center font-sans">
                 <h1 className="text-2xl sm:text-3xl font-black text-slate-900 mb-1 font-sans">
                   <span>Welcome </span>
-                  <span className="font-heading italic text-[#0047AB]">
+                  <span className="font-heading italic text-[#9D00FF]">
                     Back
                   </span>
                 </h1>
@@ -884,7 +884,7 @@ function AuthContent() {
                     onChange={(e) =>
                       setLoginData({ ...loginData, email: e.target.value })
                     }
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
                   />
                 </div>
 
@@ -901,7 +901,7 @@ function AuthContent() {
                       onChange={(e) =>
                         setLoginData({ ...loginData, password: e.target.value })
                       }
-                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#0047AB]"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
                     />
                     <button
                       type="button"
@@ -928,14 +928,14 @@ function AuthContent() {
                           rememberMe: e.target.checked,
                         })
                       }
-                      className="w-4 h-4 text-[#0047AB] rounded border-slate-300 focus:ring-[#0047AB]"
+                      className="w-4 h-4 text-[#9D00FF] rounded border-slate-300 focus:ring-[#9D00FF]"
                     />
                     <span className="text-slate-600">Remember Me</span>
                   </label>
 
                   <Link
                     href="/auth/forgot-password"
-                    className="text-[#0047AB] font-bold hover:underline"
+                    className="text-[#9D00FF] font-bold hover:underline"
                   >
                     Forgot Password?
                   </Link>
@@ -944,7 +944,7 @@ function AuthContent() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-[#0047AB] hover:bg-[#003680] text-white font-bold text-sm py-3.5 px-4 rounded-xl transition-all shadow-md shadow-[#0047AB]/25 flex items-center justify-center gap-2"
+                  className="w-full bg-[#9D00FF] hover:bg-[#7A00CC] text-white font-bold text-sm py-3.5 px-4 rounded-xl transition-all shadow-md shadow-[#9D00FF]/25 flex items-center justify-center gap-2"
                 >
                   {loading ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -962,7 +962,7 @@ function AuthContent() {
                     setErrorMessage(null);
                     setView("role_select");
                   }}
-                  className="text-[#0047AB] font-bold hover:underline"
+                  className="text-[#9D00FF] font-bold hover:underline"
                 >
                   Sign Up
                 </button>
