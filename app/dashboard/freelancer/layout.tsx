@@ -26,6 +26,13 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
+interface SidebarLink {
+  name: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  isAi?: boolean;
+}
+
 export default function FreelancerDashboardLayout({
   children,
 }: {
@@ -157,7 +164,7 @@ export default function FreelancerDashboardLayout({
     window.location.replace("/login");
   };
 
-  const sidebarLinks = [
+  const sidebarLinks: SidebarLink[] = [
     { name: "Dashboard", href: "/dashboard/freelancer", icon: LayoutDashboard },
     {
       name: "Projects",
@@ -181,18 +188,6 @@ export default function FreelancerDashboardLayout({
       href: "/dashboard/freelancer/invoices",
       icon: FileText,
     },
-    {
-      name: "AI Proposals",
-      href: "/dashboard/freelancer/ai-assistant",
-      icon: Sparkles,
-      isAi: true,
-    },
-    {
-      name: "Contracts",
-      href: "/dashboard/freelancer/documents",
-      icon: FileCode,
-    },
-    { name: "Files", href: "/dashboard/freelancer/documents", icon: FileCode },
     {
       name: "Analytics",
       href: "/dashboard/freelancer/analytics",
@@ -260,7 +255,7 @@ export default function FreelancerDashboardLayout({
           </nav>
         </div>
 
-        {/* 🌟 BOTTOM-LEFT USER PROFILE (Live Photo Display) */}
+        {/* 🌟 BOTTOM-LEFT USER PROFILE */}
         <div className="pt-4 border-t border-slate-100 flex items-center justify-between font-sans">
           <Link
             href="/dashboard/freelancer/profile"
@@ -368,7 +363,11 @@ export default function FreelancerDashboardLayout({
               <React.Fragment key={index}>
                 <ChevronRight className="w-3 h-3 text-slate-300" />
                 <span
-                  className={`capitalize transition-colors ${index === pathSegments.length - 1 ? "font-bold text-[#0047AB]" : "hover:text-[#0047AB]"}`}
+                  className={`capitalize transition-colors ${
+                    index === pathSegments.length - 1
+                      ? "font-bold text-[#0047AB]"
+                      : "hover:text-[#0047AB]"
+                  }`}
                 >
                   {segment.replace("-", " ")}
                 </span>
