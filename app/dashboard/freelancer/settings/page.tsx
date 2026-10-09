@@ -22,7 +22,7 @@ import {
   Eye,
   Check,
 } from "lucide-react";
-import { FileText } from 'lucide-react';
+import { FileText } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
 
 export default function ProfileSettingsPage() {

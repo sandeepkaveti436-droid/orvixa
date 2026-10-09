@@ -109,7 +109,6 @@ export default function Features() {
       </div>
 
       <div className="max-w-8xl mx-auto relative z-10">
-        
         {/* ================= HEADER ================= */}
         <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-20">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/90 border border-[#0047AB]/20 shadow-sm mb-6">
@@ -120,17 +119,17 @@ export default function Features() {
           </div>
 
           <div className="text-base text-[20px] sm:text-[22px] lg:text-[32px] font-bold text-slate-900 mb-6">
-        Everything your business needs
-           <h2>
-
-            <span className="block italic pr-2 pb-1 bg-clip-text text-transparent bg-gradient-to-r from-[#0047AB] via-indigo-600 to-purple-600">
-              in one platform.
-            </span>
-           </h2>
+            Everything your business needs
+            <h2>
+              <span className="block italic pr-2 pb-1 bg-clip-text text-transparent bg-gradient-to-r from-[#0047AB] via-indigo-600 to-purple-600">
+                in one platform.
+              </span>
+            </h2>
           </div>
 
           <p className="text-base sm:text-lg font-medium text-slate-600 leading-relaxed text-balance">
-            Replace scattered tools with Orvixa's unified suite. Built for speed, collaboration, and effortless scaling.
+            Replace scattered tools with Orvixa's unified suite. Built for
+            speed, collaboration, and effortless scaling.
           </p>
         </div>
 
@@ -203,7 +202,6 @@ export default function Features() {
             );
           })}
         </motion.div>
-
       </div>
     </section>
   );
