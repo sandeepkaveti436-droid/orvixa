@@ -592,8 +592,8 @@ export default function ProjectsPage() {
       </div>
 
       {/* Toolbar */}
-      <div className="bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-sm flex flex-col md:flex-row justify-between items-center gap-3">
-        <div className="relative w-full md:w-80">
+      <div className="bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-sm flex flex-col 2xl:flex-row justify-between items-center gap-3">
+        <div className="relative w-full 2xl:w-80">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
@@ -604,7 +604,7 @@ export default function ProjectsPage() {
           />
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto justify-end">
+        <div className="flex flex-wrap items-center gap-2.5 w-full 2xl:w-auto justify-start 2xl:justify-end">
           <div className="flex items-center bg-slate-100 p-1 rounded-xl">
             <button
               onClick={() => {
