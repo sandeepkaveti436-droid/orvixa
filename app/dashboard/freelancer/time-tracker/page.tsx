@@ -1,53 +1,70 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {
-  Clock,
-  Play,
-  Pause,
-  Square,
-  Download,
-  FileText,
-  Loader2,
-} from "lucide-react";
+import { Clock, Play, Pause, Square, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+
+interface TimeEntry {
+  id: string | number;
+  project?: string | null;
+  task?: string | null;
+  duration: string;
+  created_at?: string;
+}
+
+interface ProjectOption {
+  id?: string | number;
+  name: string | null;
+}
 
 export default function TimeTrackerPage() {
   const [loading, setLoading] = useState(true);
   const [seconds, setSeconds] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
-  const [timeLogs, setTimeLogs] = useState<any[]>([]);
-  const [realProjects, setRealProjects] = useState<any[]>([]);
-  const [selectedProject, setSelectedProject] = useState("General Workspace");
+  const [timeLogs, setTimeLogs] = useState<TimeEntry[]>([]);
+  const [realProjects, setRealProjects] = useState<ProjectOption[]>([]);
+  const [selectedProject, setSelectedProject] = useState("");
 
   useEffect(() => {
-    fetchTimeData();
+    let isMounted = true;
+    const loadTimeData = async () => {
+      try {
+        const [timeRes, projRes] = await Promise.all([
+          supabase
+            .from("time_entries")
+            .select("*")
+            .order("created_at", { ascending: false }),
+          supabase.from("projects").select("id, name"),
+        ]);
+
+        if (timeRes.error) throw timeRes.error;
+        if (projRes.error) throw projRes.error;
+        if (!isMounted) return;
+
+        setTimeLogs(timeRes.data || []);
+        const projects = (projRes.data || []) as ProjectOption[];
+        setRealProjects(projects);
+        setSelectedProject(projects[0]?.name || "");
+      } catch {
+        console.error("Could not load time tracker data.");
+        if (isMounted) {
+          setTimeLogs([]);
+          setRealProjects([]);
+          setSelectedProject("");
+        }
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    loadTimeData();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  const fetchTimeData = async () => {
-    try {
-      const [timeRes, projRes] = await Promise.all([
-        supabase
-          .from("time_entries")
-          .select("*")
-          .order("created_at", { ascending: false }),
-        supabase.from("projects").select("name"),
-      ]);
-
-      if (timeRes.data) setTimeLogs(timeRes.data);
-      if (projRes.data && projRes.data.length > 0) {
-        setRealProjects(projRes.data);
-        setSelectedProject(projRes.data[0].name);
-      }
-    } catch (e) {
-      console.log("Loading time entries...");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    let interval: any = null;
+    let interval: ReturnType<typeof setInterval> | undefined;
     if (isRunning) {
       interval = setInterval(() => setSeconds((s) => s + 1), 1000);
     }
@@ -67,23 +84,22 @@ export default function TimeTrackerPage() {
       const durationStr = `${mins}m`;
 
       try {
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from("time_entries")
           .insert([
             {
-              project: selectedProject,
-              task: "Live Tracked Session",
+              project: selectedProject || null,
               duration: durationStr,
-              billable_amount: (mins / 60) * 75,
             },
           ])
           .select();
 
-        if (data) setTimeLogs([data[0], ...timeLogs]);
+        if (error) throw error;
+        if (data?.[0]) setTimeLogs([data[0], ...timeLogs]);
         setSeconds(0);
         setIsRunning(false);
-      } catch (err) {
-        alert("Saved time entry!");
+      } catch {
+        alert("Could not save the time entry.");
       }
     }
   };
@@ -131,11 +147,16 @@ export default function TimeTrackerPage() {
               className="bg-slate-100 border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-bold text-[#0047AB] font-sans"
             >
               {realProjects.length > 0 ? (
-                realProjects.map((p, idx) => (
-                  <option key={idx}>{p.name}</option>
+                realProjects.map((p) => (
+                  <option
+                    key={p.id || p.name || "project"}
+                    value={p.name || ""}
+                  >
+                    {p.name}
+                  </option>
                 ))
               ) : (
-                <option>General Workspace</option>
+                <option value="">No project selected</option>
               )}
             </select>
           </div>

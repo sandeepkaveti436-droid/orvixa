@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   DollarSign,
   TrendingUp,
@@ -12,8 +12,10 @@ import {
   CheckCircle2,
   PieChart,
 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 export default function FreelancerFinancePage() {
+  const [invoices, setInvoices] = useState<any[]>([]);
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [expenses, setExpenses] = useState<
     Array<{
@@ -31,6 +33,38 @@ export default function FreelancerFinancePage() {
     amount: "",
   });
 
+  useEffect(() => {
+    supabase
+      .from("invoices")
+      .select("amount, total_amount, status, issue_date, created_at")
+      .then(({ data, error }) => {
+        if (error) {
+          console.error("Could not load financial invoices:", error.message);
+          setInvoices([]);
+          return;
+        }
+        setInvoices(data || []);
+      });
+  }, []);
+
+  const currentYear = new Date().getFullYear();
+  const grossIncome = invoices
+    .filter((invoice) => {
+      const date = invoice.issue_date || invoice.created_at;
+      return date && new Date(date).getFullYear() === currentYear;
+    })
+    .reduce(
+      (total, invoice) =>
+        total + Number(invoice.total_amount ?? invoice.amount ?? 0),
+      0,
+    );
+  const expenseTotal = expenses.reduce(
+    (total, expense) => total + Number(expense.amount || 0),
+    0,
+  );
+  const netProfit = grossIncome - expenseTotal;
+  const taxReserve = Math.max(0, netProfit * 0.2);
+
   const handleAddExpense = (e: React.FormEvent) => {
     e.preventDefault();
     if (newExpense.name && newExpense.amount) {
@@ -39,8 +73,8 @@ export default function FreelancerFinancePage() {
           id: Date.now(),
           name: newExpense.name,
           category: newExpense.category,
-          amount: `$${newExpense.amount}`,
-          date: "Today",
+          amount: newExpense.amount,
+          date: new Date().toLocaleDateString(),
         },
         ...expenses,
       ]);
@@ -97,9 +131,11 @@ export default function FreelancerFinancePage() {
           <span className="text-xs font-bold uppercase text-slate-400">
             Gross Income (YTD)
           </span>
-          <div className="text-3xl font-black text-slate-900">$24,050.00</div>
-          <span className="text-xs text-emerald-600 font-bold flex items-center gap-1">
-            <TrendingUp className="w-3.5 h-3.5" /> +28.4% vs last year
+          <div className="text-3xl font-black text-slate-900">
+            ₹{grossIncome.toLocaleString("en-IN")}
+          </div>
+          <span className="text-xs text-slate-500 font-semibold">
+            From invoices dated this year
           </span>
         </div>
 
@@ -107,9 +143,11 @@ export default function FreelancerFinancePage() {
           <span className="text-xs font-bold uppercase text-slate-400">
             Tax Deductible Expenses
           </span>
-          <div className="text-3xl font-black text-amber-600">$1,855.00</div>
+          <div className="text-3xl font-black text-amber-600">
+            ₹{expenseTotal.toLocaleString("en-IN")}
+          </div>
           <span className="text-xs text-slate-500 font-semibold">
-            12 Tax Write-offs logged
+            {expenses.length} expenses entered
           </span>
         </div>
 
@@ -117,9 +155,11 @@ export default function FreelancerFinancePage() {
           <span className="text-xs font-bold uppercase text-slate-400">
             Net Profit
           </span>
-          <div className="text-3xl font-black text-[#0047AB]">$22,195.00</div>
-          <span className="text-xs text-emerald-600 font-bold">
-            92.2% Net Margin
+          <div className="text-3xl font-black text-[#0047AB]">
+            ₹{netProfit.toLocaleString("en-IN")}
+          </div>
+          <span className="text-xs text-slate-500 font-semibold">
+            Income less entered expenses
           </span>
         </div>
 
@@ -127,9 +167,11 @@ export default function FreelancerFinancePage() {
           <span className="text-xs font-bold uppercase text-slate-400">
             Estimated Tax Reserve (20%)
           </span>
-          <div className="text-3xl font-black text-purple-600">$4,439.00</div>
+          <div className="text-3xl font-black text-purple-600">
+            ₹{taxReserve.toLocaleString("en-IN")}
+          </div>
           <span className="text-xs text-slate-500 font-semibold">
-            Set aside for Q3 quarterly tax
+            Estimated at 20% of net profit
           </span>
         </div>
       </div>
@@ -162,7 +204,7 @@ export default function FreelancerFinancePage() {
                 </div>
               </div>
               <span className="font-black text-rose-600 text-sm">
-                {item.amount}
+                ₹{Number(item.amount).toLocaleString("en-IN")}
               </span>
             </div>
           ))}

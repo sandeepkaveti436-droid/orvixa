@@ -26,6 +26,20 @@ export interface Task {
   assignees: string[];
 }
 
+interface TaskRow {
+  id: string | number;
+  title?: string | null;
+  name?: string | null;
+  status?: string | null;
+  category?: string | null;
+  priority?: string | null;
+  progress?: number | null;
+  due_date?: string | null;
+  comments_count?: number | null;
+  assignees?: string[] | null;
+  assignee?: string | null;
+}
+
 const COLUMNS = [
   { key: "To do", label: "To do", dot: "bg-slate-400" },
   { key: "In progress", label: "In progress", dot: "bg-amber-500" },
@@ -72,9 +86,42 @@ const AVATAR_COLORS: Record<string, string> = {
   MS: "bg-[#d1fae5] text-[#047857]",
 };
 
+const normalizeTask = (db: TaskRow): Task => {
+  const rawStatus = (db.status || "To do").trim();
+  let status = "To do";
+  if (/done|completed/i.test(rawStatus)) status = "Done";
+  else if (/review/i.test(rawStatus)) status = "In review";
+  else if (/progress/i.test(rawStatus)) status = "In progress";
+
+  let assignees: string[] = [];
+  if (db.assignees?.length) {
+    assignees = db.assignees;
+  } else if (db.assignee?.trim()) {
+    assignees = db.assignee.split(",").map((assignee) => assignee.trim());
+  }
+
+  return {
+    id: String(db.id),
+    title: db.title || db.name || "Untitled Task",
+    status,
+    category: db.category || "Frontend",
+    priority: db.priority || "Medium",
+    progress:
+      typeof db.progress === "number"
+        ? db.progress
+        : status === "Done"
+          ? 100
+          : 0,
+    due_date: db.due_date || null,
+    comments_count: db.comments_count ?? 0,
+    assignees,
+  };
+};
+
 export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentAssignee, setCurrentAssignee] = useState("");
   const [activeFilter, setActiveFilter] = useState<
     "All" | "My tasks" | "High priority" | "Due this week"
   >("All");
@@ -94,13 +141,47 @@ export default function TasksPage() {
     priority: "Medium",
     status: "To do",
     due_date: "",
-    assignees: "HK",
+    assignees: "",
     progress: 50,
   });
 
   // 1. Fetch live tasks and subscribe to realtime Postgres changes
   useEffect(() => {
-    fetchLiveTasks();
+    let isMounted = true;
+
+    const loadTasks = async () => {
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from("tasks")
+          .select("*")
+          .order("created_at", { ascending: false });
+        if (error) throw error;
+        if (isMounted) setTasks((data || []).map(normalizeTask));
+      } catch (error) {
+        console.error("Error loading tasks:", error);
+        if (isMounted) setTasks([]);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    loadTasks();
+    supabase.auth.getUser().then(({ data }) => {
+      if (!isMounted) return;
+      const identity =
+        data.user?.user_metadata?.full_name ||
+        data.user?.email?.split("@")[0] ||
+        "";
+      const initials = identity
+        .trim()
+        .split(/[\s._-]+/)
+        .map((part: string) => part[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase();
+      setCurrentAssignee(initials);
+    });
 
     const channel = supabase
       .channel("realtime-tasks-board")
@@ -109,13 +190,13 @@ export default function TasksPage() {
         { event: "*", schema: "public", table: "tasks" },
         (payload) => {
           if (payload.eventType === "INSERT") {
-            const normalized = normalizeTask(payload.new);
+            const normalized = normalizeTask(payload.new as TaskRow);
             setTasks((prev) => {
               if (prev.some((t) => t.id === normalized.id)) return prev;
               return [normalized, ...prev];
             });
           } else if (payload.eventType === "UPDATE") {
-            const updated = normalizeTask(payload.new);
+            const updated = normalizeTask(payload.new as TaskRow);
             setTasks((prev) =>
               prev.map((t) => (t.id === updated.id ? updated : t)),
             );
@@ -127,68 +208,10 @@ export default function TasksPage() {
       .subscribe();
 
     return () => {
+      isMounted = false;
       supabase.removeChannel(channel);
     };
   }, []);
-
-  // Normalizer to guarantee uniform format
-  const normalizeTask = (db: any): Task => {
-    const rawStatus = (db.status || "To do").trim();
-    let status = "To do";
-    if (/done|completed/i.test(rawStatus)) status = "Done";
-    else if (/review/i.test(rawStatus)) status = "In review";
-    else if (/progress/i.test(rawStatus)) status = "In progress";
-
-    let assignees: string[] = ["HK"];
-    if (Array.isArray(db.assignees) && db.assignees.length > 0) {
-      assignees = db.assignees;
-    } else if (typeof db.assignee === "string" && db.assignee.trim()) {
-      assignees = db.assignee.split(",").map((s: string) => s.trim());
-    }
-
-    return {
-      id: String(db.id),
-      title: db.title || db.name || "Untitled Task",
-      status,
-      category: db.category || "Frontend",
-      priority: db.priority || "Medium",
-      progress:
-        typeof db.progress === "number"
-          ? db.progress
-          : status === "Done"
-            ? 100
-            : 0,
-      due_date: db.due_date || null,
-      comments_count: db.comments_count ?? 2,
-      assignees,
-    };
-  };
-
-  const fetchLiveTasks = async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from("tasks")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        console.warn("Could not query tasks table:", error.message);
-      }
-
-      if (data && data.length > 0) {
-        setTasks(data.map(normalizeTask));
-      } else {
-        // Fallback default tasks matching the screenshot if table is freshly created
-        setTasks(initialScreenshotTasks);
-      }
-    } catch (err) {
-      console.error("Error loading tasks:", err);
-      setTasks(initialScreenshotTasks);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Close menus on outside click
   useEffect(() => {
@@ -199,7 +222,7 @@ export default function TasksPage() {
 
   // Format date relative display like in the screenshot
   const formatDueText = (due?: string | null) => {
-    if (!due) return "In 6 days";
+    if (!due) return "No due date";
     try {
       const target = new Date(due);
       const today = new Date();
@@ -290,10 +313,15 @@ export default function TasksPage() {
       if (activeFilter === "High priority")
         return (t.priority || "").toLowerCase() === "high";
       if (activeFilter === "My tasks") {
-        return (t.assignees || []).some((a) => a === "HK" || a === "PR");
+        return (
+          currentAssignee.length > 0 &&
+          (t.assignees || []).some(
+            (assignee) => assignee.toUpperCase() === currentAssignee,
+          )
+        );
       }
       if (activeFilter === "Due this week") {
-        if (!t.due_date) return true;
+        if (!t.due_date) return false;
         const target = new Date(t.due_date).getTime();
         const now = new Date().getTime();
         const diff = (target - now) / (1000 * 60 * 60 * 24);
@@ -301,7 +329,7 @@ export default function TasksPage() {
       }
       return true;
     });
-  }, [tasks, activeFilter]);
+  }, [tasks, activeFilter, currentAssignee]);
 
   // Create new task
   const handleCreateTask = async (e: React.FormEvent) => {
@@ -319,10 +347,10 @@ export default function TasksPage() {
       category: newTask.category,
       priority: newTask.priority,
       status: newTask.status,
-      due_date: newTask.due_date || new Date().toISOString().split("T")[0],
+      due_date: newTask.due_date || null,
       progress: newTask.status === "Done" ? 100 : newTask.progress,
-      assignees: assigneesList.length > 0 ? assigneesList : ["HK"],
-      comments_count: 2,
+      assignees: assigneesList,
+      comments_count: 0,
     };
 
     try {
@@ -334,11 +362,6 @@ export default function TasksPage() {
       if (error) throw error;
       if (data && data[0]) {
         setTasks((prev) => [normalizeTask(data[0]), ...prev]);
-      } else {
-        setTasks((prev) => [
-          { ...taskPayload, id: `local-${Date.now()}` } as Task,
-          ...prev,
-        ]);
       }
 
       setShowAddModal(false);
@@ -348,11 +371,13 @@ export default function TasksPage() {
         priority: "Medium",
         status: "To do",
         due_date: "",
-        assignees: "HK",
+        assignees: "",
         progress: 50,
       });
-    } catch (err: any) {
-      alert(`Could not create task: ${err.message}`);
+    } catch (err) {
+      alert(
+        `Could not create task: ${err instanceof Error ? err.message : "Unknown error"}`,
+      );
     } finally {
       setIsSaving(false);
     }
@@ -782,103 +807,3 @@ export default function TasksPage() {
     </div>
   );
 }
-
-// Initial tasks matching your exact screenshot
-const initialScreenshotTasks: Task[] = [
-  {
-    id: "scr-1",
-    title: "Saved filters for projects",
-    status: "To do",
-    category: "Frontend",
-    priority: "Medium",
-    due_date: new Date(Date.now() + 6 * 86400000).toISOString(),
-    comments_count: 2,
-    assignees: ["HK"],
-  },
-  {
-    id: "scr-2",
-    title: "Write API endpoint docs",
-    status: "To do",
-    category: "Backend",
-    priority: "Low",
-    due_date: new Date(Date.now() + 9 * 86400000).toISOString(),
-    comments_count: 1,
-    assignees: ["MS"],
-  },
-  {
-    id: "scr-3",
-    title: "Onboarding email sequence",
-    status: "To do",
-    category: "Marketing",
-    priority: "Low",
-    due_date: new Date(Date.now() + 8 * 86400000).toISOString(),
-    comments_count: 3,
-    assignees: ["MS"],
-  },
-  {
-    id: "scr-4",
-    title: "Design login & sign-up screens",
-    status: "In progress",
-    category: "Design",
-    priority: "High",
-    progress: 55,
-    due_date: new Date(Date.now() + 2 * 86400000).toISOString(),
-    comments_count: 4,
-    assignees: ["PR", "MK"],
-  },
-  {
-    id: "scr-5",
-    title: "Passkey sign-in",
-    status: "In progress",
-    category: "Backend",
-    priority: "High",
-    progress: 40,
-    due_date: new Date(Date.now() + 3 * 86400000).toISOString(),
-    comments_count: 7,
-    assignees: ["MS"],
-  },
-  {
-    id: "scr-6",
-    title: "Safari & Firefox regression pass",
-    status: "In review",
-    category: "QA",
-    priority: "Medium",
-    progress: 80,
-    due_date: new Date(Date.now() + 1 * 86400000).toISOString(),
-    comments_count: 5,
-    assignees: ["SS"],
-  },
-  {
-    id: "scr-7",
-    title: "Brand illustration set",
-    status: "In review",
-    category: "Design",
-    priority: "Medium",
-    progress: 60,
-    due_date: new Date(Date.now() + 2 * 86400000).toISOString(),
-    comments_count: 6,
-    assignees: ["MK"],
-  },
-  {
-    id: "scr-8",
-    title: "Monorepo cleanup",
-    status: "Done",
-    category: "Backend",
-    priority: "Low",
-    progress: 100,
-    due_date: new Date(Date.now() - 2 * 86400000).toISOString(),
-    comments_count: 2,
-    assignees: ["PR"],
-  },
-  {
-    id: "scr-9",
-    title: "Dashboard analytics widgets",
-    status: "Done",
-    category: "Frontend",
-    priority: "High",
-    progress: 100,
-    due_date: new Date(Date.now() - 1 * 86400000).toISOString(),
-    comments_count: 9,
-    assignees: ["HK", "PR"],
-  },
-];

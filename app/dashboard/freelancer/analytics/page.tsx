@@ -176,13 +176,20 @@ export default function AnalyticsPage() {
   // 6. AI Workspace Performance Health Score
   const totalTasks = tasks.length;
   const completedTasks = tasks.filter((t) => t.status === "Completed").length;
-  const taskRate = totalTasks > 0 ? (completedTasks / totalTasks) * 20 : 15;
-  const calculatedHealthScore = Math.min(
-    98,
-    Math.round(
-      65 + taskRate + clientRevenueList.length * 5 - onHoldProjects.length * 5,
-    ),
-  );
+  const hasAnalyticsData =
+    projects.length > 0 || invoices.length > 0 || tasks.length > 0;
+  const taskRate = totalTasks > 0 ? (completedTasks / totalTasks) * 20 : 0;
+  const calculatedHealthScore = hasAnalyticsData
+    ? Math.min(
+        98,
+        Math.round(
+          65 +
+            taskRate +
+            clientRevenueList.length * 5 -
+            onHoldProjects.length * 5,
+        ),
+      )
+    : 0;
 
   if (loading) {
     return (

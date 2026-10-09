@@ -528,57 +528,29 @@ export default function ProjectsPage() {
       const newInvoice = {
         id: `inv-${Date.now()}`,
         invoice_number: invoiceData.invoiceNumber,
-        client: invoiceData.clientName || "Food & Link",
-        client_contact: "+91- 9392525043",
-        client_location: "Hyderabad, India",
+        client: invoiceData.clientName || activeFolder || "",
         amount: invoiceGrandTotal,
         status: "Pending" as const,
         issue_date: invoiceData.issueDate,
         due_date: invoiceData.dueDate,
-        items:
-          selectedItems.length > 0
-            ? selectedItems
-            : [
-                {
-                  description: "Creative Deliverables",
-                  qty: 1,
-                  rate: invoiceGrandTotal,
-                },
-              ],
+        items: selectedItems,
         notes: invoiceData.notes,
         created_at: new Date().toISOString(),
       };
 
-      // Guaranteed Local Storage persistence
-      try {
-        const existingRaw = localStorage.getItem("orvixa_invoices");
-        const existing = existingRaw ? JSON.parse(existingRaw) : [];
-        const filtered = existing.filter(
-          (item: any) => item.invoice_number !== newInvoice.invoice_number,
-        );
-        const updated = [newInvoice, ...filtered];
-        localStorage.setItem("orvixa_invoices", JSON.stringify(updated));
-      } catch (e) {
-        console.error("Local storage error:", e);
-      }
-
-      // Supabase insert
-      try {
-        await supabase.from("invoices").insert([
-          {
-            invoice_number: newInvoice.invoice_number,
-            client: newInvoice.client,
-            amount: newInvoice.amount,
-            status: newInvoice.status,
-            issue_date: newInvoice.issue_date,
-            due_date: newInvoice.due_date,
-            items: JSON.stringify(newInvoice.items),
-            notes: newInvoice.notes,
-          },
-        ]);
-      } catch (err) {
-        console.warn("Supabase notice:", err);
-      }
+      const { error } = await supabase.from("invoices").insert([
+        {
+          invoice_number: newInvoice.invoice_number,
+          client: newInvoice.client,
+          amount: newInvoice.amount,
+          status: newInvoice.status,
+          issue_date: newInvoice.issue_date,
+          due_date: newInvoice.due_date,
+          items: JSON.stringify(newInvoice.items),
+          notes: newInvoice.notes,
+        },
+      ]);
+      if (error) throw error;
 
       setShowInvoiceModal(false);
       window.location.href = "/dashboard/freelancer/invoices";

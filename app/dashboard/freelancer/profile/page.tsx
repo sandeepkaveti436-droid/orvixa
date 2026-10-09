@@ -33,8 +33,8 @@ export default function ProfileSettingsPage() {
     id: "",
     fullName: "",
     email: "",
-    profession: "UI/UX Designer",
-    country: "India (₹ INR)",
+    profession: "",
+    country: "",
     avatarUrl: "",
   });
 
@@ -58,11 +58,6 @@ export default function ProfileSettingsPage() {
       setLoading(true);
 
       // 1. Read cached storage first so UI is instant
-      const cachedAvatar = localStorage.getItem("orvixa_avatar_photo") || "";
-      const cachedName = localStorage.getItem("orvixa_user_name") || "";
-      const cachedProf =
-        localStorage.getItem("orvixa_user_prof") || "UI/UX Designer";
-
       // 2. Safely get Supabase session
       const {
         data: { session },
@@ -71,15 +66,6 @@ export default function ProfileSettingsPage() {
       const user = session?.user;
 
       if (!user) {
-        // If session not found, gracefully load cached profile instead of crashing
-        if (cachedName || cachedAvatar) {
-          setProfile((prev) => ({
-            ...prev,
-            fullName: cachedName,
-            profession: cachedProf,
-            avatarUrl: cachedAvatar,
-          }));
-        }
         setLoading(false);
         return;
       }
@@ -88,13 +74,11 @@ export default function ProfileSettingsPage() {
         user.user_metadata?.full_name ||
         user.user_metadata?.name ||
         user.email?.split("@")[0] ||
-        cachedName ||
         "";
 
-      let profession =
-        user.user_metadata?.profession || cachedProf || "UI/UX Designer";
-      let country = user.user_metadata?.country || "India (₹ INR)";
-      let avatarUrl = user.user_metadata?.avatar_url || cachedAvatar || "";
+      let profession = user.user_metadata?.profession || "";
+      let country = user.user_metadata?.country || "";
+      let avatarUrl = user.user_metadata?.avatar_url || "";
 
       // 3. Fetch from Supabase 'profiles' database table
       try {
@@ -123,9 +107,7 @@ export default function ProfileSettingsPage() {
         avatarUrl: avatarUrl,
       });
 
-      if (avatarUrl) localStorage.setItem("orvixa_avatar_photo", avatarUrl);
-      if (fullName) localStorage.setItem("orvixa_user_name", fullName);
-      if (profession) localStorage.setItem("orvixa_user_prof", profession);
+      localStorage.setItem("orvixa_user_prof", profession);
 
       window.dispatchEvent(new Event("profilePhotoUpdated"));
     } catch (err: any) {

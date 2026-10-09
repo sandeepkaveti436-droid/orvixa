@@ -2,17 +2,16 @@
 
 import React, { useState } from "react";
 import { Award, Share2, Copy, Check, DollarSign, Users } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 export default function ReferralsPage() {
   const [copied, setCopied] = useState(false);
   const [userId, setUserId] = useState("");
 
   React.useEffect(() => {
-    const user = localStorage.getItem("orvixa_user");
-    if (user) {
-      const parsed = JSON.parse(user);
-      setUserId(parsed.id || "user");
-    }
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) setUserId(data.user.id);
+    });
   }, []);
 
   const referralLink = `https://orvixa.com/ref/${userId}`;
@@ -46,9 +45,9 @@ export default function ReferralsPage() {
           <span className="text-xs font-bold text-slate-400 uppercase">
             Total Referrals Joined
           </span>
-          <div className="text-3xl font-black text-slate-900">14 Members</div>
+          <div className="text-3xl font-black text-slate-900">0 Members</div>
           <span className="text-xs text-emerald-600 font-bold block">
-            ✓ 8 Converted Pro Users
+            No referrals yet
           </span>
         </div>
 
@@ -56,9 +55,9 @@ export default function ReferralsPage() {
           <span className="text-xs font-bold text-slate-400 uppercase">
             Affiliate Earnings
           </span>
-          <div className="text-3xl font-black text-[#0047AB]">$350.00</div>
+          <div className="text-3xl font-black text-[#0047AB]">$0.00</div>
           <span className="text-xs text-slate-500 font-semibold block">
-            20% Monthly Recurring
+            No earnings recorded
           </span>
         </div>
 
@@ -66,13 +65,10 @@ export default function ReferralsPage() {
           <span className="text-xs font-bold text-slate-400 uppercase">
             Available Payout
           </span>
-          <div className="text-3xl font-black text-emerald-600">$180.00</div>
-          <button
-            onClick={() => alert("Payout request submitted!")}
-            className="text-xs font-bold text-[#0047AB] hover:underline block pt-1"
-          >
-            Request Payout →
-          </button>
+          <div className="text-3xl font-black text-emerald-600">$0.00</div>
+          <span className="text-xs text-slate-500 font-semibold block">
+            No payout available
+          </span>
         </div>
       </div>
 

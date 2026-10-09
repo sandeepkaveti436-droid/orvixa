@@ -20,6 +20,17 @@ import { supabase } from "@/lib/supabase";
 
 type DocumentType = "proposal" | "contract" | "pitch" | "sow";
 
+interface GeneratedDocument {
+  title: string;
+  client: string;
+  date: string;
+  currency: string;
+  executiveSummary: string;
+  deliverables: { phase: string; timeline: string; details: string }[];
+  terms: string[];
+  budget: number;
+}
+
 export default function AiAssistantPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -34,51 +45,23 @@ export default function AiAssistantPage() {
 
   // Form Parameters
   const [params, setParams] = useState({
-    clientName: "health care",
-    projectTitle: "Healthcare Landing Pages",
-    scope: "landing pages",
-    budget: "5000",
-    timeline: "2 Weeks",
+    clientName: "",
+    projectTitle: "",
+    scope: "",
+    budget: "",
+    timeline: "",
   });
 
   // Generated Document State
-  const [generatedDoc, setGeneratedDoc] = useState({
-    title: "Project Proposal for health care",
-    client: "health care",
-    date: new Date().toLocaleDateString("en-IN", {
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    }),
+  const [generatedDoc, setGeneratedDoc] = useState<GeneratedDocument>({
+    title: "",
+    client: "",
+    date: "",
     currency: "₹",
-    executiveSummary:
-      "We are pleased to submit this proposal for landing pages. Our team specializes in architecting high-performance digital products and conversion-focused systems that scale.",
-    deliverables: [
-      {
-        phase: "Phase 1: Wireframing & UX Architecture",
-        timeline: "Week 1",
-        details:
-          "Complete wireframes, user flow mapping, and conversion-focused UI component hierarchy.",
-      },
-      {
-        phase: "Phase 2: High-Fidelity UI & Responsive Design",
-        timeline: "Week 1 - 2",
-        details:
-          "Figma design system in light/dark modes, custom illustrations, and responsive breakpoints.",
-      },
-      {
-        phase: "Phase 3: Frontend Implementation & Launch",
-        timeline: "Week 2",
-        details:
-          "Next.js 15, Tailwind CSS, Supabase backend integration, and SEO optimization.",
-      },
-    ],
-    terms: [
-      "Total Consideration: ₹5,000.00",
-      "Timeline: 2 Weeks",
-      "Payment Terms: 50% upfront deposit, 50% upon milestone completion and deployment.",
-    ],
-    budget: 5000,
+    executiveSummary: "",
+    deliverables: [],
+    terms: [],
+    budget: 0,
   });
 
   useEffect(() => {
@@ -119,11 +102,9 @@ export default function AiAssistantPage() {
       setParams({
         clientName: proj.client || "",
         projectTitle: proj.name || "",
-        scope:
-          proj.description ||
-          `${proj.name} deliverables & digital implementation`,
-        budget: String(proj.budget || 5000),
-        timeline: proj.due_date ? `Due: ${proj.due_date}` : "2 Weeks",
+        scope: proj.description || "",
+        budget: proj.budget == null ? "" : String(proj.budget),
+        timeline: proj.due_date ? `Due: ${proj.due_date}` : "",
       });
     }
   };
@@ -131,10 +112,18 @@ export default function AiAssistantPage() {
   // AI Generator Engine
   const handleGenerate = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+    if (
+      !params.clientName.trim() ||
+      !params.projectTitle.trim() ||
+      !params.scope.trim() ||
+      !params.budget.trim()
+    ) {
+      return;
+    }
     setIsGenerating(true);
 
     setTimeout(() => {
-      const budgetNum = parseFloat(params.budget) || 5000;
+      const budgetNum = parseFloat(params.budget) || 0;
       const currCode =
         selectedCurrency === "₹"
           ? "INR"
@@ -143,9 +132,8 @@ export default function AiAssistantPage() {
             : selectedCurrency === "€"
               ? "EUR"
               : "INR";
-      const clientDisplay = params.clientName.trim() || "New Client";
-      const projectDisplay =
-        params.projectTitle.trim() || "Digital Software System";
+      const clientDisplay = params.clientName.trim();
+      const projectDisplay = params.projectTitle.trim();
 
       setGeneratedDoc({
         title: `Project Proposal for ${projectDisplay}`,
@@ -156,7 +144,7 @@ export default function AiAssistantPage() {
           year: "numeric",
         }),
         currency: selectedCurrency,
-        executiveSummary: `We are pleased to submit this proposal for ${params.scope || projectDisplay}. Sky Nova Digitals specializes in architecting high-performance digital products and conversion-focused systems for ${clientDisplay}.`,
+        executiveSummary: `We are pleased to submit this proposal for ${params.scope}. Sky Nova Digitals specializes in architecting high-performance digital products and conversion-focused systems for ${clientDisplay}.`,
         deliverables: [
           {
             phase: "Phase 1: Wireframing & UX Architecture",
@@ -172,14 +160,14 @@ export default function AiAssistantPage() {
           },
           {
             phase: "Phase 3: Frontend Implementation & Launch",
-            timeline: params.timeline || "Week 2 - 3",
+            timeline: params.timeline,
             details:
               "Next.js 15, Tailwind CSS, Supabase backend integration, and SEO optimization.",
           },
         ],
         terms: [
           `Total Consideration: ${selectedCurrency}${budgetNum.toLocaleString("en-IN", { minimumFractionDigits: 2 })} ${currCode}`,
-          `Timeline: ${params.timeline}`,
+          ...(params.timeline ? [`Timeline: ${params.timeline}`] : []),
           "Payment Terms: 50% upfront deposit, 50% upon milestone completion and deployment.",
         ],
         budget: budgetNum,
@@ -458,122 +446,123 @@ export default function AiAssistantPage() {
             </div>
           </div>
 
-          {activeView === "preview" ? (
-            <div className="bg-[#FAF6EE]/50 border border-slate-200/80 rounded-2xl p-6 sm:p-8 space-y-6 font-sans text-slate-900 shadow-inner">
-              {/* Document Header with SND Logo */}
-              <div className="flex justify-between items-start border-b border-slate-200 pb-5 font-sans">
-                <div>
-                  {/* Official SND Logo Image */}
-                  <img
-                    src="/snd-logo.png"
-                    alt="SND - Sky Nova Digitals"
-                    className="h-12 sm:h-14 w-auto object-contain mb-1"
-                    onError={(e: any) => {
-                      e.currentTarget.style.display = "none";
-                      const fallback =
-                        document.getElementById("proposal-text-logo");
-                      if (fallback) fallback.style.display = "block";
-                    }}
-                  />
+          {generatedDoc.title ? (
+            activeView === "preview" ? (
+              <div className="bg-[#FAF6EE]/50 border border-slate-200/80 rounded-2xl p-6 sm:p-8 space-y-6 font-sans text-slate-900 shadow-inner">
+                {/* Document Header with SND Logo */}
+                <div className="flex justify-between items-start border-b border-slate-200 pb-5 font-sans">
+                  <div>
+                    {/* Official SND Logo Image */}
+                    <img
+                      src="/snd-logo.png"
+                      alt="SND - Sky Nova Digitals"
+                      className="h-12 sm:h-14 w-auto object-contain mb-1"
+                      onError={(e: any) => {
+                        e.currentTarget.style.display = "none";
+                        const fallback =
+                          document.getElementById("proposal-text-logo");
+                        if (fallback) fallback.style.display = "block";
+                      }}
+                    />
 
-                  {/* Fallback if file not placed */}
-                  <div id="proposal-text-logo" style={{ display: "none" }}>
-                    <div className="text-3xl font-black text-[#F5B400] tracking-widest leading-none font-sans">
-                      SND
+                    {/* Fallback if file not placed */}
+                    <div id="proposal-text-logo" style={{ display: "none" }}>
+                      <div className="text-3xl font-black text-[#F5B400] tracking-widest leading-none font-sans">
+                        SND
+                      </div>
+                      <p className="text-[11px] italic text-slate-600 mt-1 font-medium font-sans">
+                        We build software systems that grow with your business.
+                      </p>
                     </div>
-                    <p className="text-[11px] italic text-slate-600 mt-1 font-medium font-sans">
-                      We build software systems that grow with your business.
+
+                    <h2 className="text-lg font-black text-slate-900 mt-2 font-sans">
+                      {generatedDoc.title}
+                    </h2>
+                    <p className="text-xs font-semibold text-slate-500 mt-0.5 font-sans">
+                      Prepared by{" "}
+                      <strong className="text-slate-700">
+                        Sky Nova Digitals
+                      </strong>{" "}
+                      for{" "}
+                      <strong className="text-slate-900">
+                        {generatedDoc.client}
+                      </strong>
                     </p>
                   </div>
-
-                  <h2 className="text-lg font-black text-slate-900 mt-2 font-sans">
-                    {generatedDoc.title}
-                  </h2>
-                  <p className="text-xs font-semibold text-slate-500 mt-0.5 font-sans">
-                    Prepared by{" "}
-                    <strong className="text-slate-700">
-                      Sky Nova Digitals
-                    </strong>{" "}
-                    for{" "}
-                    <strong className="text-slate-900">
-                      {generatedDoc.client}
-                    </strong>
-                  </p>
-                </div>
-                <div className="text-right font-sans">
-                  <span className="text-xs font-bold text-slate-400 block font-sans">
-                    {generatedDoc.date}
-                  </span>
-                  <span className="text-base font-black text-[#0047AB] block mt-1 font-sans">
-                    {generatedDoc.currency}
-                    {generatedDoc.budget.toLocaleString("en-IN")}
-                  </span>
-                </div>
-              </div>
-
-              {/* Executive Summary */}
-              <div className="space-y-2 font-sans">
-                <h4 className="text-xs font-black uppercase text-slate-500 tracking-wider font-sans">
-                  Executive Summary
-                </h4>
-                <p className="text-xs text-slate-700 leading-relaxed bg-white p-4 rounded-xl border border-slate-200/70 font-sans">
-                  {generatedDoc.executiveSummary}
-                </p>
-              </div>
-
-              {/* Scope & Deliverables */}
-              <div className="space-y-2.5 font-sans">
-                <h4 className="text-xs font-black uppercase text-slate-500 tracking-wider font-sans">
-                  Scope of Work & Deliverables
-                </h4>
-                <div className="space-y-2 font-sans">
-                  {generatedDoc.deliverables.map((del, i) => (
-                    <div
-                      key={i}
-                      className="bg-white p-3.5 rounded-xl border border-slate-200/70 flex flex-col sm:flex-row sm:items-center justify-between gap-2 font-sans text-xs"
-                    >
-                      <div>
-                        <span className="font-bold text-slate-900 block font-sans">
-                          {i + 1}. {del.phase}
-                        </span>
-                        <span className="text-[11px] text-slate-600 font-medium font-sans">
-                          {del.details}
-                        </span>
-                      </div>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-blue-50 text-[#0047AB] border border-blue-100 shrink-0 font-sans">
-                        {del.timeline}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Proposed Investment */}
-              <div className="space-y-2 font-sans">
-                <h4 className="text-xs font-black uppercase text-slate-500 tracking-wider font-sans">
-                  Proposed Investment
-                </h4>
-                <div className="bg-white p-4 rounded-xl border border-slate-200/70 space-y-1.5 text-xs text-slate-700 font-sans">
-                  <div className="flex justify-between font-bold text-slate-900 border-b border-slate-100 pb-2 mb-2 font-sans">
-                    <span>Total Fixed Consideration:</span>
-                    <span className="text-sm font-black text-[#0047AB] font-sans">
+                  <div className="text-right font-sans">
+                    <span className="text-xs font-bold text-slate-400 block font-sans">
+                      {generatedDoc.date}
+                    </span>
+                    <span className="text-base font-black text-[#0047AB] block mt-1 font-sans">
                       {generatedDoc.currency}
                       {generatedDoc.budget.toLocaleString("en-IN")}
                     </span>
                   </div>
-                  {generatedDoc.terms.map((term, i) => (
-                    <p key={i} className="flex items-start gap-1.5 font-sans">
-                      <span className="text-[#0047AB] font-bold">✓</span>
-                      <span>{term}</span>
-                    </p>
-                  ))}
+                </div>
+
+                {/* Executive Summary */}
+                <div className="space-y-2 font-sans">
+                  <h4 className="text-xs font-black uppercase text-slate-500 tracking-wider font-sans">
+                    Executive Summary
+                  </h4>
+                  <p className="text-xs text-slate-700 leading-relaxed bg-white p-4 rounded-xl border border-slate-200/70 font-sans">
+                    {generatedDoc.executiveSummary}
+                  </p>
+                </div>
+
+                {/* Scope & Deliverables */}
+                <div className="space-y-2.5 font-sans">
+                  <h4 className="text-xs font-black uppercase text-slate-500 tracking-wider font-sans">
+                    Scope of Work & Deliverables
+                  </h4>
+                  <div className="space-y-2 font-sans">
+                    {generatedDoc.deliverables.map((del, i) => (
+                      <div
+                        key={i}
+                        className="bg-white p-3.5 rounded-xl border border-slate-200/70 flex flex-col sm:flex-row sm:items-center justify-between gap-2 font-sans text-xs"
+                      >
+                        <div>
+                          <span className="font-bold text-slate-900 block font-sans">
+                            {i + 1}. {del.phase}
+                          </span>
+                          <span className="text-[11px] text-slate-600 font-medium font-sans">
+                            {del.details}
+                          </span>
+                        </div>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-blue-50 text-[#0047AB] border border-blue-100 shrink-0 font-sans">
+                          {del.timeline}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Proposed Investment */}
+                <div className="space-y-2 font-sans">
+                  <h4 className="text-xs font-black uppercase text-slate-500 tracking-wider font-sans">
+                    Proposed Investment
+                  </h4>
+                  <div className="bg-white p-4 rounded-xl border border-slate-200/70 space-y-1.5 text-xs text-slate-700 font-sans">
+                    <div className="flex justify-between font-bold text-slate-900 border-b border-slate-100 pb-2 mb-2 font-sans">
+                      <span>Total Fixed Consideration:</span>
+                      <span className="text-sm font-black text-[#0047AB] font-sans">
+                        {generatedDoc.currency}
+                        {generatedDoc.budget.toLocaleString("en-IN")}
+                      </span>
+                    </div>
+                    {generatedDoc.terms.map((term, i) => (
+                      <p key={i} className="flex items-start gap-1.5 font-sans">
+                        <span className="text-[#0047AB] font-bold">✓</span>
+                        <span>{term}</span>
+                      </p>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          ) : (
-            <div className="bg-slate-900 text-slate-100 p-6 rounded-2xl font-mono text-xs overflow-x-auto leading-relaxed border border-slate-800">
-              <pre className="whitespace-pre-wrap">
-                {`# Project Proposal for ${generatedDoc.client}
+            ) : (
+              <div className="bg-slate-900 text-slate-100 p-6 rounded-2xl font-mono text-xs overflow-x-auto leading-relaxed border border-slate-800">
+                <pre className="whitespace-pre-wrap">
+                  {`# Project Proposal for ${generatedDoc.client}
 Prepared by Sky Nova Digitals
 
 ## Executive Summary
@@ -586,7 +575,12 @@ ${generatedDoc.deliverables.map((d, i) => `${i + 1}. **${d.phase}:** ${d.details
 - Total Budget: ${generatedDoc.currency}${generatedDoc.budget.toLocaleString("en-IN")}.00
 - Timeline: 2 Weeks
 - Payment Terms: 50% upfront deposit, 50% upon milestone completion.`}
-              </pre>
+                </pre>
+              </div>
+            )
+          ) : (
+            <div className="bg-white border border-slate-200 rounded-2xl p-10 text-center text-sm text-slate-500">
+              Enter client and project details to generate a proposal.
             </div>
           )}
         </div>

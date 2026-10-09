@@ -18,7 +18,6 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
-
 export default function FreelancerDashboard() {
   const [loading, setLoading] = useState(true);
 
@@ -624,36 +623,44 @@ export default function FreelancerDashboard() {
           </div>
 
           <div className="space-y-2.5 font-sans">
-            {projects.slice(0, 3).map((p, idx) => {
-              const bgColors = [
-                "bg-lime-50 border-lime-200",
-                "bg-amber-50 border-amber-200",
-                "bg-blue-50 border-blue-200",
-              ];
-              const times = ["1:00 PM", "2:30 PM", "4:30 PM"];
+            {projects
+              .filter(
+                (project) =>
+                  project.date || project.due_date || project.deadline,
+              )
+              .slice(0, 3)
+              .map((p, idx) => {
+                const bgColors = [
+                  "bg-lime-50 border-lime-200",
+                  "bg-amber-50 border-amber-200",
+                  "bg-blue-50 border-blue-200",
+                ];
+                const scheduledDate = p.date || p.due_date || p.deadline;
 
-              return (
-                <div
-                  key={p.id}
-                  className="flex items-center justify-between gap-3 font-sans"
-                >
+                return (
                   <div
-                    className={`p-2.5 rounded-xl border flex-1 font-sans ${bgColors[idx % bgColors.length]}`}
+                    key={p.id}
+                    className="flex items-center justify-between gap-3 font-sans"
                   >
-                    <div className="text-xs font-bold text-slate-900 truncate font-sans">
-                      {p.name}
+                    <div
+                      className={`p-2.5 rounded-xl border flex-1 font-sans ${bgColors[idx % bgColors.length]}`}
+                    >
+                      <div className="text-xs font-bold text-slate-900 truncate font-sans">
+                        {p.name}
+                      </div>
+                      <span className="text-[9px] font-bold text-slate-600 uppercase tracking-wider block font-sans">
+                        {p.client}
+                      </span>
                     </div>
-                    <span className="text-[9px] font-bold text-slate-600 uppercase tracking-wider block font-sans">
-                      {p.client}
+                    <span className="text-[10px] font-bold text-slate-400 shrink-0 font-sans">
+                      {new Date(scheduledDate).toLocaleDateString()}
                     </span>
                   </div>
-                  <span className="text-[10px] font-bold text-slate-400 shrink-0 font-sans">
-                    {times[idx % times.length]}
-                  </span>
-                </div>
-              );
-            })}
-            {projects.length === 0 && (
+                );
+              })}
+            {!projects.some(
+              (project) => project.date || project.due_date || project.deadline,
+            ) && (
               <div className="text-center py-6 text-xs text-slate-400 font-sans">
                 No scheduled timeline items.
               </div>

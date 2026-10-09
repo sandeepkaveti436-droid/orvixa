@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -27,6 +27,49 @@ interface LineItem {
 export default function NewInvoicePage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [billingProfile, setBillingProfile] = useState({
+    brandName: "",
+    fullName: "",
+    phone: "",
+    address: "",
+    bankName: "",
+    accountNumber: "",
+    ifscCode: "",
+  });
+
+  useEffect(() => {
+    const loadBillingProfile = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select(
+          "brand_name, full_name, phone, address, bank_name, account_number, ifsc_code",
+        )
+        .eq("id", user.id)
+        .maybeSingle();
+      if (error) {
+        console.error("Could not load billing profile:", error.message);
+        return;
+      }
+      if (data) {
+        setBillingProfile({
+          brandName: data.brand_name || "",
+          fullName: data.full_name || "",
+          phone: data.phone || "",
+          address: data.address || "",
+          bankName: data.bank_name || "",
+          accountNumber: data.account_number || "",
+          ifscCode: data.ifsc_code || "",
+        });
+      }
+    };
+
+    loadBillingProfile();
+  }, []);
 
   // Invoice Details
   const [invoiceNumber, setInvoiceNumber] = useState(
@@ -41,16 +84,16 @@ export default function NewInvoicePage() {
 
   // Client Details (BILL TO)
   const [clientName, setClientName] = useState("");
-  const [clientContact, setClientContact] = useState("+91-XXXXXXXXXX");
-  const [clientLocation, setClientLocation] = useState("Hyderabad");
+  const [clientContact, setClientContact] = useState("");
+  const [clientLocation, setClientLocation] = useState("");
 
   // Items
   const [items, setItems] = useState<LineItem[]>([
     {
       id: 1,
-      description: "26th Dinner Design",
+      description: "",
       qty: 1,
-      rate: 2500,
+      rate: 0,
     },
   ]);
 
@@ -59,9 +102,9 @@ export default function NewInvoicePage() {
       ...prev,
       {
         id: Date.now(),
-        description: "New Creative Work",
+        description: "",
         qty: 1,
-        rate: 1500,
+        rate: 0,
       },
     ]);
   };
@@ -112,32 +155,19 @@ export default function NewInvoicePage() {
         created_at: new Date().toISOString(),
       };
 
-      // 1. Save to localStorage for instant synchronization
-      try {
-        const existing = JSON.parse(
-          localStorage.getItem("orvixa_invoices") || "[]",
-        );
-        const updated = [newInvoice, ...existing];
-        localStorage.setItem("orvixa_invoices", JSON.stringify(updated));
-      } catch {}
-
-      // 2. Save to Supabase
-      try {
-        await supabase.from("invoices").insert([
-          {
-            invoice_number: newInvoice.invoice_number,
-            client: newInvoice.client,
-            amount: newInvoice.amount,
-            status: newInvoice.status,
-            issue_date: newInvoice.issue_date,
-            due_date: newInvoice.due_date,
-            items: JSON.stringify(newInvoice.items),
-            notes: newInvoice.notes,
-          },
-        ]);
-      } catch (err) {
-        console.warn("Supabase insert notice:", err);
-      }
+      const { error } = await supabase.from("invoices").insert([
+        {
+          invoice_number: newInvoice.invoice_number,
+          client: newInvoice.client,
+          amount: newInvoice.amount,
+          status: newInvoice.status,
+          issue_date: newInvoice.issue_date,
+          due_date: newInvoice.due_date,
+          items: JSON.stringify(newInvoice.items),
+          notes: newInvoice.notes,
+        },
+      ]);
+      if (error) throw error;
 
       router.push("/dashboard/freelancer/invoices");
     } catch (err: any) {
@@ -222,7 +252,7 @@ export default function NewInvoicePage() {
             </div>
           </div>
 
-          {/* Bill From Card (Sky Nova Digitals) */}
+          {/* Bill From Card */}
           <div className="bg-slate-50/70 p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
             <h3 className="text-xs font-bold text-amber-500 uppercase tracking-wider flex items-center gap-1">
               <Building className="w-3.5 h-3.5" />
@@ -231,19 +261,31 @@ export default function NewInvoicePage() {
 
             <div className="pt-1">
               <h4 className="text-sm font-bold text-slate-900">
-                Sky Nova Digitals
+                {billingProfile.brandName || "Add billing details in Settings"}
               </h4>
-              <p className="text-xs text-slate-500 mt-1">
-                Contact: +91- 9392525043
-              </p>
-              <p className="text-xs text-slate-500">Beeramguda, Hyderabad</p>
-              <p className="text-xs text-slate-500">Telangana - 502032</p>
+              {billingProfile.phone && (
+                <p className="text-xs text-slate-500 mt-1">
+                  Contact: {billingProfile.phone}
+                </p>
+              )}
+              {billingProfile.address && (
+                <p className="text-xs text-slate-500">
+                  {billingProfile.address}
+                </p>
+              )}
             </div>
 
             <div className="pt-2 border-t border-slate-200/80 text-[11px] text-slate-500">
               <span>Account: </span>
               <span className="font-semibold text-slate-800">
-                SANDEEP KAVETI | Yes Bank | 018391600022849
+                {[
+                  billingProfile.fullName,
+                  billingProfile.bankName,
+                  billingProfile.accountNumber,
+                  billingProfile.ifscCode,
+                ]
+                  .filter(Boolean)
+                  .join(" | ") || "No payment details saved"}
               </span>
             </div>
           </div>

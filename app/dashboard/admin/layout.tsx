@@ -166,6 +166,14 @@ export default function AdminLayout({
   return (
     <div className="min-h-screen bg-slate-50 flex font-sans">
       {/* SIDEBAR */}
+      {sidebarOpen && (
+        <button
+          type="button"
+          aria-label="Close navigation menu"
+          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 z-40 bg-slate-950/40 lg:hidden"
+        />
+      )}
       <aside
         className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 p-5 flex flex-col justify-between transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
@@ -252,7 +260,7 @@ export default function AdminLayout({
 
       {/* MAIN BODY */}
       <div className="flex-1 flex flex-col min-w-0 lg:ml-64 font-sans">
-        <header className="bg-white border-b border-slate-200 px-6 py-3.5 flex items-center justify-between sticky top-0 z-40 font-sans">
+        <header className="bg-white border-b border-slate-200 px-4 sm:px-6 py-3.5 flex items-center justify-between sticky top-0 z-40 font-sans">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -288,7 +296,9 @@ export default function AdminLayout({
           </div>
         </header>
 
-        <main className="p-6 sm:p-8 flex-1 font-sans">{children}</main>
+        <main className="p-4 sm:p-6 lg:p-8 flex-1 min-w-0 font-sans">
+          {children}
+        </main>
       </div>
     </div>
   );

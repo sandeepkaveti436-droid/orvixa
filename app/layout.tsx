@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
 import "./globals.css";
-import CookieConsent from "@/src/components/CookieConsent";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -23,7 +22,6 @@ export default function RootLayout({
     <html lang="en" className={dmSans.variable}>
       <body className="bg-white text-slate-900 font-sans antialiased">
         {children}
-        <CookieConsent />
       </body>
     </html>
   );

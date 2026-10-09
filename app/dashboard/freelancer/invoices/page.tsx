@@ -48,6 +48,17 @@ interface Invoice {
 
 export default function InvoicesPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [billingProfile, setBillingProfile] = useState({
+    brandName: "",
+    fullName: "",
+    phone: "",
+    address: "",
+    bankName: "",
+    accountNumber: "",
+    ifscCode: "",
+    website: "",
+    email: "",
+  });
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
@@ -94,7 +105,7 @@ export default function InvoicesPage() {
         return createClient(url, key);
       }
     } catch (e) {
-      console.warn("Supabase credentials not found, using localStorage sync");
+      console.warn("Could not initialize Supabase client:", e);
     }
     return null;
   };
@@ -119,7 +130,7 @@ export default function InvoicesPage() {
       raw.customer_name ||
       raw.customer ||
       raw.project_name ||
-      "Food & Link";
+      "";
 
     let amount = Number(
       raw.total_amount ??
@@ -141,40 +152,6 @@ export default function InvoicesPage() {
       }, 0);
     }
 
-    if (!amount || isNaN(amount) || amount === 0) {
-      amount = 3000;
-      if (parsedItems.length === 0) {
-        parsedItems = [
-          {
-            id: "1",
-            description: "26th Sep Dinner Design",
-            quantity: 1,
-            rate: 1500,
-            amount: 1500,
-          },
-          {
-            id: "2",
-            description: "13th Sep Lunch Design",
-            quantity: 1,
-            rate: 1500,
-            amount: 1500,
-          },
-        ];
-      }
-    }
-
-    if (parsedItems.length === 0 && amount > 0) {
-      parsedItems = [
-        {
-          id: "1",
-          description: "Creative Design Deliverables",
-          quantity: 1,
-          rate: amount,
-          amount: amount,
-        },
-      ];
-    }
-
     let status: "Draft" | "Sent" | "Paid" | "Pending" | "Overdue" = "Pending";
     const rawStatus = (raw.status || "").toLowerCase();
     if (rawStatus === "paid") status = "Paid";
@@ -184,22 +161,18 @@ export default function InvoicesPage() {
     else status = "Pending";
 
     return {
-      id: String(raw.id || raw.invoice_number || `inv-${Math.random()}`),
-      invoice_number:
-        raw.invoice_number ||
-        `INV-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+      id: String(raw.id || raw.invoice_number || ""),
+      invoice_number: raw.invoice_number || String(raw.id || "Unnumbered"),
       client_name: clientName,
-      client_contact: raw.client_contact || raw.contact || "+91-XXXXXXXXXX",
-      client_location:
-        raw.client_location || raw.location || "Hyderabad, India",
-      issue_date:
-        raw.issue_date || raw.created_at?.split("T")[0] || "2026-09-26",
-      due_date: raw.due_date || "2026-10-03",
+      client_contact: raw.client_contact || raw.contact || "",
+      client_location: raw.client_location || raw.location || "",
+      issue_date: raw.issue_date || raw.created_at?.split("T")[0] || "",
+      due_date: raw.due_date || "",
       items: parsedItems,
-      subtotal: raw.subtotal || amount,
+      subtotal: Number(raw.subtotal ?? amount),
       total_amount: amount,
       status: status,
-      created_at: raw.created_at || new Date().toISOString(),
+      created_at: raw.created_at || "",
     };
   };
 
@@ -208,51 +181,46 @@ export default function InvoicesPage() {
     const fetchInvoices = async () => {
       setLoading(true);
       try {
-        let loadedInvoices: any[] = [];
-
-        // 1. Supabase database
-        const supabase = getSupabase();
-        if (supabase) {
-          try {
-            const { data: dbInvoices } = await supabase
-              .from("invoices")
-              .select("*")
-              .order("created_at", { ascending: false });
-
-            if (dbInvoices && dbInvoices.length > 0) {
-              loadedInvoices = dbInvoices;
-            }
-          } catch (dbErr) {
-            console.warn("Database query skipped:", dbErr);
-          }
-        }
-
-        // 2. LocalStorage sync
-        if (typeof window !== "undefined") {
-          const localData = localStorage.getItem("orvixa_invoices");
-          if (localData) {
-            try {
-              const parsed = JSON.parse(localData);
-              const parsedArray = Array.isArray(parsed) ? parsed : [parsed];
-              parsedArray.forEach((localInv: any) => {
-                if (
-                  !loadedInvoices.some(
-                    (i) => i.invoice_number === localInv.invoice_number,
-                  )
-                ) {
-                  loadedInvoices.push(localInv);
-                }
+        const client = getSupabase();
+        if (client) {
+          const {
+            data: { user },
+          } = await client.auth.getUser();
+          if (user) {
+            const { data: profile } = await client
+              .from("profiles")
+              .select(
+                "brand_name, full_name, phone, address, bank_name, account_number, ifsc_code, website, email",
+              )
+              .eq("id", user.id)
+              .maybeSingle();
+            if (profile) {
+              setBillingProfile({
+                brandName: profile.brand_name || "",
+                fullName: profile.full_name || "",
+                phone: profile.phone || "",
+                address: profile.address || "",
+                bankName: profile.bank_name || "",
+                accountNumber: profile.account_number || "",
+                ifscCode: profile.ifsc_code || "",
+                website: profile.website || "",
+                email: profile.email || user.email || "",
               });
-            } catch (e) {
-              console.error("Error parsing local invoices:", e);
             }
           }
-        }
 
-        const normalized = loadedInvoices.map(normalizeInvoice);
-        setInvoices(normalized);
+          const { data: dbInvoices, error } = await client
+            .from("invoices")
+            .select("*")
+            .order("created_at", { ascending: false });
+          if (error) throw error;
+          setInvoices((dbInvoices || []).map(normalizeInvoice));
+        } else {
+          setInvoices([]);
+        }
       } catch (err) {
         console.error("Failed to load invoices:", err);
+        setInvoices([]);
       } finally {
         setLoading(false);
       }
@@ -278,11 +246,6 @@ export default function InvoicesPage() {
       (inv) => inv.id !== invoiceId && inv.invoice_number !== invoiceNumber,
     );
     setInvoices(updated);
-
-    // Update localStorage
-    if (typeof window !== "undefined") {
-      localStorage.setItem("orvixa_invoices", JSON.stringify(updated));
-    }
 
     // Delete from Supabase if connected
     const supabase = getSupabase();
@@ -343,11 +306,6 @@ export default function InvoicesPage() {
     // Update State
     setInvoices(uniqueInvoices);
 
-    // Update LocalStorage
-    if (typeof window !== "undefined") {
-      localStorage.setItem("orvixa_invoices", JSON.stringify(uniqueInvoices));
-    }
-
     // Remove duplicates from Supabase
     const supabase = getSupabase();
     if (supabase) {
@@ -362,15 +320,7 @@ export default function InvoicesPage() {
   };
 
   const formatClientContact = (contact?: string) => {
-    if (!contact) return "+91-XXXXXXXXXX";
-    const digits = contact.replace(/\D/g, "");
-    if (digits.includes("9392525043") || digits === "") {
-      return "+91-XXXXXXXXXX";
-    }
-    if (digits.length >= 10) {
-      return `+91-${digits.slice(0, 2)}******${digits.slice(-2)}`;
-    }
-    return contact.includes("X") ? contact : "+91-XXXXXXXXXX";
+    return contact || "Not provided";
   };
 
   const formatINR = (val: number = 0) => {
@@ -856,25 +806,9 @@ export default function InvoicesPage() {
                 {/* Top Branding Section */}
                 <div className="flex items-start justify-between mb-5">
                   <div className="flex flex-col items-start">
-                    <img
-                      src="/snd-logo.png"
-                      alt="Sky Nova Digitals"
-                      className="h-10 sm:h-12 w-auto object-contain"
-                      onError={(e) => {
-                        (e.currentTarget as HTMLElement).style.display = "none";
-                        const fallback =
-                          document.getElementById("snd-svg-fallback");
-                        if (fallback) fallback.style.display = "block";
-                      }}
-                    />
-                    <div id="snd-svg-fallback" style={{ display: "none" }}>
-                      <span className="text-2xl font-black text-[#F5A623] tracking-tighter">
-                        SND
-                      </span>
-                      <p className="text-[11px] font-bold text-slate-900 italic">
-                        Build What's Next.
-                      </p>
-                    </div>
+                    <h3 className="text-lg font-black text-slate-900">
+                      {billingProfile.brandName || "Billing profile not set"}
+                    </h3>
                   </div>
 
                   <div className="text-right">
@@ -934,16 +868,18 @@ export default function InvoicesPage() {
                     </div>
                     <div>
                       <h4 className="text-sm font-bold text-slate-900">
-                        Sky Nova Digitals
+                        {billingProfile.brandName || "Billing profile not set"}
                       </h4>
-                      <p className="text-xs text-slate-500 mt-1 font-semibold">
-                        Contact : +91- 9392525043
-                      </p>
-                      <p className="text-xs text-slate-500 font-semibold">
-                        Beeramguda, Hyderabad
-                        <br />
-                        Telangana - 502032
-                      </p>
+                      {billingProfile.phone && (
+                        <p className="text-xs text-slate-500 mt-1 font-semibold">
+                          Contact : {billingProfile.phone}
+                        </p>
+                      )}
+                      {billingProfile.address && (
+                        <p className="text-xs text-slate-500 font-semibold">
+                          {billingProfile.address}
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -1061,26 +997,28 @@ export default function InvoicesPage() {
                     <div className="grid grid-cols-[90px_1fr] gap-y-1 text-xs">
                       <span className="text-slate-500 font-semibold">Name</span>
                       <span className="text-slate-900 font-bold">
-                        SANDEEP KAVETI
+                        {billingProfile.fullName || "Not provided"}
                       </span>
 
                       <span className="text-slate-500 font-semibold">
                         Bank details
                       </span>
-                      <span className="text-slate-900 font-bold">Yes Bank</span>
+                      <span className="text-slate-900 font-bold">
+                        {billingProfile.bankName || "Not provided"}
+                      </span>
 
                       <span className="text-slate-500 font-semibold">
                         Account #
                       </span>
                       <span className="text-slate-900 font-bold">
-                        018391600022849
+                        {billingProfile.accountNumber || "Not provided"}
                       </span>
 
                       <span className="text-slate-500 font-semibold">
                         IFS code
                       </span>
                       <span className="text-slate-900 font-bold">
-                        YESB0000183
+                        {billingProfile.ifscCode || "Not provided"}
                       </span>
                     </div>
                   </div>
@@ -1090,7 +1028,7 @@ export default function InvoicesPage() {
                 <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between text-xs gap-2">
                   <div>
                     <h6 className="font-bold text-slate-900 text-xs tracking-wider">
-                      SKY NOVA DIGITALS
+                      {billingProfile.brandName || "Billing profile not set"}
                     </h6>
                     <p className="text-[10px] text-slate-500 font-medium">
                       We build software systems that grow with your business.
@@ -1100,10 +1038,14 @@ export default function InvoicesPage() {
                     <p>
                       Website :{" "}
                       <span className="text-blue-600 font-bold">
-                        skynovadigitals.vercel.app
+                        {billingProfile.website || "Not provided"}
                       </span>
                     </p>
-                    <p>skynovadigitals@gmail.com | +91 - 93925 25043</p>
+                    <p>
+                      {[billingProfile.email, billingProfile.phone]
+                        .filter(Boolean)
+                        .join(" | ") || "Billing contact not provided"}
+                    </p>
                   </div>
                 </div>
               </div>

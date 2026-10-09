@@ -43,20 +43,13 @@ export default function FreelancerDashboardLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [showNotifications, setShowNotifications] = useState(false);
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      title: "✅ Login Successful",
-      text: "You have securely logged into your workspace.",
-      time: "Just now",
-    },
-  ]);
+  const [notifications] = useState<unknown[]>([]);
 
   // Live Profile State
-  const [userName, setUserName] = useState("Freelancer");
-  const [userProfession, setUserProfession] = useState("UI/UX Designer");
+  const [userName, setUserName] = useState("");
+  const [userProfession, setUserProfession] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [userInitials, setUserInitials] = useState("SK");
+  const [userInitials, setUserInitials] = useState("U");
 
   useEffect(() => {
     window.history.pushState(null, "", window.location.href);
@@ -68,19 +61,6 @@ export default function FreelancerDashboardLayout({
   }, [pathname]);
 
   const loadRealUserProfile = async () => {
-    const cachedAvatar = localStorage.getItem("orvixa_avatar_photo");
-    const cachedName = localStorage.getItem("orvixa_user_name");
-    const cachedProf = localStorage.getItem("orvixa_user_prof");
-
-    if (cachedAvatar) setAvatarUrl(cachedAvatar);
-    if (cachedName) {
-      setUserName(cachedName);
-      setUserInitials(getInitialsFromName(cachedName));
-    }
-    if (cachedProf && cachedProf !== "Pro Freelancer") {
-      setUserProfession(cachedProf);
-    }
-
     try {
       const { data: authData } = await supabase.auth.getUser();
       const user = authData?.user;
@@ -90,10 +70,9 @@ export default function FreelancerDashboardLayout({
           user.user_metadata?.full_name ||
           user.user_metadata?.name ||
           user.email?.split("@")[0] ||
-          "Freelancer";
+          "";
 
-        let finalProfession =
-          user.user_metadata?.profession || "UI/UX Designer";
+        let finalProfession = user.user_metadata?.profession || "";
         let finalAvatar = user.user_metadata?.avatar_url || null;
 
         try {
@@ -118,11 +97,11 @@ export default function FreelancerDashboardLayout({
         setUserProfession(finalProfession);
         if (finalAvatar) setAvatarUrl(finalAvatar);
         setUserInitials(getInitialsFromName(finalName));
-
-        localStorage.setItem("orvixa_user_name", finalName);
-        localStorage.setItem("orvixa_user_prof", finalProfession);
-        if (finalAvatar)
-          localStorage.setItem("orvixa_avatar_photo", finalAvatar);
+      } else {
+        setUserName("");
+        setUserProfession("");
+        setAvatarUrl(null);
+        setUserInitials("U");
       }
     } catch (err) {
       console.log("Profile sync:", err);
@@ -201,6 +180,14 @@ export default function FreelancerDashboardLayout({
   return (
     <div className="min-h-screen flex font-sans bg-slate-50 text-slate-900 transition-colors duration-300">
       {/* 1. SIDEBAR */}
+      {sidebarOpen && (
+        <button
+          type="button"
+          aria-label="Close navigation menu"
+          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 z-40 bg-slate-950/40 lg:hidden"
+        />
+      )}
       <aside
         className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 p-5 flex flex-col justify-between transition-all duration-300 lg:translate-x-0 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -295,7 +282,7 @@ export default function FreelancerDashboardLayout({
 
       {/* 2. MAIN BODY */}
       <div className="flex-1 flex flex-col min-w-0 lg:ml-64 font-sans">
-        <header className="bg-white border-b border-slate-200 px-6 py-3.5 flex items-center justify-between sticky top-0 z-40 font-sans">
+        <header className="bg-white border-b border-slate-200 px-4 sm:px-6 py-3.5 flex items-center justify-between sticky top-0 z-40 font-sans">
           <div className="flex items-center gap-3 font-sans">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -351,7 +338,7 @@ export default function FreelancerDashboardLayout({
           </div>
         </header>
 
-        <main className="p-6 sm:p-8 flex-1 font-sans">
+        <main className="p-4 sm:p-6 lg:p-8 flex-1 min-w-0 font-sans">
           <div className="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-6 font-sans">
             <Link
               href="/dashboard/freelancer"

@@ -30,25 +30,25 @@ export default function ProfileSettingsPage() {
 
   // Form State
   const [profile, setProfile] = useState({
-    brandName: "Sky Nova Digitals",
-    tagline: "Build What's Next.",
-    ownerName: "SANDEEP KAVETI",
+    brandName: "",
+    tagline: "",
+    ownerName: "",
     role: "Founder | CEO",
-    email: "skynovadigitals@gmail.com",
-    phone: "+91- 9392525043",
-    website: "https://skynovadigitals.vercel.app",
-    address: "Beeramguda, Hyderabad, Telangana - 502032",
+    email: "",
+    phone: "",
+    website: "",
+    address: "",
     currency: "INR (₹)",
     currencySymbol: "₹",
     timezone: "Asia/Kolkata (IST +5:30)",
     // Bank & Invoicing Payouts
-    accountHolder: "SANDEEP KAVETI",
-    bankName: "Yes Bank",
-    accountNumber: "018391600022849",
-    ifscCode: "YESB0000183",
-    upiId: "9392525043@upi",
+    accountHolder: "",
+    bankName: "",
+    accountNumber: "",
+    ifscCode: "",
+    upiId: "",
     // Logo
-    logoUrl: "/snd-logo.png",
+    logoUrl: "",
   });
 
   const [activeTab, setActiveTab] = useState<"brand" | "invoice" | "bank">(
@@ -69,43 +69,52 @@ export default function ProfileSettingsPage() {
     return null;
   };
 
-  // Load profile from localStorage & Supabase
+  // Load only the signed-in user's profile.
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("orvixa_profile");
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          setProfile((prev) => ({ ...prev, ...parsed }));
-        } catch (e) {
-          console.error("Failed to parse local profile:", e);
-        }
-      }
-    }
-
     const fetchFromSupabase = async () => {
       const supabase = getSupabase();
       if (!supabase) return;
       try {
-        const { data } = await supabase
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data, error } = await supabase
           .from("profiles")
           .select("*")
-          .limit(1)
-          .single();
+          .eq("id", user.id)
+          .maybeSingle();
+        if (error) throw error;
+
         if (data) {
           setProfile((prev) => ({
             ...prev,
-            brandName: data.brand_name || prev.brandName,
-            ownerName: data.full_name || prev.ownerName,
-            phone: data.phone || prev.phone,
-            address: data.address || prev.address,
-            bankName: data.bank_name || prev.bankName,
-            accountNumber: data.account_number || prev.accountNumber,
-            ifscCode: data.ifsc_code || prev.ifscCode,
+            brandName: data.brand_name || "",
+            ownerName: data.full_name || "",
+            role: data.role || "Freelancer",
+            email: data.email || user.email || "",
+            phone: data.phone || "",
+            website: data.website || "",
+            address: data.address || "",
+            accountHolder: data.account_holder || "",
+            bankName: data.bank_name || "",
+            accountNumber: data.account_number || "",
+            ifscCode: data.ifsc_code || "",
+            upiId: data.upi_id || "",
+            logoUrl: data.logo_url || "",
+          }));
+        } else {
+          setProfile((prev) => ({
+            ...prev,
+            email: user.email || "",
+            ownerName:
+              user.user_metadata?.full_name || user.email?.split("@")[0] || "",
+            role: "Freelancer",
           }));
         }
       } catch (err) {
-        // Fallback to local
+        console.error("Could not load profile:", err);
       }
     };
 
@@ -136,31 +145,31 @@ export default function ProfileSettingsPage() {
     setSaveSuccess(false);
 
     try {
-      // 1. Save to LocalStorage
-      if (typeof window !== "undefined") {
-        localStorage.setItem("orvixa_profile", JSON.stringify(profile));
-      }
-
-      // 2. Try saving to Supabase if table exists
       const supabase = getSupabase();
-      if (supabase) {
-        try {
-          await supabase.from("profiles").upsert({
-            brand_name: profile.brandName,
-            full_name: profile.ownerName,
-            role: profile.role,
-            phone: profile.phone,
-            website: profile.website,
-            address: profile.address,
-            bank_name: profile.bankName,
-            account_number: profile.accountNumber,
-            ifsc_code: profile.ifscCode,
-            updated_at: new Date().toISOString(),
-          });
-        } catch (dbErr) {
-          console.warn("Supabase profile save skipped:", dbErr);
-        }
-      }
+      if (!supabase) throw new Error("Profile database is unavailable.");
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error("Sign in to save profile settings.");
+
+      const { error } = await supabase.from("profiles").upsert({
+        id: user.id,
+        email: user.email,
+        brand_name: profile.brandName,
+        full_name: profile.ownerName,
+        role: profile.role,
+        phone: profile.phone,
+        website: profile.website,
+        address: profile.address,
+        account_holder: profile.accountHolder,
+        bank_name: profile.bankName,
+        account_number: profile.accountNumber,
+        ifsc_code: profile.ifscCode,
+        upi_id: profile.upiId,
+        logo_url: profile.logoUrl,
+        updated_at: new Date().toISOString(),
+      });
+      if (error) throw error;
 
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
@@ -260,7 +269,7 @@ export default function ProfileSettingsPage() {
                     className="text-center"
                   >
                     <span className="text-xl font-black text-white tracking-tighter">
-                      SND
+                      {profile.brandName.slice(0, 3).toUpperCase() || ""}
                     </span>
                   </div>
                 </div>
@@ -313,11 +322,9 @@ export default function ProfileSettingsPage() {
               </button>
               <button
                 type="button"
-                onClick={() =>
-                  setProfile((prev) => ({ ...prev, logoUrl: "/snd-logo.png" }))
-                }
+                onClick={() => setProfile((prev) => ({ ...prev, logoUrl: "" }))}
                 className="p-2.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition cursor-pointer"
-                title="Reset to default SND logo"
+                title="Remove logo"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
