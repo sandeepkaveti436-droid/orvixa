@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import {
   Search,
@@ -16,14 +16,8 @@ import {
   X,
   Edit3,
   Upload,
-  Phone,
-  Mail,
-  Globe,
-  MapPin,
-  Check,
   UserCheck,
   ShieldCheck,
-  Download,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
@@ -62,7 +56,7 @@ interface CompanyProfile {
 
 const DEFAULT_COMPANY_PROFILE: CompanyProfile = {
   companyName: "Sky Nova Digitals",
-  tagline: "Studio & Creative Engineering",
+  tagline: "Build What's Next.",
   logoDataUrl: "",
   phone: "+91 939 252 5043",
   email: "skynovadigitals@gmail.com",
@@ -601,41 +595,43 @@ export default function InvoicesPage() {
               </div>
             </div>
 
-            {/* PRINTABLE INVOICE SHEET (Modern Luxury Creative Agency Design) */}
+            {/* PRINTABLE INVOICE SHEET */}
             <div
               id="printable-invoice"
               className="p-8 sm:p-14 text-slate-900 bg-white relative font-sans space-y-9"
               style={{ minHeight: "1050px" }}
             >
-              {/* 1. TOP HEADER: BRAND IDENTITY & STATUS BADGE */}
+              {/* 1. TOP HEADER: LOGO ONLY (NO DUPLICATE BRAND TEXT BESIDE IT) */}
               <div className="flex items-start justify-between pb-8 border-b-2 border-slate-900">
-                <div className="flex items-center gap-4">
+                <div className="flex items-center">
                   {profile.logoDataUrl ? (
                     <img
                       src={profile.logoDataUrl}
-                      alt={profile.companyName}
-                      className="h-16 w-auto max-w-[140px] object-contain"
+                      alt="Company Logo"
+                      className="h-16 sm:h-20 w-auto max-w-[240px] object-contain"
                     />
                   ) : (
-                    <div className="w-14 h-14 bg-slate-900 text-amber-400 rounded-2xl flex items-center justify-center font-black text-2xl tracking-tighter shadow-md">
-                      {profile.companyName.slice(0, 2).toUpperCase()}
+                    <div>
+                      <h2 className="text-2xl sm:text-3xl font-black text-slate-950 uppercase tracking-tight">
+                        {profile.companyName}
+                      </h2>
+                      {profile.tagline && (
+                        <p className="text-xs font-semibold text-amber-600 uppercase tracking-widest mt-0.5">
+                          {profile.tagline}
+                        </p>
+                      )}
                     </div>
                   )}
-
-                  <div>
-                    <h2 className="text-2xl sm:text-3xl font-black text-slate-950 uppercase tracking-tight">
-                      {profile.companyName}
-                    </h2>
-                    <p className="text-xs font-semibold text-amber-600 uppercase tracking-widest mt-0.5">
-                      {profile.tagline || "Creative Agency & Production"}
-                    </p>
-                  </div>
                 </div>
 
                 <div className="text-right">
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider mb-2 border border-slate-200 bg-slate-50">
                     <span
-                      className={`w-2 h-2 rounded-full ${selectedInvoice.status.toLowerCase() === "paid" ? "bg-emerald-500" : "bg-amber-500"}`}
+                      className={`w-2 h-2 rounded-full ${
+                        selectedInvoice.status.toLowerCase() === "paid"
+                          ? "bg-emerald-500"
+                          : "bg-amber-500"
+                      }`}
                     />
                     <span>{selectedInvoice.status}</span>
                   </div>
@@ -729,7 +725,7 @@ export default function InvoicesPage() {
                 </div>
               </div>
 
-              {/* 3. MODERN FINANCIAL DELIVERABLES TABLE */}
+              {/* 3. FINANCIAL DELIVERABLES TABLE */}
               <div className="space-y-3 pt-2">
                 <div className="grid grid-cols-12 pb-3 border-b-2 border-slate-900 text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3">
                   <div className="col-span-1 text-center">#</div>
@@ -773,7 +769,7 @@ export default function InvoicesPage() {
                 </div>
               </div>
 
-              {/* 4. TOTALS BREAKDOWN (TAX IS FULLY OPTIONAL) */}
+              {/* 4. TOTALS (TAX IS OPTIONAL) */}
               <div className="flex flex-col items-end pt-4 border-t border-slate-200 text-xs space-y-2">
                 <div className="w-80 flex justify-between text-slate-600 font-semibold px-2">
                   <span>Subtotal:</span>
@@ -785,7 +781,6 @@ export default function InvoicesPage() {
                   </span>
                 </div>
 
-                {/* ONLY SHOWN IF TAX PERCENT > 0 */}
                 {taxPercent > 0 && (
                   <div className="w-80 flex justify-between text-slate-600 font-semibold px-2">
                     <span>Tax / GST ({taxPercent}%):</span>
@@ -798,7 +793,6 @@ export default function InvoicesPage() {
                   </div>
                 )}
 
-                {/* GRAND TOTAL HIGHLIGHT */}
                 <div className="w-80 bg-slate-950 text-white p-4 rounded-2xl flex justify-between items-center shadow-md mt-2">
                   <span className="font-bold uppercase tracking-wider text-xs text-slate-300">
                     Total Amount Due:
@@ -812,9 +806,8 @@ export default function InvoicesPage() {
                 </div>
               </div>
 
-              {/* 5. BANK SETTLEMENT & EXECUTIVE SIGNATURE */}
+              {/* 5. BANK SETTLEMENT & SIGNATURE */}
               <div className="grid grid-cols-1 md:grid-cols-12 gap-8 pt-8 border-t border-slate-200 text-xs">
-                {/* Bank Transfer Wire Details */}
                 <div className="md:col-span-7 bg-amber-50/50 p-5 rounded-2xl border border-amber-200/80 space-y-2.5">
                   <div className="flex items-center gap-2 text-amber-800 font-bold uppercase tracking-wider text-[11px]">
                     <ShieldCheck className="w-4 h-4 text-amber-600" />
@@ -860,7 +853,6 @@ export default function InvoicesPage() {
                   </div>
                 </div>
 
-                {/* Terms and Signature */}
                 <div className="md:col-span-5 flex flex-col justify-between space-y-4">
                   <div>
                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
@@ -909,9 +901,7 @@ export default function InvoicesPage() {
         </div>
       )}
 
-      {/* ========================================================================= */}
-      {/* 🌟 EDIT CLIENT DETAILS & OPTIONAL TAX MODAL                              */}
-      {/* ========================================================================= */}
+      {/* EDIT CLIENT & TAX MODAL */}
       {showEditClientModal && (
         <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl space-y-4 my-8">
@@ -1010,7 +1000,6 @@ export default function InvoicesPage() {
                 />
               </div>
 
-              {/* TAX CONTROL */}
               <div className="pt-2 border-t border-slate-100">
                 <div className="flex items-center justify-between">
                   <div>
@@ -1079,9 +1068,7 @@ export default function InvoicesPage() {
         </div>
       )}
 
-      {/* ========================================================================= */}
-      {/* 🌟 SETUP COMPANY & BANK DETAILS MODAL                                     */}
-      {/* ========================================================================= */}
+      {/* SETUP COMPANY & BANK DETAILS MODAL */}
       {showProfileModal && (
         <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl space-y-4 my-8">
