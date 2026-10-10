@@ -1,1054 +1,450 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import Link from "next/link";
 import {
-  Download,
-  Printer,
-  X,
-  Eye,
-  CheckCircle2,
-  Building2,
-  User,
-  Clock,
   FileText,
   Search,
-  Loader2,
+  CheckCircle2,
+  Clock,
+  Printer,
   Trash2,
+  ArrowUpRight,
+  Loader2,
   Sparkles,
+  Building,
+  Calendar,
+  IndianRupee,
+  Receipt,
+  X,
+  ExternalLink,
 } from "lucide-react";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabase";
 
-interface InvoiceItem {
-  id?: string;
-  description: string;
-  quantity: number;
-  rate: number;
-  amount: number;
-  price?: number;
-  total?: number;
-}
-
-interface Invoice {
+export interface InvoiceItem {
   id: string;
   invoice_number: string;
-  project_id?: string;
-  client_name: string;
-  client_contact?: string;
-  client_location?: string;
+  client: string;
+  amount: number;
+  status: "Paid" | "Pending" | "Overdue" | string;
   issue_date: string;
-  due_date: string;
-  items: InvoiceItem[];
-  subtotal: number;
-  tax_rate?: number;
-  tax_amount?: number;
-  total_amount: number;
-  status: "Draft" | "Sent" | "Paid" | "Pending" | "Overdue";
+  due_date?: string;
+  items?: any;
+  notes?: string;
   created_at?: string;
 }
 
 export default function InvoicesPage() {
-  const [invoices, setInvoices] = useState<Invoice[]>([]);
-  const [billingProfile, setBillingProfile] = useState({
-    brandName: "",
-    fullName: "",
-    phone: "",
-    address: "",
-    bankName: "",
-    accountNumber: "",
-    ifscCode: "",
-    website: "",
-    email: "",
-  });
   const [loading, setLoading] = useState(true);
+  const [invoices, setInvoices] = useState<InvoiceItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
-  const [isDownloading, setIsDownloading] = useState(false);
-  const [pdfPreviewUrl, setPdfPreviewUrl] = useState<string | null>(null);
+  const [selectedInvoice, setSelectedInvoice] = useState<InvoiceItem | null>(
+    null,
+  );
 
-  // Preload html2pdf script once so PDF downloading is instant
   useEffect(() => {
-    if (typeof window !== "undefined" && !(window as any).html2pdf) {
-      const script = document.createElement("script");
-      script.src =
-        "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
-      script.async = true;
-      document.head.appendChild(script);
-    }
-  }, []);
-
-  // Closes modal & releases object URL
-  const handleCloseModal = () => {
-    setSelectedInvoice(null);
-    if (pdfPreviewUrl) {
-      URL.revokeObjectURL(pdfPreviewUrl);
-      setPdfPreviewUrl(null);
-    }
-  };
-
-  // Close modal when pressing ESC key
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        handleCloseModal();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
-
-  // Safe Supabase client creator
-  const getSupabase = () => {
-    try {
-      const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-      const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-      if (url && key) {
-        return createClient(url, key);
-      }
-    } catch (e) {
-      console.warn("Could not initialize Supabase client:", e);
-    }
-    return null;
-  };
-
-  // Robust Normalizer: Fixes 0 amounts and empty client names
-  const normalizeInvoice = (raw: any): Invoice => {
-    let parsedItems: InvoiceItem[] = [];
-    if (Array.isArray(raw.items)) {
-      parsedItems = raw.items;
-    } else if (typeof raw.items === "string") {
-      try {
-        parsedItems = JSON.parse(raw.items);
-      } catch (e) {
-        parsedItems = [];
-      }
-    }
-
-    const clientName =
-      raw.client_name ||
-      raw.client ||
-      raw.clientName ||
-      raw.customer_name ||
-      raw.customer ||
-      raw.project_name ||
-      "";
-
-    let amount = Number(
-      raw.total_amount ??
-        raw.amount ??
-        raw.total ??
-        raw.grand_total ??
-        raw.price ??
-        0,
-    );
-
-    if ((!amount || isNaN(amount) || amount === 0) && parsedItems.length > 0) {
-      amount = parsedItems.reduce((acc, it: any) => {
-        const itPrice = Number(
-          it.amount ??
-            it.total ??
-            (it.rate || it.price || 0) * (it.quantity || 1),
-        );
-        return acc + (isNaN(itPrice) ? 0 : itPrice);
-      }, 0);
-    }
-
-    let status: "Draft" | "Sent" | "Paid" | "Pending" | "Overdue" = "Pending";
-    const rawStatus = (raw.status || "").toLowerCase();
-    if (rawStatus === "paid") status = "Paid";
-    else if (rawStatus === "draft") status = "Draft";
-    else if (rawStatus === "sent") status = "Sent";
-    else if (rawStatus === "overdue") status = "Overdue";
-    else status = "Pending";
-
-    return {
-      id: String(raw.id || raw.invoice_number || ""),
-      invoice_number: raw.invoice_number || String(raw.id || "Unnumbered"),
-      client_name: clientName,
-      client_contact: raw.client_contact || raw.contact || "",
-      client_location: raw.client_location || raw.location || "",
-      issue_date: raw.issue_date || raw.created_at?.split("T")[0] || "",
-      due_date: raw.due_date || "",
-      items: parsedItems,
-      subtotal: Number(raw.subtotal ?? amount),
-      total_amount: amount,
-      status: status,
-      created_at: raw.created_at || "",
-    };
-  };
-
-  // Load invoices
-  useEffect(() => {
-    const fetchInvoices = async () => {
-      setLoading(true);
-      try {
-        const client = getSupabase();
-        if (client) {
-          const {
-            data: { user },
-          } = await client.auth.getUser();
-          if (user) {
-            const { data: profile } = await client
-              .from("profiles")
-              .select(
-                "brand_name, full_name, phone, address, bank_name, account_number, ifsc_code, website, email",
-              )
-              .eq("id", user.id)
-              .maybeSingle();
-            if (profile) {
-              setBillingProfile({
-                brandName: profile.brand_name || "",
-                fullName: profile.full_name || "",
-                phone: profile.phone || "",
-                address: profile.address || "",
-                bankName: profile.bank_name || "",
-                accountNumber: profile.account_number || "",
-                ifscCode: profile.ifsc_code || "",
-                website: profile.website || "",
-                email: profile.email || user.email || "",
-              });
-            }
-          }
-
-          const { data: dbInvoices, error } = await client
-            .from("invoices")
-            .select("*")
-            .order("created_at", { ascending: false });
-          if (error) throw error;
-          setInvoices((dbInvoices || []).map(normalizeInvoice));
-        } else {
-          setInvoices([]);
-        }
-      } catch (err) {
-        console.error("Failed to load invoices:", err);
-        setInvoices([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchInvoices();
   }, []);
 
-  // 1. DELETE SINGLE INVOICE FUNCTION
-  const handleDeleteInvoice = async (
-    invoiceId: string,
-    invoiceNumber: string,
-    e?: React.MouseEvent,
-  ) => {
-    if (e) e.stopPropagation();
-
-    if (!confirm(`Are you sure you want to delete invoice ${invoiceNumber}?`)) {
-      return;
-    }
-
-    // Update State
-    const updated = invoices.filter(
-      (inv) => inv.id !== invoiceId && inv.invoice_number !== invoiceNumber,
-    );
-    setInvoices(updated);
-
-    // Delete from Supabase if connected
-    const supabase = getSupabase();
-    if (supabase) {
-      try {
-        await supabase
-          .from("invoices")
-          .delete()
-          .or(`id.eq.${invoiceId},invoice_number.eq.${invoiceNumber}`);
-      } catch (err) {
-        console.warn("Supabase delete error:", err);
-      }
-    }
-
-    if (
-      selectedInvoice &&
-      (selectedInvoice.id === invoiceId ||
-        selectedInvoice.invoice_number === invoiceNumber)
-    ) {
-      handleCloseModal();
-    }
-  };
-
-  // 2. DELETE ALL DUPLICATE INVOICES WITH ONE CLICK
-  const handleRemoveDuplicates = async () => {
-    const seenNumbers = new Set<string>();
-    const seenSignatures = new Set<string>();
-    const uniqueInvoices: Invoice[] = [];
-    const removedNumbers: string[] = [];
-
-    for (const inv of invoices) {
-      // Create duplicate fingerprint by invoice_number OR (client + amount + issue_date)
-      const numberKey = inv.invoice_number;
-      const signatureKey = `${inv.client_name.toLowerCase()}_${inv.total_amount}_${inv.issue_date}`;
-
-      if (seenNumbers.has(numberKey) || seenSignatures.has(signatureKey)) {
-        removedNumbers.push(inv.invoice_number);
-      } else {
-        seenNumbers.add(numberKey);
-        seenSignatures.add(signatureKey);
-        uniqueInvoices.push(inv);
-      }
-    }
-
-    if (removedNumbers.length === 0) {
-      alert("No duplicate invoices found!");
-      return;
-    }
-
-    if (
-      !confirm(
-        `Found ${removedNumbers.length} duplicate invoice(s): (${removedNumbers.join(", ")}). Delete them?`,
-      )
-    ) {
-      return;
-    }
-
-    // Update State
-    setInvoices(uniqueInvoices);
-
-    // Remove duplicates from Supabase
-    const supabase = getSupabase();
-    if (supabase) {
-      try {
-        for (const num of removedNumbers) {
-          await supabase.from("invoices").delete().eq("invoice_number", num);
-        }
-      } catch (err) {
-        console.warn("Supabase duplicate removal error:", err);
-      }
-    }
-  };
-
-  const formatClientContact = (contact?: string) => {
-    return contact || "Not provided";
-  };
-
-  const formatINR = (val: number = 0) => {
-    return Number(val || 0).toLocaleString("en-IN", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
-  };
-
-  const getHtml2PdfWorker = async (): Promise<any> => {
-    if (typeof window === "undefined") return null;
-    if ((window as any).html2pdf) return (window as any).html2pdf;
-
-    return new Promise((resolve, reject) => {
-      let tries = 0;
-      const interval = setInterval(() => {
-        tries++;
-        if ((window as any).html2pdf) {
-          clearInterval(interval);
-          resolve((window as any).html2pdf);
-        } else if (tries > 25) {
-          clearInterval(interval);
-          reject(new Error("html2pdf loading timed out"));
-        }
-      }, 100);
-    });
-  };
-
-  // Download PDF locally and show PDF preview in new tab
-  const handleDownloadPDF = async () => {
-    if (!selectedInvoice) return;
-    setIsDownloading(true);
-
-    let previewTab: Window | null = null;
+  const fetchInvoices = async () => {
     try {
-      previewTab = window.open("", "_blank");
-      if (previewTab) {
-        previewTab.document.write(`
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <title>Preparing ${selectedInvoice.invoice_number}...</title>
-              <style>
-                body {
-                  margin: 0;
-                  height: 100vh;
-                  display: flex;
-                  flex-direction: column;
-                  align-items: center;
-                  justify-content: center;
-                  background: #0f172a;
-                  color: #ffffff;
-                  font-family: 'DM Sans', system-ui, sans-serif;
-                }
-                .spinner {
-                  width: 44px;
-                  height: 44px;
-                  border: 4px solid #334155;
-                  border-top: 4px solid #F5A623;
-                  border-radius: 50%;
-                  animation: spin 0.8s linear infinite;
-                  margin-bottom: 16px;
-                }
-                @keyframes spin {
-                  0% { transform: rotate(0deg); }
-                  100% { transform: rotate(360deg); }
-                }
-                h2 { font-size: 18px; font-weight: 600; margin: 0 0 6px 0; }
-                p { font-size: 13px; color: #94a3b8; margin: 0; }
-              </style>
-            </head>
-            <body>
-              <div class="spinner"></div>
-              <h2>Generating ${selectedInvoice.invoice_number}</h2>
-              <p>Downloading PDF locally and opening your preview...</p>
-            </body>
-          </html>
-        `);
-      }
-    } catch (e) {
-      console.warn("Could not pre-open preview tab:", e);
-    }
+      setLoading(true);
 
-    try {
-      const html2pdf = await getHtml2PdfWorker();
-      const invoiceElement = document.getElementById(
-        "printable-invoice-content",
-      );
+      const { data, error } = await supabase
+        .from("invoices")
+        .select("*")
+        .order("created_at", { ascending: false });
 
-      if (!invoiceElement) {
-        throw new Error("Invoice container not found");
+      if (error) {
+        console.error("Error fetching invoices:", error.message);
       }
 
-      const filename = `${selectedInvoice.invoice_number || "invoice"}.pdf`;
+      if (data && data.length > 0) {
+        const normalized: InvoiceItem[] = data.map((inv: any) => ({
+          id: String(inv.id),
+          invoice_number:
+            inv.invoice_number || inv.invoice_no || `INV-${inv.id.slice(0, 6)}`,
+          client: inv.client || inv.client_name || "Client",
+          amount: parseFloat(String(inv.amount || inv.total || 0)),
+          status: inv.status || "Pending",
+          issue_date:
+            inv.issue_date ||
+            inv.date ||
+            inv.created_at?.split("T")[0] ||
+            new Date().toISOString().split("T")[0],
+          due_date: inv.due_date || null,
+          items:
+            typeof inv.items === "string" ? JSON.parse(inv.items) : inv.items,
+          notes: inv.notes || "",
+          created_at: inv.created_at,
+        }));
 
-      const options = {
-        margin: [6, 6, 6, 6],
-        filename: filename,
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          allowTaint: true,
-          logging: false,
-          scrollY: 0,
-          scrollX: 0,
-        },
-        jsPDF: {
-          unit: "mm",
-          format: "a4",
-          orientation: "portrait",
-        },
-      };
-
-      const pdfBlob: Blob = await html2pdf()
-        .set(options)
-        .from(invoiceElement)
-        .output("blob");
-      const blobUrl = URL.createObjectURL(pdfBlob);
-
-      const downloadLink = document.createElement("a");
-      downloadLink.href = blobUrl;
-      downloadLink.download = filename;
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      downloadLink.remove();
-
-      if (previewTab && !previewTab.closed) {
-        previewTab.location.href = blobUrl;
+        setInvoices(normalized);
       } else {
-        window.open(blobUrl, "_blank");
+        setInvoices([]);
       }
-
-      setPdfPreviewUrl(blobUrl);
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-      if (previewTab && !previewTab.closed) {
-        previewTab.close();
-      }
-      window.print();
+    } catch (err: any) {
+      console.error("Invoices error:", err.message);
     } finally {
-      setIsDownloading(false);
+      setLoading(false);
     }
   };
 
-  const handlePrintInvoice = () => {
-    window.print();
+  // KPIs
+  const stats = useMemo(() => {
+    let totalIssued = 0;
+    let amountDue = 0;
+
+    invoices.forEach((inv) => {
+      const amt = inv.amount || 0;
+      totalIssued += amt;
+
+      const s = (inv.status || "").toLowerCase();
+      if (s !== "paid") {
+        amountDue += amt;
+      }
+    });
+
+    return {
+      totalIssued,
+      amountDue,
+      totalCount: invoices.length,
+    };
+  }, [invoices]);
+
+  // Filtered invoices
+  const filteredInvoices = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
+    if (!q) return invoices;
+
+    return invoices.filter(
+      (inv) =>
+        inv.invoice_number.toLowerCase().includes(q) ||
+        inv.client.toLowerCase().includes(q),
+    );
+  }, [invoices, searchQuery]);
+
+  // Toggle Paid / Pending status
+  const handleToggleStatus = async (id: string, currentStatus: string) => {
+    const nextStatus = currentStatus === "Paid" ? "Pending" : "Paid";
+
+    setInvoices((prev) =>
+      prev.map((inv) => (inv.id === id ? { ...inv, status: nextStatus } : inv)),
+    );
+
+    try {
+      await supabase
+        .from("invoices")
+        .update({ status: nextStatus })
+        .eq("id", id);
+    } catch (err) {
+      console.error("Status update error:", err);
+    }
   };
 
-  const filteredInvoices = invoices.filter(
-    (inv) =>
-      (inv.invoice_number || "")
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase()) ||
-      (inv.client_name || "").toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+  // Delete invoice
+  const handleDeleteInvoice = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this invoice?"))
+      return;
 
-  const totalCollected = invoices
-    .filter((i) => i.status === "Paid")
-    .reduce((acc, curr) => acc + (curr.total_amount || 0), 0);
-
-  const totalPending = invoices
-    .filter((i) => i.status !== "Paid")
-    .reduce((acc, curr) => acc + (curr.total_amount || 0), 0);
+    setInvoices((prev) => prev.filter((inv) => inv.id !== id));
+    try {
+      await supabase.from("invoices").delete().eq("id", id);
+    } catch (err) {
+      console.error("Delete error:", err);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-800 pb-16 font-sans">
-      {/* Print CSS */}
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `
-        @media print {
-          body * {
-            visibility: hidden !important;
-          }
-          #printable-invoice-content,
-          #printable-invoice-content * {
-            visibility: visible !important;
-          }
-          #printable-invoice-content {
-            position: fixed !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 100vw !important;
-            height: 100vh !important;
-            margin: 0 !important;
-            padding: 10mm !important;
-            box-shadow: none !important;
-            border: none !important;
-            background: #ffffff !important;
-          }
-        }
-      `,
-        }}
-      />
-
-      {/* Main Page Area */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8">
-        {/* Header with Title and Search */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-7">
-          <div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
-              Invoices
-            </h1>
-            <p className="text-sm text-slate-500 mt-1 font-medium">
-              Manage and track your client billings and PDF statements
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Search invoices..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-52 sm:w-64 font-medium placeholder:text-slate-400 shadow-sm"
-              />
-            </div>
-          </div>
+    <div className="font-sans space-y-6 pb-20 text-slate-900 not-italic">
+      {/* HEADER */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+            Invoices
+          </h1>
+          <p className="text-sm font-normal text-slate-500 mt-1">
+            Manage and track your client billings and PDF statements
+          </p>
         </div>
 
-        {/* KPI Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
-          <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm flex items-center gap-4 hover:shadow-md transition">
-            <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xl">
-              ₹
-            </div>
-            <div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                TOTAL ISSUED
-              </p>
-              <h3 className="text-2xl font-black text-slate-900 tracking-tight mt-0.5">
-                ₹ {formatINR(totalCollected + totalPending)}
-              </h3>
-            </div>
-          </div>
-
-          <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm flex items-center gap-4 hover:shadow-md transition">
-            <div className="w-12 h-12 rounded-xl bg-amber-50 text-[#F5A623] flex items-center justify-center font-bold text-lg">
-              <Clock className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                AMOUNT DUE
-              </p>
-              <h3 className="text-2xl font-black text-slate-900 tracking-tight mt-0.5">
-                ₹ {formatINR(totalPending)}
-              </h3>
-            </div>
-          </div>
-
-          <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm flex items-center gap-4 hover:shadow-md transition">
-            <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-lg">
-              <CheckCircle2 className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                TOTAL INVOICES
-              </p>
-              <h3 className="text-2xl font-black text-slate-900 tracking-tight mt-0.5">
-                {invoices.length}
-              </h3>
-            </div>
-          </div>
-        </div>
-
-        {/* Invoices List Table Card */}
-        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
-          <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <h2 className="text-base font-bold text-slate-900 tracking-tight">
-                All Invoices
-              </h2>
-              <span className="text-xs bg-slate-100 text-slate-600 font-bold px-2.5 py-0.5 rounded-full">
-                {filteredInvoices.length} records
-              </span>
-            </div>
-
-            {/* Clean Duplicates Button */}
-            <button
-              type="button"
-              onClick={handleRemoveDuplicates}
-              className="px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs inline-flex items-center gap-1.5 transition cursor-pointer shadow-xs"
-              title="Detect and remove duplicate invoices"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-              Clean Duplicates
-            </button>
-          </div>
-
-          {loading ? (
-            <div className="p-12 text-center text-slate-400 flex flex-col items-center justify-center gap-3">
-              <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
-              <p className="text-sm font-medium">Loading invoices...</p>
-            </div>
-          ) : filteredInvoices.length === 0 ? (
-            <div className="p-12 text-center text-slate-400">
-              <FileText className="w-10 h-10 mx-auto mb-2 text-slate-300" />
-              <p className="text-sm font-medium">No invoices found</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead>
-                  <tr className="bg-slate-50/80 border-b border-slate-100 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                    <th className="py-3 px-5">INVOICE #</th>
-                    <th className="py-3 px-5">CLIENT</th>
-                    <th className="py-3 px-5">ISSUED DATE</th>
-                    <th className="py-3 px-5">DUE DATE</th>
-                    <th className="py-3 px-5">AMOUNT</th>
-                    <th className="py-3 px-5">STATUS</th>
-                    <th className="py-3 px-5 text-right">ACTIONS</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {filteredInvoices.map((inv) => (
-                    <tr
-                      key={inv.id || inv.invoice_number}
-                      className="hover:bg-slate-50/70 transition"
-                    >
-                      <td className="py-3.5 px-5 font-bold text-slate-900 tracking-tight">
-                        {inv.invoice_number}
-                      </td>
-                      <td className="py-3.5 px-5 text-slate-800 font-semibold">
-                        {inv.client_name}
-                      </td>
-                      <td className="py-3.5 px-5 text-slate-500 font-medium">
-                        {inv.issue_date}
-                      </td>
-                      <td className="py-3.5 px-5 text-slate-500 font-medium">
-                        {inv.due_date || inv.issue_date}
-                      </td>
-                      <td className="py-3.5 px-5 font-bold text-slate-900 tracking-tight">
-                        ₹ {formatINR(inv.total_amount)}
-                      </td>
-                      <td className="py-3.5 px-5">
-                        <span
-                          className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
-                            inv.status === "Paid"
-                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                              : "bg-amber-50 text-amber-700 border border-amber-200"
-                          }`}
-                        >
-                          {inv.status}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-5 text-right">
-                        <div className="inline-flex items-center gap-1.5 justify-end">
-                          {/* View Button */}
-                          <button
-                            type="button"
-                            onClick={() => setSelectedInvoice(inv)}
-                            className="px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs inline-flex items-center gap-1.5 transition cursor-pointer"
-                          >
-                            <Eye className="w-3.5 h-3.5" />
-                            View
-                          </button>
-
-                          {/* Delete Button */}
-                          <button
-                            type="button"
-                            onClick={(e) =>
-                              handleDeleteInvoice(inv.id, inv.invoice_number, e)
-                            }
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
-                            title={`Delete ${inv.invoice_number}`}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+        <div className="relative w-full sm:w-72">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            placeholder="Search invoices..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#9D00FF]"
+          />
         </div>
       </div>
 
-      {/* ===================== INVOICE PREVIEW MODAL ===================== */}
-      {selectedInvoice && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/60 backdrop-blur-sm cursor-pointer animate-in fade-in duration-150"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) {
-              handleCloseModal();
-            }
-          }}
-        >
-          {/* White Card Container */}
-          <div
-            className="relative w-full max-w-4xl bg-white rounded-3xl p-4 sm:p-6 shadow-2xl flex flex-col max-h-[96vh] overflow-hidden cursor-default"
-            onClick={(e) => e.stopPropagation()}
+      {/* TOP KPI CARDS */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        {/* TOTAL ISSUED */}
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-purple-50 text-[#9D00FF] flex items-center justify-center shrink-0">
+            <IndianRupee className="w-6 h-6 stroke-[2.5]" />
+          </div>
+          <div>
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+              TOTAL ISSUED
+            </span>
+            <span className="text-2xl font-black text-slate-900 tabular-nums">
+              ₹{" "}
+              {stats.totalIssued.toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+              })}
+            </span>
+          </div>
+        </div>
+
+        {/* AMOUNT DUE */}
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+            <Clock className="w-6 h-6" />
+          </div>
+          <div>
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+              AMOUNT DUE
+            </span>
+            <span className="text-2xl font-black text-slate-900 tabular-nums">
+              ₹{" "}
+              {stats.amountDue.toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+              })}
+            </span>
+          </div>
+        </div>
+
+        {/* TOTAL INVOICES */}
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+            <CheckCircle2 className="w-6 h-6" />
+          </div>
+          <div>
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+              TOTAL INVOICES
+            </span>
+            <span className="text-2xl font-black text-slate-900 tabular-nums">
+              {stats.totalCount}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* INVOICES LIST / TABLE */}
+      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden">
+        <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <h3 className="font-bold text-sm text-slate-900">All Invoices</h3>
+            <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-600">
+              {filteredInvoices.length} records
+            </span>
+          </div>
+
+          <Link
+            href="/dashboard/freelancer/projects"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition"
           >
-            {/* Modal Header */}
-            <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-slate-100 flex-shrink-0">
-              <div className="flex items-center gap-2.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                <span className="font-bold text-sm sm:text-base text-slate-900 tracking-tight">
-                  Invoice N°: {selectedInvoice.invoice_number}
+            <Sparkles className="w-3.5 h-3.5 text-[#9D00FF]" />
+            <span>Generate from Projects</span>
+          </Link>
+        </div>
+
+        {loading ? (
+          <div className="py-24 flex flex-col items-center justify-center text-slate-400 gap-2">
+            <Loader2 className="w-6 h-6 animate-spin text-[#9D00FF]" />
+            <span className="text-xs font-medium">Loading invoices...</span>
+          </div>
+        ) : filteredInvoices.length === 0 ? (
+          <div className="py-20 text-center text-slate-400 space-y-3">
+            <Receipt className="w-12 h-12 text-slate-300 mx-auto" />
+            <h4 className="font-bold text-sm text-slate-700">
+              No invoices found
+            </h4>
+            <p className="text-xs text-slate-400 max-w-sm mx-auto">
+              Create an invoice from your Projects workspace or by clicking
+              &quot;Generate from Projects&quot; above.
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-50/80 border-b border-slate-100 text-slate-400 font-bold uppercase tracking-wider text-[10px]">
+                <tr>
+                  <th className="py-3.5 px-5">Invoice #</th>
+                  <th className="py-3.5 px-5">Client / Brand</th>
+                  <th className="py-3.5 px-5">Issue Date</th>
+                  <th className="py-3.5 px-5">Due Date</th>
+                  <th className="py-3.5 px-5">Amount</th>
+                  <th className="py-3.5 px-5">Status</th>
+                  <th className="py-3.5 px-5 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+                {filteredInvoices.map((inv) => {
+                  const isPaid = inv.status.toLowerCase() === "paid";
+
+                  return (
+                    <tr
+                      key={inv.id}
+                      className="hover:bg-slate-50/80 transition cursor-pointer"
+                      onClick={() => setSelectedInvoice(inv)}
+                    >
+                      <td className="py-3.5 px-5 font-bold text-slate-900">
+                        {inv.invoice_number}
+                      </td>
+
+                      <td className="py-3.5 px-5 font-semibold text-slate-800">
+                        <span className="flex items-center gap-1.5">
+                          <Building className="w-3.5 h-3.5 text-slate-400" />
+                          <span>{inv.client}</span>
+                        </span>
+                      </td>
+
+                      <td className="py-3.5 px-5 text-slate-500">
+                        {inv.issue_date}
+                      </td>
+
+                      <td className="py-3.5 px-5 text-slate-500">
+                        {inv.due_date || "—"}
+                      </td>
+
+                      <td className="py-3.5 px-5 font-black text-slate-900 tabular-nums">
+                        ₹ {inv.amount.toLocaleString("en-IN")}
+                      </td>
+
+                      <td
+                        className="py-3.5 px-5"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <button
+                          onClick={() => handleToggleStatus(inv.id, inv.status)}
+                          className={`px-2.5 py-1 rounded-full text-[11px] font-bold border transition ${
+                            isPaid
+                              ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
+                              : "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100"
+                          }`}
+                        >
+                          {isPaid ? "Paid" : "Pending"}
+                        </button>
+                      </td>
+
+                      <td
+                        className="py-3.5 px-5 text-right space-x-2"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <button
+                          onClick={() => setSelectedInvoice(inv)}
+                          className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-600 transition"
+                          title="View / Print PDF"
+                        >
+                          <Printer className="w-3.5 h-3.5" />
+                        </button>
+
+                        <button
+                          onClick={() => handleDeleteInvoice(inv.id)}
+                          className="p-1.5 rounded-lg border border-slate-200 hover:bg-rose-50 hover:text-rose-600 text-slate-400 transition"
+                          title="Delete Invoice"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* VIEW / PRINT INVOICE MODAL */}
+      {selectedInvoice && (
+        <div className="fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full space-y-5 border border-slate-200 shadow-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  Invoice Statement
                 </span>
-                <span className="bg-slate-100 text-slate-700 px-2.5 py-0.5 text-xs font-semibold rounded-full">
-                  {selectedInvoice.client_name}
+                <h3 className="text-lg font-bold text-slate-900 mt-0.5">
+                  {selectedInvoice.invoice_number}
+                </h3>
+              </div>
+              <button
+                onClick={() => setSelectedInvoice(null)}
+                className="text-slate-400 hover:text-slate-600 p-1"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500 font-medium">
+                  Client / Brand:
+                </span>
+                <span className="font-bold text-slate-900">
+                  {selectedInvoice.client}
                 </span>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex items-center gap-2">
-                {/* Download PDF Button */}
-                <button
-                  type="button"
-                  onClick={handleDownloadPDF}
-                  disabled={isDownloading}
-                  className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 transition shadow-sm disabled:opacity-60 cursor-pointer"
-                  title="Download PDF locally and show preview"
-                >
-                  {isDownloading ? (
-                    <>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      Downloading...
-                    </>
-                  ) : (
-                    <>
-                      <Download className="w-3.5 h-3.5" />
-                      Download PDF
-                    </>
-                  )}
-                </button>
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500 font-medium">Issue Date:</span>
+                <span className="font-bold text-slate-900">
+                  {selectedInvoice.issue_date}
+                </span>
+              </div>
 
-                {/* Print Button */}
-                <button
-                  type="button"
-                  onClick={handlePrintInvoice}
-                  className="px-4 py-2 rounded-xl bg-[#F5A623] hover:bg-amber-500 text-slate-950 font-bold text-xs flex items-center gap-1.5 transition shadow-sm cursor-pointer"
-                  title="Print directly or save as PDF"
-                >
-                  <Printer className="w-3.5 h-3.5" />
-                  Print
-                </button>
+              {selectedInvoice.due_date && (
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500 font-medium">
+                    Payment Due:
+                  </span>
+                  <span className="font-bold text-slate-900">
+                    {selectedInvoice.due_date}
+                  </span>
+                </div>
+              )}
 
-                {/* Delete button inside modal */}
-                <button
-                  type="button"
-                  onClick={() =>
-                    handleDeleteInvoice(
-                      selectedInvoice.id,
-                      selectedInvoice.invoice_number,
-                    )
-                  }
-                  className="w-8 h-8 rounded-full border border-slate-200 hover:bg-red-50 hover:text-red-600 flex items-center justify-center text-slate-400 transition cursor-pointer"
-                  title="Delete invoice"
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500 font-medium">Status:</span>
+                <span
+                  className={`px-2 py-0.5 rounded-full font-bold text-[10px] ${
+                    selectedInvoice.status.toLowerCase() === "paid"
+                      ? "bg-emerald-100 text-emerald-800"
+                      : "bg-amber-100 text-amber-800"
+                  }`}
                 >
-                  <Trash2 className="w-4 h-4 pointer-events-none" />
-                </button>
+                  {selectedInvoice.status}
+                </span>
+              </div>
 
-                {/* Close Button */}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleCloseModal();
-                  }}
-                  className="w-8 h-8 rounded-full border border-slate-200 hover:bg-slate-100 active:scale-90 flex items-center justify-center text-slate-500 hover:text-slate-900 transition-all cursor-pointer relative z-30"
-                  aria-label="Close invoice preview"
-                >
-                  <X className="w-4 h-4 pointer-events-none" />
-                </button>
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-sm">
+                <span className="font-bold text-slate-900">Total Billed:</span>
+                <span className="font-black text-[#9D00FF] text-base tabular-nums">
+                  ₹ {selectedInvoice.amount.toLocaleString("en-IN")}
+                </span>
               </div>
             </div>
 
-            {/* Modal Body / Scrollable Area */}
-            <div className="flex-1 overflow-y-auto pt-3 pb-1">
-              {/* EXACT SND INVOICE DOCUMENT TEMPLATE */}
-              <div
-                id="printable-invoice-content"
-                className="bg-white rounded-2xl p-5 sm:p-7 text-slate-900 border border-slate-100 flex flex-col justify-between"
-                style={{ backgroundColor: "#ffffff", minHeight: "620px" }}
+            <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-3">
+              <button
+                onClick={() => window.print()}
+                className="px-4 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition"
               >
-                {/* Top Branding Section */}
-                <div className="flex items-start justify-between mb-5">
-                  <div className="flex flex-col items-start">
-                    <h3 className="text-lg font-black text-slate-900">
-                      {billingProfile.brandName || "Billing profile not set"}
-                    </h3>
-                  </div>
-
-                  <div className="text-right">
-                    <p className="text-xs font-bold text-slate-400">
-                      Invoice number:
-                    </p>
-                    <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-                      N°: {selectedInvoice.invoice_number}
-                    </h2>
-                    <p className="text-xs font-bold text-slate-400 mt-1">
-                      Issued:
-                    </p>
-                    <p className="text-xs font-bold text-slate-700">
-                      {selectedInvoice.issue_date}
-                    </p>
-                  </div>
-                </div>
-
-                {/* 3 Overview Cards: BILL TO, BILL FROM, AMOUNT DUE */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
-                  <div
-                    className="p-3.5 sm:p-4 rounded-2xl flex flex-col justify-between"
-                    style={{
-                      backgroundColor: "#fcfcfc",
-                      border: "1px solid #f1f5f9",
-                    }}
-                  >
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-[#d97706] uppercase tracking-wider mb-2">
-                      <User className="w-3.5 h-3.5 text-[#F5A623]" />
-                      BILL TO:
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-bold text-slate-900">
-                        {selectedInvoice.client_name}
-                      </h4>
-                      <p className="text-xs text-slate-500 mt-1 font-semibold">
-                        Contact :{" "}
-                        {formatClientContact(selectedInvoice.client_contact)}
-                      </p>
-                      <p className="text-xs text-slate-500 font-semibold">
-                        Location :{" "}
-                        {selectedInvoice.client_location || "Hyderabad, India"}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div
-                    className="p-3.5 sm:p-4 rounded-2xl flex flex-col justify-between"
-                    style={{
-                      backgroundColor: "#fcfcfc",
-                      border: "1px solid #f1f5f9",
-                    }}
-                  >
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-[#d97706] uppercase tracking-wider mb-2">
-                      <Building2 className="w-3.5 h-3.5 text-[#F5A623]" />
-                      BILL FROM:
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-bold text-slate-900">
-                        {billingProfile.brandName || "Billing profile not set"}
-                      </h4>
-                      {billingProfile.phone && (
-                        <p className="text-xs text-slate-500 mt-1 font-semibold">
-                          Contact : {billingProfile.phone}
-                        </p>
-                      )}
-                      {billingProfile.address && (
-                        <p className="text-xs text-slate-500 font-semibold">
-                          {billingProfile.address}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div
-                    className="p-3.5 sm:p-4 rounded-2xl flex flex-col justify-between"
-                    style={{ backgroundColor: "#F5A623", color: "#000000" }}
-                  >
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-black uppercase tracking-wider">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-black" />
-                      AMOUNT DUE
-                    </div>
-                    <div className="my-1.5">
-                      <span className="text-[11px] font-bold uppercase tracking-wider block text-black/80">
-                        INR
-                      </span>
-                      <span className="text-2xl font-black text-black tracking-tight">
-                        ₹ {formatINR(selectedInvoice.total_amount)}
-                      </span>
-                    </div>
-                    <div className="text-[11px] font-bold text-black/90">
-                      {selectedInvoice.due_date || selectedInvoice.issue_date}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Line Items Table */}
-                <div className="mb-4">
-                  <div className="grid grid-cols-[1fr_80px_120px_120px] text-[11px] font-bold text-slate-400 uppercase tracking-wider px-4 pb-2">
-                    <div>DESCRIPTION</div>
-                    <div className="text-center">QTY</div>
-                    <div className="text-right">PRICE</div>
-                    <div className="text-right">TOTAL</div>
-                  </div>
-
-                  <div className="space-y-2">
-                    {selectedInvoice.items &&
-                    selectedInvoice.items.length > 0 ? (
-                      selectedInvoice.items.map((item, idx) => (
-                        <div
-                          key={item.id || idx}
-                          className="grid grid-cols-[1fr_80px_120px_120px] items-center p-3 rounded-xl text-xs"
-                          style={{
-                            backgroundColor: "#f8fafc",
-                            border: "1px solid #f1f5f9",
-                          }}
-                        >
-                          <span className="font-bold text-slate-800">
-                            {item.description}
-                          </span>
-                          <span className="text-center font-semibold text-slate-600">
-                            {item.quantity || 1}
-                          </span>
-                          <span className="text-right font-semibold text-slate-600">
-                            ₹{" "}
-                            {formatINR(item.rate || item.price || item.amount)}
-                          </span>
-                          <span className="text-right font-bold text-slate-900">
-                            ₹ {formatINR(item.amount || item.total)}
-                          </span>
-                        </div>
-                      ))
-                    ) : (
-                      <div
-                        className="grid grid-cols-[1fr_80px_120px_120px] items-center p-3 rounded-xl text-xs"
-                        style={{
-                          backgroundColor: "#f8fafc",
-                          border: "1px solid #f1f5f9",
-                        }}
-                      >
-                        <span className="font-bold text-slate-800">
-                          Design Deliverables
-                        </span>
-                        <span className="text-center font-semibold text-slate-600">
-                          1
-                        </span>
-                        <span className="text-right font-semibold text-slate-600">
-                          ₹ {formatINR(selectedInvoice.total_amount)}
-                        </span>
-                        <span className="text-right font-bold text-slate-900">
-                          ₹ {formatINR(selectedInvoice.total_amount)}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="text-right mt-3 pr-2">
-                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                      TOTAL AMOUNT:
-                    </p>
-                    <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                      ₹ {formatINR(selectedInvoice.total_amount)}
-                    </h3>
-                  </div>
-                </div>
-
-                {/* Terms & Conditions & Bank Details */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                  <div className="pr-2">
-                    <h5 className="text-xs font-bold text-slate-900 mb-1">
-                      Terms & Conditions:
-                    </h5>
-                    <p className="text-[10px] text-slate-500 leading-relaxed font-medium">
-                      Fees and payment terms will be established in the contract
-                      or agreement prior to the commencement of the project. An
-                      initial deposit will be required before any design work
-                      begins. We reserve the right to suspend or halt work in
-                      the event of non-payment.
-                    </p>
-                  </div>
-
-                  <div
-                    className="p-3 sm:p-3.5 rounded-2xl bg-white"
-                    style={{ border: "2px solid #F5A623" }}
-                  >
-                    <div className="grid grid-cols-[90px_1fr] gap-y-1 text-xs">
-                      <span className="text-slate-500 font-semibold">Name</span>
-                      <span className="text-slate-900 font-bold">
-                        {billingProfile.fullName || "Not provided"}
-                      </span>
-
-                      <span className="text-slate-500 font-semibold">
-                        Bank details
-                      </span>
-                      <span className="text-slate-900 font-bold">
-                        {billingProfile.bankName || "Not provided"}
-                      </span>
-
-                      <span className="text-slate-500 font-semibold">
-                        Account #
-                      </span>
-                      <span className="text-slate-900 font-bold">
-                        {billingProfile.accountNumber || "Not provided"}
-                      </span>
-
-                      <span className="text-slate-500 font-semibold">
-                        IFS code
-                      </span>
-                      <span className="text-slate-900 font-bold">
-                        {billingProfile.ifscCode || "Not provided"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Footer Agency Information */}
-                <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between text-xs gap-2">
-                  <div>
-                    <h6 className="font-bold text-slate-900 text-xs tracking-wider">
-                      {billingProfile.brandName || "Billing profile not set"}
-                    </h6>
-                    <p className="text-[10px] text-slate-500 font-medium">
-                      We build software systems that grow with your business.
-                    </p>
-                  </div>
-                  <div className="text-left sm:text-right text-[11px] text-slate-500 font-medium">
-                    <p>
-                      Website :{" "}
-                      <span className="text-blue-600 font-bold">
-                        {billingProfile.website || "Not provided"}
-                      </span>
-                    </p>
-                    <p>
-                      {[billingProfile.email, billingProfile.phone]
-                        .filter(Boolean)
-                        .join(" | ") || "Billing contact not provided"}
-                    </p>
-                  </div>
-                </div>
-              </div>
+                <Printer className="w-3.5 h-3.5" />
+                <span>Print / Save PDF</span>
+              </button>
+              <button
+                onClick={() => setSelectedInvoice(null)}
+                className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>
