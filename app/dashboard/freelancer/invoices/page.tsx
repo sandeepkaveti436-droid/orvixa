@@ -22,6 +22,8 @@ import {
   MapPin,
   Check,
   UserCheck,
+  ShieldCheck,
+  Download,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
@@ -60,18 +62,18 @@ interface CompanyProfile {
 
 const DEFAULT_COMPANY_PROFILE: CompanyProfile = {
   companyName: "Sky Nova Digitals",
-  tagline: "Build What's Next.",
+  tagline: "Studio & Creative Engineering",
   logoDataUrl: "",
   phone: "+91 939 252 5043",
   email: "skynovadigitals@gmail.com",
-  website: "https://skynovadigitals.vercel.app/",
+  website: "skynovadigitals.vercel.app",
   address: "Beeramguda, Hyderabad, Telangana",
   accountNumber: "018391600022849",
   accountName: "Sandeep Kaveti",
   bankName: "Yes Bank",
   ifscCode: "YESB0000183",
   signatoryName: "Sandeep Kaveti",
-  signatoryTitle: "CEO | Founder",
+  signatoryTitle: "Creative Director & Founder",
 };
 
 export default function InvoicesPage() {
@@ -82,14 +84,13 @@ export default function InvoicesPage() {
     null,
   );
 
-  // User's Company & Bank Details Profile
+  // Business Profile
   const [profile, setProfile] = useState<CompanyProfile>(
     DEFAULT_COMPANY_PROFILE,
   );
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const [isProfileConfigured, setIsProfileConfigured] = useState(false);
 
-  // Edit Client & Invoice Customization Modal
+  // Client & Tax Edit Modal
   const [showEditClientModal, setShowEditClientModal] = useState(false);
   const [clientEditData, setClientEditData] = useState({
     client: "",
@@ -111,9 +112,6 @@ export default function InvoicesPage() {
       const saved = localStorage.getItem("orvixa_company_invoice_profile");
       if (saved) {
         setProfile(JSON.parse(saved));
-        setIsProfileConfigured(true);
-      } else {
-        setIsProfileConfigured(false);
       }
     } catch (e) {
       console.warn("Could not load company profile:", e);
@@ -126,7 +124,6 @@ export default function InvoicesPage() {
       "orvixa_company_invoice_profile",
       JSON.stringify(profile),
     );
-    setIsProfileConfigured(true);
     setShowProfileModal(false);
   };
 
@@ -165,8 +162,8 @@ export default function InvoicesPage() {
           invoice_number:
             inv.invoice_number ||
             inv.invoice_no ||
-            `#000${String(inv.id).slice(-4)}`,
-          client: inv.client || inv.client_name || "Food & Link",
+            `INV-${String(inv.id).slice(-5).toUpperCase()}`,
+          client: inv.client || inv.client_name || "Food Link F&B Holdings",
           client_phone: inv.client_phone || "",
           client_email: inv.client_email || "",
           client_address: inv.client_address || "",
@@ -182,7 +179,7 @@ export default function InvoicesPage() {
             typeof inv.items === "string" ? JSON.parse(inv.items) : inv.items,
           notes: inv.notes || "",
           tax_percent:
-            typeof inv.tax_percent === "number" ? inv.tax_percent : 0, // Default 0% tax
+            typeof inv.tax_percent === "number" ? inv.tax_percent : 0,
           created_at: inv.created_at,
         }));
 
@@ -197,7 +194,6 @@ export default function InvoicesPage() {
     }
   };
 
-  // KPIs
   const stats = useMemo(() => {
     let totalIssued = 0;
     let amountDue = 0;
@@ -253,7 +249,6 @@ export default function InvoicesPage() {
     }
   };
 
-  // Open invoice with profile verification
   const handleOpenInvoice = (inv: InvoiceItem) => {
     setSelectedInvoice(inv);
     setClientEditData({
@@ -265,13 +260,8 @@ export default function InvoicesPage() {
       due_date: inv.due_date || "",
       notes: inv.notes || "",
     });
-
-    if (!isProfileConfigured) {
-      setShowProfileModal(true);
-    }
   };
 
-  // Save modified client & tax information
   const handleSaveClientDetails = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedInvoice) return;
@@ -293,7 +283,6 @@ export default function InvoicesPage() {
     );
     setShowEditClientModal(false);
 
-    // Save update to Supabase
     try {
       await supabase
         .from("invoices")
@@ -308,11 +297,10 @@ export default function InvoicesPage() {
         })
         .eq("id", updatedInv.id);
     } catch (err) {
-      console.warn("Could not sync client info to database:", err);
+      console.warn("Could not sync client info:", err);
     }
   };
 
-  // Items table parsing
   const tableItems = useMemo(() => {
     if (!selectedInvoice) return [];
     if (
@@ -320,7 +308,7 @@ export default function InvoicesPage() {
       selectedInvoice.items.length > 0
     ) {
       return selectedInvoice.items.map((it: any) => ({
-        description: it.description || it.name || "Creative Work",
+        description: it.description || it.name || "Creative Deliverable Design",
         qty: it.qty || 1,
         rate: it.rate || selectedInvoice.amount,
         total: (it.qty || 1) * (it.rate || selectedInvoice.amount),
@@ -342,9 +330,7 @@ export default function InvoicesPage() {
     return tableItems.reduce((acc, it) => acc + (it.total || 0), 0);
   }, [tableItems]);
 
-  // Tax calculation: ONLY applies if tax_percent > 0 (Free for freelancers by default)
   const taxPercent = selectedInvoice?.tax_percent ?? 0;
-
   const taxAmount = useMemo(() => {
     if (!taxPercent || taxPercent <= 0) return 0;
     return (subTotal * taxPercent) / 100;
@@ -359,21 +345,21 @@ export default function InvoicesPage() {
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+          <h1 className="text-3xl font-black tracking-tight text-slate-900">
             Invoices
           </h1>
           <p className="text-sm font-normal text-slate-500 mt-1">
-            Manage and track your client billings and PDF statements
+            Manage your client billings, custom statements, and PDF exports
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           <button
             onClick={() => setShowProfileModal(true)}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 text-xs font-bold shadow-xs transition"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 text-xs font-bold shadow-xs transition"
           >
             <Edit3 className="w-3.5 h-3.5 text-amber-500" />
-            <span>Company & Bank Setup</span>
+            <span>Company &amp; Bank Profile</span>
           </button>
 
           <div className="relative w-full sm:w-64">
@@ -383,16 +369,16 @@ export default function InvoicesPage() {
               placeholder="Search invoices..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#29487d]"
+              className="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-slate-900"
             />
           </div>
         </div>
       </div>
 
-      {/* TOP KPI CARDS */}
+      {/* TOP METRIC CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
         <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-blue-50 text-[#29487d] flex items-center justify-center shrink-0">
+          <div className="w-12 h-12 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center shrink-0">
             <IndianRupee className="w-6 h-6 stroke-[2.5]" />
           </div>
           <div>
@@ -454,14 +440,14 @@ export default function InvoicesPage() {
             href="/dashboard/freelancer/projects"
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition"
           >
-            <Sparkles className="w-3.5 h-3.5 text-[#29487d]" />
+            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
             <span>Generate from Projects</span>
           </Link>
         </div>
 
         {loading ? (
           <div className="py-24 flex flex-col items-center justify-center text-slate-400 gap-2">
-            <Loader2 className="w-6 h-6 animate-spin text-[#29487d]" />
+            <Loader2 className="w-6 h-6 animate-spin text-slate-800" />
             <span className="text-xs font-medium">Loading invoices...</span>
           </div>
         ) : filteredInvoices.length === 0 ? (
@@ -544,7 +530,7 @@ export default function InvoicesPage() {
                       >
                         <button
                           onClick={() => handleOpenInvoice(inv)}
-                          className="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-[#29487d] hover:text-white text-slate-800 font-bold transition text-xs shadow-xs"
+                          className="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-900 hover:text-white text-slate-800 font-bold transition text-xs shadow-xs"
                         >
                           View Invoice
                         </button>
@@ -567,19 +553,21 @@ export default function InvoicesPage() {
       </div>
 
       {/* ========================================================================= */}
-      {/* 🌟 FULL SCREEN INVOICE VIEW TEMPLATE                                      */}
+      {/* 🌟 LUXURY DESIGNER INVOICE PREVIEW MODAL                                  */}
       {/* ========================================================================= */}
       {selectedInvoice && (
         <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-md flex items-center justify-center p-2 sm:p-6 overflow-y-auto print:p-0 print:bg-white">
           <div className="bg-white rounded-3xl max-w-4xl w-full my-auto shadow-2xl overflow-hidden print:shadow-none print:max-w-none print:w-full">
             {/* Top Toolbar (Hidden on Print) */}
-            <div className="bg-[#1c3055] text-white px-6 py-4 flex flex-wrap items-center justify-between gap-3 print:hidden">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-300">
-                Invoice Preview • {selectedInvoice.invoice_number}
-              </span>
+            <div className="bg-[#0f172a] text-white px-6 py-4 flex flex-wrap items-center justify-between gap-3 print:hidden">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-300">
+                  Statement • {selectedInvoice.invoice_number}
+                </span>
+              </div>
 
-              <div className="flex items-center gap-2 sm:gap-3">
-                {/* Edit Client & Tax Settings */}
+              <div className="flex items-center gap-2.5">
                 <button
                   onClick={() => setShowEditClientModal(true)}
                   className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs flex items-center gap-1.5 transition"
@@ -588,18 +576,17 @@ export default function InvoicesPage() {
                   <span>Edit Client &amp; Tax</span>
                 </button>
 
-                {/* Edit Company Brand & Bank Info */}
                 <button
                   onClick={() => setShowProfileModal(true)}
                   className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs flex items-center gap-1.5 transition"
                 >
                   <Edit3 className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Edit Company Info</span>
+                  <span>Edit Company / Bank</span>
                 </button>
 
                 <button
                   onClick={() => window.print()}
-                  className="px-5 py-2 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold text-xs flex items-center gap-2 transition shadow-sm"
+                  className="px-5 py-2 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-xs flex items-center gap-2 transition shadow-sm"
                 >
                   <Printer className="w-4 h-4" />
                   <span>Print / PDF</span>
@@ -614,107 +601,87 @@ export default function InvoicesPage() {
               </div>
             </div>
 
-            {/* PRINTABLE INVOICE SHEET (A4 Aspect) */}
+            {/* PRINTABLE INVOICE SHEET (Modern Luxury Creative Agency Design) */}
             <div
               id="printable-invoice"
-              className="p-0 text-slate-900 bg-white relative font-sans"
-              style={{ minHeight: "1100px" }}
+              className="p-8 sm:p-14 text-slate-900 bg-white relative font-sans space-y-9"
+              style={{ minHeight: "1050px" }}
             >
-              {/* 1. ROYAL BLUE HEADER BANNER */}
-              <div className="bg-[#29487d] text-white px-8 sm:px-12 pt-10 pb-6 relative overflow-hidden">
-                <div className="flex items-start justify-between relative z-10">
-                  {/* Left: Logo & Company Name */}
-                  <div className="flex items-center gap-4">
-                    {profile.logoDataUrl ? (
-                      <img
-                        src={profile.logoDataUrl}
-                        alt="Company Logo"
-                        className="w-16 h-16 object-contain bg-white/10 rounded-xl p-1"
-                      />
-                    ) : (
-                      <div className="w-14 h-14 bg-gradient-to-tr from-amber-400 to-amber-200 rounded-xl flex items-center justify-center shadow-md">
-                        <span className="text-xl font-black text-[#29487d]">
-                          ✦
-                        </span>
-                      </div>
-                    )}
-                    <div>
-                      <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-amber-400 uppercase">
-                        {profile.companyName || "DESIGN STUDIO"}
-                      </h2>
-                      <p className="text-xs font-semibold tracking-widest text-white/90 uppercase mt-0.5">
-                        {profile.tagline || "YOUR TAGLINE HERE"}
-                      </p>
+              {/* 1. TOP HEADER: BRAND IDENTITY & STATUS BADGE */}
+              <div className="flex items-start justify-between pb-8 border-b-2 border-slate-900">
+                <div className="flex items-center gap-4">
+                  {profile.logoDataUrl ? (
+                    <img
+                      src={profile.logoDataUrl}
+                      alt={profile.companyName}
+                      className="h-16 w-auto max-w-[140px] object-contain"
+                    />
+                  ) : (
+                    <div className="w-14 h-14 bg-slate-900 text-amber-400 rounded-2xl flex items-center justify-center font-black text-2xl tracking-tighter shadow-md">
+                      {profile.companyName.slice(0, 2).toUpperCase()}
                     </div>
-                  </div>
+                  )}
 
-                  {/* Right Decorative Pattern (Star Matrix + Curved Arch) */}
-                  <div className="hidden sm:flex items-center gap-6 opacity-80">
-                    <div className="text-amber-300 font-mono text-sm tracking-widest leading-none">
-                      ✦ ✦ ✦<br />✦ ✦ ✦<br />✦ ✦ ✦
-                    </div>
-                    <div className="w-16 h-16 border-4 border-amber-300/40 rounded-t-full flex items-center justify-center">
-                      <div className="w-10 h-10 border-4 border-amber-300/60 rounded-t-full" />
-                    </div>
+                  <div>
+                    <h2 className="text-2xl sm:text-3xl font-black text-slate-950 uppercase tracking-tight">
+                      {profile.companyName}
+                    </h2>
+                    <p className="text-xs font-semibold text-amber-600 uppercase tracking-widest mt-0.5">
+                      {profile.tagline || "Creative Agency & Production"}
+                    </p>
                   </div>
                 </div>
 
-                {/* Decorative Sawtooth / Zigzag Ribbon */}
-                <div
-                  className="absolute bottom-0 left-0 right-0 h-3 bg-white"
-                  style={{
-                    clipPath:
-                      "polygon(0% 100%, 5% 0%, 10% 100%, 15% 0%, 20% 100%, 25% 0%, 30% 100%, 35% 0%, 40% 100%, 45% 0%, 50% 100%, 55% 0%, 60% 100%, 65% 0%, 70% 100%, 75% 0%, 80% 100%, 85% 0%, 90% 100%, 95% 0%, 100% 100%)",
-                  }}
-                />
+                <div className="text-right">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider mb-2 border border-slate-200 bg-slate-50">
+                    <span
+                      className={`w-2 h-2 rounded-full ${selectedInvoice.status.toLowerCase() === "paid" ? "bg-emerald-500" : "bg-amber-500"}`}
+                    />
+                    <span>{selectedInvoice.status}</span>
+                  </div>
+                  <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-950">
+                    INVOICE
+                  </h1>
+                </div>
               </div>
 
-              {/* 2. INVOICE META & CUSTOMIZABLE CLIENT INFO */}
-              <div className="px-8 sm:px-12 pt-8 pb-6 flex flex-col sm:flex-row sm:items-start justify-between gap-6">
-                {/* Left: Invoice Big Title + Dates */}
-                <div className="flex items-start gap-3">
-                  <div className="w-1.5 h-16 bg-amber-400 rounded-full mt-1 shrink-0" />
-                  <div>
-                    <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-slate-900 leading-none">
-                      INVOICE
-                    </h1>
-                    <div className="mt-3 space-y-1 text-xs text-slate-700 font-semibold">
-                      <p>
-                        <span className="font-bold">No.</span>{" "}
-                        {selectedInvoice.invoice_number}
-                      </p>
-                      <p>
-                        <span className="font-bold">Date.</span>{" "}
-                        {selectedInvoice.issue_date}
-                      </p>
-                      <p>
-                        <span className="font-bold">Due Date.</span>{" "}
-                        {selectedInvoice.due_date || selectedInvoice.issue_date}
-                      </p>
-                    </div>
-                  </div>
+              {/* 2. INVOICE META & TWO-COLUMN ADDRESS CARDS */}
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-8 text-xs">
+                {/* BILL FROM */}
+                <div className="md:col-span-4 space-y-1.5">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block mb-2">
+                    Billed From
+                  </span>
+                  <h4 className="text-sm font-black text-slate-950">
+                    {profile.companyName}
+                  </h4>
+                  <p className="text-slate-600 font-medium">{profile.phone}</p>
+                  <p className="text-slate-600 font-medium">{profile.email}</p>
+                  <p className="text-slate-500 leading-relaxed mt-1">
+                    {profile.address}
+                  </p>
                 </div>
 
-                {/* Right: Custom Client Details (No fake placeholders!) */}
-                <div className="text-left sm:text-right text-xs">
-                  <span className="font-medium text-slate-400 block mb-1">
-                    Invoice To.
+                {/* BILL TO (CLIENT DETAILS) */}
+                <div className="md:col-span-5 space-y-1.5 border-l-0 md:border-l border-slate-100 md:pl-6">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block mb-2">
+                    Billed To
                   </span>
-                  <h3 className="text-base font-bold text-slate-900">
+                  <h4 className="text-sm font-black text-slate-950">
                     {selectedInvoice.client}
-                  </h3>
+                  </h4>
                   {selectedInvoice.client_phone && (
-                    <p className="text-slate-600 mt-1">
+                    <p className="text-slate-600 font-medium">
                       {selectedInvoice.client_phone}
                     </p>
                   )}
                   {selectedInvoice.client_email && (
-                    <p className="text-slate-600">
+                    <p className="text-slate-600 font-medium">
                       {selectedInvoice.client_email}
                     </p>
                   )}
                   {selectedInvoice.client_address && (
-                    <p className="text-slate-500 mt-0.5">
+                    <p className="text-slate-500 leading-relaxed mt-1">
                       {selectedInvoice.client_address}
                     </p>
                   )}
@@ -722,43 +689,80 @@ export default function InvoicesPage() {
                     !selectedInvoice.client_email &&
                     !selectedInvoice.client_address && (
                       <p
-                        className="text-amber-600 font-semibold text-[11px] mt-1 print:hidden cursor-pointer"
+                        className="text-amber-600 text-[11px] font-bold italic print:hidden cursor-pointer"
                         onClick={() => setShowEditClientModal(true)}
                       >
-                        + Click to add client phone / address
+                        + Click &quot;Edit Client &amp; Tax&quot; to set client
+                        address/phone
                       </p>
                     )}
                 </div>
+
+                {/* DATES & INVOICE NUMBER */}
+                <div className="md:col-span-3 space-y-3 bg-slate-50/80 p-4 rounded-2xl border border-slate-100">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                      Invoice Number
+                    </span>
+                    <span className="text-sm font-black text-slate-900 font-mono mt-0.5 block">
+                      {selectedInvoice.invoice_number}
+                    </span>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                      Issue Date
+                    </span>
+                    <span className="text-xs font-bold text-slate-800 block">
+                      {selectedInvoice.issue_date}
+                    </span>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                      Payment Due
+                    </span>
+                    <span className="text-xs font-black text-amber-600 block">
+                      {selectedInvoice.due_date || selectedInvoice.issue_date}
+                    </span>
+                  </div>
+                </div>
               </div>
 
-              {/* 3. ITEMS TABLE */}
-              <div className="px-8 sm:px-12 space-y-4">
-                <div className="border-t-2 border-b-2 border-slate-900 py-3 grid grid-cols-12 text-xs font-bold text-slate-900 uppercase">
+              {/* 3. MODERN FINANCIAL DELIVERABLES TABLE */}
+              <div className="space-y-3 pt-2">
+                <div className="grid grid-cols-12 pb-3 border-b-2 border-slate-900 text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3">
+                  <div className="col-span-1 text-center">#</div>
+                  <div className="col-span-6">
+                    Work Description / Deliverable
+                  </div>
                   <div className="col-span-1 text-center">Qty</div>
-                  <div className="col-span-6 pl-2">Item Description</div>
-                  <div className="col-span-2 text-right">Price</div>
-                  <div className="col-span-3 text-right">Total</div>
+                  <div className="col-span-2 text-right">Rate (₹)</div>
+                  <div className="col-span-2 text-right">Amount (₹)</div>
                 </div>
 
-                <div className="divide-y divide-slate-200">
+                <div className="divide-y divide-slate-100">
                   {tableItems.map((item, idx) => (
                     <div
                       key={idx}
-                      className="grid grid-cols-12 py-3.5 text-xs text-slate-800 font-medium"
+                      className="grid grid-cols-12 py-4 px-3 text-xs items-center"
                     >
-                      <div className="col-span-1 text-center font-bold">
-                        {item.qty}
+                      <div className="col-span-1 text-center font-mono font-bold text-slate-400">
+                        0{idx + 1}
                       </div>
-                      <div className="col-span-6 pl-2 font-semibold text-slate-900">
+                      <div className="col-span-6 font-bold text-slate-950 pr-4">
                         {item.description}
                       </div>
-                      <div className="col-span-2 text-right tabular-nums">
+                      <div className="col-span-1 text-center font-bold text-slate-600">
+                        {item.qty}
+                      </div>
+                      <div className="col-span-2 text-right font-medium text-slate-600 tabular-nums">
                         ₹{" "}
                         {item.rate.toLocaleString("en-IN", {
                           minimumFractionDigits: 2,
                         })}
                       </div>
-                      <div className="col-span-3 text-right font-bold text-slate-900 tabular-nums">
+                      <div className="col-span-2 text-right font-black text-slate-950 tabular-nums">
                         ₹{" "}
                         {item.total.toLocaleString("en-IN", {
                           minimumFractionDigits: 2,
@@ -769,11 +773,11 @@ export default function InvoicesPage() {
                 </div>
               </div>
 
-              {/* 4. TOTALS BLOCK (TAX IS STRICTLY OPTIONAL) */}
-              <div className="px-8 sm:px-12 flex flex-col items-end pt-4 space-y-2 text-xs">
-                <div className="w-72 flex justify-between font-semibold text-slate-600">
-                  <span>Sub-Total:</span>
-                  <span className="tabular-nums font-bold text-slate-900">
+              {/* 4. TOTALS BREAKDOWN (TAX IS FULLY OPTIONAL) */}
+              <div className="flex flex-col items-end pt-4 border-t border-slate-200 text-xs space-y-2">
+                <div className="w-80 flex justify-between text-slate-600 font-semibold px-2">
+                  <span>Subtotal:</span>
+                  <span className="font-bold text-slate-900 tabular-nums">
                     ₹{" "}
                     {subTotal.toLocaleString("en-IN", {
                       minimumFractionDigits: 2,
@@ -781,11 +785,11 @@ export default function InvoicesPage() {
                   </span>
                 </div>
 
-                {/* Show Tax line ONLY if user explicitly added a tax percentage */}
+                {/* ONLY SHOWN IF TAX PERCENT > 0 */}
                 {taxPercent > 0 && (
-                  <div className="w-72 flex justify-between font-semibold text-slate-600">
-                    <span>Tax Vat ({taxPercent}%):</span>
-                    <span className="tabular-nums font-bold text-slate-900">
+                  <div className="w-80 flex justify-between text-slate-600 font-semibold px-2">
+                    <span>Tax / GST ({taxPercent}%):</span>
+                    <span className="font-bold text-slate-900 tabular-nums">
                       ₹{" "}
                       {taxAmount.toLocaleString("en-IN", {
                         minimumFractionDigits: 2,
@@ -794,10 +798,12 @@ export default function InvoicesPage() {
                   </div>
                 )}
 
-                {/* SOLID ROYAL BLUE TOTAL HIGHLIGHT */}
-                <div className="w-72 bg-[#29487d] text-white px-5 py-3 rounded-lg flex justify-between items-center text-sm font-black shadow-sm mt-2">
-                  <span className="tracking-wide uppercase">Total:</span>
-                  <span className="text-xl tabular-nums">
+                {/* GRAND TOTAL HIGHLIGHT */}
+                <div className="w-80 bg-slate-950 text-white p-4 rounded-2xl flex justify-between items-center shadow-md mt-2">
+                  <span className="font-bold uppercase tracking-wider text-xs text-slate-300">
+                    Total Amount Due:
+                  </span>
+                  <span className="text-2xl font-black text-amber-400 tabular-nums">
                     ₹{" "}
                     {grandTotal.toLocaleString("en-IN", {
                       minimumFractionDigits: 2,
@@ -806,91 +812,96 @@ export default function InvoicesPage() {
                 </div>
               </div>
 
-              {/* 5. PAYMENT METHOD, TERMS, AND SIGNATURE */}
-              <div className="px-8 sm:px-12 pt-8 grid grid-cols-1 md:grid-cols-12 gap-8 text-xs">
-                {/* Left: Payment Method & Terms */}
-                <div className="md:col-span-7 space-y-4">
-                  <div>
-                    <h4 className="font-bold text-slate-900 text-sm">
-                      Payment Method.
-                    </h4>
-                    <p className="text-slate-600 mt-1 font-medium">
-                      Account {profile.accountNumber}
-                    </p>
-                    <p className="text-slate-600">
-                      A/C Name {profile.accountName} • {profile.bankName} (IFSC:{" "}
-                      {profile.ifscCode})
-                    </p>
+              {/* 5. BANK SETTLEMENT & EXECUTIVE SIGNATURE */}
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-8 pt-8 border-t border-slate-200 text-xs">
+                {/* Bank Transfer Wire Details */}
+                <div className="md:col-span-7 bg-amber-50/50 p-5 rounded-2xl border border-amber-200/80 space-y-2.5">
+                  <div className="flex items-center gap-2 text-amber-800 font-bold uppercase tracking-wider text-[11px]">
+                    <ShieldCheck className="w-4 h-4 text-amber-600" />
+                    <span>Direct Bank Wire / Remittance</span>
                   </div>
 
-                  <div>
-                    <h4 className="font-bold text-slate-900 text-xs">
-                      Terms & Condition.
-                    </h4>
-                    <p className="text-[11px] text-slate-500 leading-relaxed mt-1">
-                      {selectedInvoice.notes ||
-                        "Payment is due within the terms specified on this invoice. Please send remittance via the bank account method listed above. Thank you for your business!"}
-                    </p>
+                  <div className="grid grid-cols-2 gap-y-1.5 pt-1 text-slate-700">
+                    <div>
+                      <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                        Account Holder
+                      </span>
+                      <span className="font-bold text-slate-900">
+                        {profile.accountName}
+                      </span>
+                    </div>
+
+                    <div>
+                      <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                        Bank Name
+                      </span>
+                      <span className="font-bold text-slate-900">
+                        {profile.bankName}
+                      </span>
+                    </div>
+
+                    <div className="pt-1">
+                      <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                        Account Number
+                      </span>
+                      <span className="font-mono font-black text-slate-900 tracking-wider">
+                        {profile.accountNumber}
+                      </span>
+                    </div>
+
+                    <div className="pt-1">
+                      <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                        IFSC / Routing Code
+                      </span>
+                      <span className="font-mono font-black text-slate-900 tracking-wider">
+                        {profile.ifscCode}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                {/* Right: Signature */}
-                <div className="md:col-span-5 flex flex-col items-center justify-end text-center pb-2">
-                  <div className="h-10 text-2xl font-serif italic text-slate-800 tracking-wider">
-                    {profile.signatoryName || "Sandeep Kaveti"}
+                {/* Terms and Signature */}
+                <div className="md:col-span-5 flex flex-col justify-between space-y-4">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                      Terms of Settlement
+                    </span>
+                    <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
+                      {selectedInvoice.notes ||
+                        "Payment is due within the stipulated date. All deliverables transferred upon settlement. Thank you for your business!"}
+                    </p>
                   </div>
-                  <div className="w-48 border-t border-slate-400 mt-2 pt-1">
-                    <p className="font-bold text-slate-900">
+
+                  <div className="pt-2 text-center md:text-right">
+                    <div className="font-serif italic text-2xl text-slate-950 font-medium">
                       {profile.signatoryName}
-                    </p>
-                    <p className="text-[10px] text-slate-500">
-                      {profile.signatoryTitle}
-                    </p>
+                    </div>
+                    <div className="border-t border-slate-300 mt-1.5 pt-1">
+                      <p className="font-black text-xs text-slate-900 uppercase tracking-tight">
+                        {profile.signatoryName}
+                      </p>
+                      <p className="text-[10px] text-slate-400 font-semibold">
+                        {profile.signatoryTitle}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* 6. BOTTOM FOOTER (DECORATIVE ARCHES & 2x2 CONTACT BOX) */}
-              <div className="px-8 sm:px-12 pt-10 pb-10 flex flex-col sm:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-4">
-                  <div className="text-blue-900 font-mono text-xs tracking-widest leading-none">
-                    ✦ ✦ ✦<br />✦ ✦ ✦<br />✦ ✦ ✦
-                  </div>
-                  <div className="w-16 h-8 bg-amber-400 rounded-t-full flex items-end justify-center overflow-hidden">
-                    <div className="w-10 h-5 bg-[#29487d] rounded-t-full" />
-                  </div>
+              {/* 6. CLEAN FOOTER */}
+              <div className="pt-8 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-semibold text-slate-400">
+                <div className="flex items-center gap-2">
+                  <span className="text-slate-900 font-black">
+                    {profile.companyName}
+                  </span>
+                  <span>•</span>
+                  <span>{profile.website}</span>
                 </div>
 
-                <div className="border border-slate-300 rounded-xl p-3 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-[11px] text-slate-700 font-medium">
-                  <div className="flex items-center gap-2">
-                    <span className="w-5 h-5 rounded-full bg-[#29487d] text-white flex items-center justify-center shrink-0">
-                      <Phone className="w-2.5 h-2.5" />
-                    </span>
-                    <span>{profile.phone}</span>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <span className="w-5 h-5 rounded-full bg-[#29487d] text-white flex items-center justify-center shrink-0">
-                      <Mail className="w-2.5 h-2.5" />
-                    </span>
-                    <span>{profile.email}</span>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <span className="w-5 h-5 rounded-full bg-[#29487d] text-white flex items-center justify-center shrink-0">
-                      <Globe className="w-2.5 h-2.5" />
-                    </span>
-                    <span>{profile.website}</span>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <span className="w-5 h-5 rounded-full bg-[#29487d] text-white flex items-center justify-center shrink-0">
-                      <MapPin className="w-2.5 h-2.5" />
-                    </span>
-                    <span className="truncate max-w-[140px]">
-                      {profile.address}
-                    </span>
-                  </div>
+                <div>
+                  <span>
+                    {profile.email} • {profile.phone}
+                  </span>
                 </div>
               </div>
             </div>
@@ -899,7 +910,7 @@ export default function InvoicesPage() {
       )}
 
       {/* ========================================================================= */}
-      {/* 🌟 MODAL: EDIT CLIENT DETAILS & OPTIONAL TAX FOR THIS INVOICE             */}
+      {/* 🌟 EDIT CLIENT DETAILS & OPTIONAL TAX MODAL                              */}
       {/* ========================================================================= */}
       {showEditClientModal && (
         <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
@@ -910,7 +921,8 @@ export default function InvoicesPage() {
                   Edit Client Information &amp; Tax
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Update client contact info and choose whether to apply tax.
+                  Update client contact information and choose whether to apply
+                  tax.
                 </p>
               </div>
               <button
@@ -939,7 +951,7 @@ export default function InvoicesPage() {
                       client: e.target.value,
                     })
                   }
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-[#29487d]"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-slate-900"
                 />
               </div>
 
@@ -958,7 +970,7 @@ export default function InvoicesPage() {
                         client_phone: e.target.value,
                       })
                     }
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-[#29487d]"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-slate-900"
                   />
                 </div>
                 <div>
@@ -975,7 +987,7 @@ export default function InvoicesPage() {
                         client_email: e.target.value,
                       })
                     }
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-[#29487d]"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-slate-900"
                   />
                 </div>
               </div>
@@ -986,7 +998,7 @@ export default function InvoicesPage() {
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. Hyderabad, Telangana"
+                  placeholder="e.g. Jubilee Hills, Hyderabad, Telangana"
                   value={clientEditData.client_address}
                   onChange={(e) =>
                     setClientEditData({
@@ -994,11 +1006,11 @@ export default function InvoicesPage() {
                       client_address: e.target.value,
                     })
                   }
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-[#29487d]"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-slate-900"
                 />
               </div>
 
-              {/* OPTIONAL TAX SECTION */}
+              {/* TAX CONTROL */}
               <div className="pt-2 border-t border-slate-100">
                 <div className="flex items-center justify-between">
                   <div>
@@ -1006,8 +1018,7 @@ export default function InvoicesPage() {
                       Tax (VAT / GST) %
                     </span>
                     <span className="text-[11px] text-slate-500">
-                      Set to 0% if you do not charge tax (standard for
-                      freelancers)
+                      Set to 0% for tax-free freelance invoices
                     </span>
                   </div>
 
@@ -1023,7 +1034,7 @@ export default function InvoicesPage() {
                           tax_percent: parseFloat(e.target.value) || 0,
                         })
                       }
-                      className="w-20 text-center bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5 font-bold focus:outline-none focus:border-[#29487d]"
+                      className="w-20 text-center bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5 font-bold focus:outline-none focus:border-slate-900"
                     />
                     <span className="font-bold text-slate-600">%</span>
                   </div>
@@ -1032,7 +1043,7 @@ export default function InvoicesPage() {
 
               <div>
                 <label className="font-bold text-slate-700 block mb-1">
-                  Custom Terms &amp; Conditions
+                  Custom Terms &amp; Settlement Notes
                 </label>
                 <textarea
                   rows={2}
@@ -1044,7 +1055,7 @@ export default function InvoicesPage() {
                     })
                   }
                   placeholder="Payment is due within specified terms..."
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-medium focus:outline-none focus:border-[#29487d]"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-medium focus:outline-none focus:border-slate-900"
                 />
               </div>
 
@@ -1058,7 +1069,7 @@ export default function InvoicesPage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#29487d] hover:bg-[#1c3055] text-white font-bold transition shadow-sm"
+                  className="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold transition shadow-sm"
                 >
                   Save &amp; Update Invoice
                 </button>
@@ -1080,8 +1091,8 @@ export default function InvoicesPage() {
                   Company Branding &amp; Bank Account Setup
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Customize the company name, logo, and bank account shown on
-                  your invoices.
+                  Customize the company logo, agency name, and bank transfer
+                  details.
                 </p>
               </div>
               <button
@@ -1125,7 +1136,7 @@ export default function InvoicesPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="font-bold text-slate-700 block mb-1">
-                    Company / Brand Name *
+                    Company Name *
                   </label>
                   <input
                     type="text"
@@ -1134,7 +1145,7 @@ export default function InvoicesPage() {
                     onChange={(e) =>
                       setProfile({ ...profile, companyName: e.target.value })
                     }
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-[#29487d]"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-slate-900"
                   />
                 </div>
                 <div>
@@ -1147,7 +1158,7 @@ export default function InvoicesPage() {
                     onChange={(e) =>
                       setProfile({ ...profile, tagline: e.target.value })
                     }
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-[#29487d]"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-slate-900"
                   />
                 </div>
               </div>
@@ -1155,7 +1166,7 @@ export default function InvoicesPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="font-bold text-slate-700 block mb-1">
-                    Your Contact Phone Number
+                    Phone Number
                   </label>
                   <input
                     type="text"
@@ -1163,12 +1174,12 @@ export default function InvoicesPage() {
                     onChange={(e) =>
                       setProfile({ ...profile, phone: e.target.value })
                     }
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-[#29487d]"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-slate-900"
                   />
                 </div>
                 <div>
                   <label className="font-bold text-slate-700 block mb-1">
-                    Your Email Address
+                    Email Address
                   </label>
                   <input
                     type="email"
@@ -1176,7 +1187,7 @@ export default function InvoicesPage() {
                     onChange={(e) =>
                       setProfile({ ...profile, email: e.target.value })
                     }
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-[#29487d]"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-slate-900"
                   />
                 </div>
               </div>
@@ -1192,12 +1203,12 @@ export default function InvoicesPage() {
                     onChange={(e) =>
                       setProfile({ ...profile, website: e.target.value })
                     }
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-[#29487d]"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-slate-900"
                   />
                 </div>
                 <div>
                   <label className="font-bold text-slate-700 block mb-1">
-                    Your Office / Location Address
+                    Office / City Address
                   </label>
                   <input
                     type="text"
@@ -1205,15 +1216,14 @@ export default function InvoicesPage() {
                     onChange={(e) =>
                       setProfile({ ...profile, address: e.target.value })
                     }
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-[#29487d]"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-slate-900"
                   />
                 </div>
               </div>
 
-              {/* Bank Transfer Details */}
               <div className="pt-2 border-t border-slate-100">
                 <span className="font-bold uppercase tracking-wider text-[11px] text-amber-600 block mb-2">
-                  Bank Transfer Details (Printed on Invoice)
+                  Bank Settlement Details (Printed on Invoice)
                 </span>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
@@ -1227,7 +1237,7 @@ export default function InvoicesPage() {
                       onChange={(e) =>
                         setProfile({ ...profile, accountName: e.target.value })
                       }
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-[#29487d]"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-slate-900"
                     />
                   </div>
                   <div>
@@ -1244,7 +1254,7 @@ export default function InvoicesPage() {
                           accountNumber: e.target.value,
                         })
                       }
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-[#29487d]"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-slate-900"
                     />
                   </div>
                   <div>
@@ -1257,7 +1267,7 @@ export default function InvoicesPage() {
                       onChange={(e) =>
                         setProfile({ ...profile, bankName: e.target.value })
                       }
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-[#29487d]"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-slate-900"
                     />
                   </div>
                   <div>
@@ -1270,13 +1280,12 @@ export default function InvoicesPage() {
                       onChange={(e) =>
                         setProfile({ ...profile, ifscCode: e.target.value })
                       }
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-[#29487d]"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-slate-900"
                     />
                   </div>
                 </div>
               </div>
 
-              {/* Signatory */}
               <div className="grid grid-cols-2 gap-3 pt-2 border-t border-slate-100">
                 <div>
                   <label className="font-bold text-slate-700 block mb-1">
@@ -1288,7 +1297,7 @@ export default function InvoicesPage() {
                     onChange={(e) =>
                       setProfile({ ...profile, signatoryName: e.target.value })
                     }
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-[#29487d]"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-slate-900"
                   />
                 </div>
                 <div>
@@ -1301,7 +1310,7 @@ export default function InvoicesPage() {
                     onChange={(e) =>
                       setProfile({ ...profile, signatoryTitle: e.target.value })
                     }
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-[#29487d]"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-slate-900"
                   />
                 </div>
               </div>
@@ -1316,9 +1325,9 @@ export default function InvoicesPage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#29487d] hover:bg-[#1c3055] text-white font-bold transition shadow-sm"
+                  className="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold transition shadow-sm"
                 >
-                  Save &amp; Apply to Invoices
+                  Save Profile Settings
                 </button>
               </div>
             </form>
