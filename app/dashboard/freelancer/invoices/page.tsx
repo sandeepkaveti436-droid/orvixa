@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import {
   Search,
@@ -16,7 +16,6 @@ import {
   X,
   Edit3,
   User,
-  Check,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
@@ -36,7 +35,6 @@ export interface InvoiceItem {
 interface BusinessProfile {
   companyName: string;
   tagline: string;
-  logoUrl?: string;
   contactNumber: string;
   email: string;
   website: string;
@@ -47,10 +45,9 @@ interface BusinessProfile {
   ifscCode: string;
 }
 
-const DEFAULT_BUSINESS_PROFILE: BusinessProfile = {
+const DEFAULT_BUSINESS: BusinessProfile = {
   companyName: "Sky Nova Digitals",
   tagline: "Build What's Next.",
-  logoUrl: "",
   contactNumber: "+91- 9392525043",
   email: "skynovadigitals@gmail.com",
   website: "skynovadigitals.vercel.app",
@@ -70,35 +67,31 @@ export default function InvoicesPage() {
   );
 
   // Business profile for the invoice
-  const [businessProfile, setBusinessProfile] = useState<BusinessProfile>(
-    DEFAULT_BUSINESS_PROFILE,
-  );
-  const [showEditProfileModal, setShowEditProfileModal] = useState(false);
-  const invoicePrintRef = useRef<HTMLDivElement>(null);
+  const [businessProfile, setBusinessProfile] =
+    useState<BusinessProfile>(DEFAULT_BUSINESS);
+  const [showEditProfile, setShowEditProfile] = useState(false);
 
   useEffect(() => {
     fetchInvoices();
-    loadSavedBusinessProfile();
+    loadProfile();
   }, []);
 
-  const loadSavedBusinessProfile = () => {
+  const loadProfile = () => {
     try {
       const saved = localStorage.getItem("orvixa_invoice_business_profile");
-      if (saved) {
-        setBusinessProfile(JSON.parse(saved));
-      }
+      if (saved) setBusinessProfile(JSON.parse(saved));
     } catch (e) {
-      console.warn("Could not load saved business profile:", e);
+      console.warn("Could not load business profile:", e);
     }
   };
 
-  const handleSaveBusinessProfile = (e: React.FormEvent) => {
+  const saveProfile = (e: React.FormEvent) => {
     e.preventDefault();
     localStorage.setItem(
       "orvixa_invoice_business_profile",
       JSON.stringify(businessProfile),
     );
-    setShowEditProfileModal(false);
+    setShowEditProfile(false);
   };
 
   const fetchInvoices = async () => {
@@ -119,7 +112,7 @@ export default function InvoicesPage() {
             inv.invoice_number ||
             inv.invoice_no ||
             `000${String(inv.id).slice(-4)}`,
-          client: inv.client || inv.client_name || "Client",
+          client: inv.client || inv.client_name || "Food Link F&B Holdings LTD",
           amount: parseFloat(String(inv.amount || inv.total || 0)),
           status: inv.status || "Pending",
           issue_date:
@@ -145,7 +138,6 @@ export default function InvoicesPage() {
     }
   };
 
-  // KPIs
   const stats = useMemo(() => {
     let totalIssued = 0;
     let amountDue = 0;
@@ -153,8 +145,7 @@ export default function InvoicesPage() {
     invoices.forEach((inv) => {
       const amt = inv.amount || 0;
       totalIssued += amt;
-      const s = (inv.status || "").toLowerCase();
-      if (s !== "paid") {
+      if ((inv.status || "").toLowerCase() !== "paid") {
         amountDue += amt;
       }
     });
@@ -181,7 +172,6 @@ export default function InvoicesPage() {
     setInvoices((prev) =>
       prev.map((inv) => (inv.id === id ? { ...inv, status: nextStatus } : inv)),
     );
-
     try {
       await supabase
         .from("invoices")
@@ -203,12 +193,8 @@ export default function InvoicesPage() {
     }
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
-
-  // Parse deliverables items safely for display
-  const invoiceLineItems = useMemo(() => {
+  // Convert deliverables to line items
+  const lineItems = useMemo(() => {
     if (!selectedInvoice) return [];
     if (
       Array.isArray(selectedInvoice.items) &&
@@ -247,10 +233,10 @@ export default function InvoicesPage() {
 
         <div className="flex items-center gap-3">
           <button
-            onClick={() => setShowEditProfileModal(true)}
+            onClick={() => setShowEditProfile(true)}
             className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-xs transition"
           >
-            <Edit3 className="w-3.5 h-3.5 text-[#f59e0b]" />
+            <Edit3 className="w-3.5 h-3.5 text-amber-500" />
             <span>Customize Company / Bank Info</span>
           </button>
 
@@ -422,8 +408,7 @@ export default function InvoicesPage() {
                       >
                         <button
                           onClick={() => setSelectedInvoice(inv)}
-                          className="px-2.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-700 font-semibold transition"
-                          title="View / Print PDF"
+                          className="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-800 font-bold transition text-xs shadow-xs"
                         >
                           View Invoice
                         </button>
@@ -446,21 +431,21 @@ export default function InvoicesPage() {
       </div>
 
       {/* ========================================================================= */}
-      {/* FULL INVOICE MODAL - ACCURATE LAYOUT MATCHING YOUR SAMPLE SCREENSHOT     */}
+      {/* 🌟 EXACT INVOICE VIEW MATCHING YOUR REFERENCE DESIGN                      */}
       {/* ========================================================================= */}
       {selectedInvoice && (
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-2 sm:p-6 overflow-y-auto print:p-0 print:bg-white">
+        <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-md flex items-center justify-center p-2 sm:p-6 overflow-y-auto print:p-0 print:bg-white">
           <div className="bg-white rounded-3xl max-w-4xl w-full my-auto shadow-2xl overflow-hidden print:shadow-none print:max-w-none print:w-full">
             {/* Top Toolbar (Hidden when printing) */}
-            <div className="bg-slate-900 text-white px-6 py-3.5 flex items-center justify-between print:hidden">
+            <div className="bg-slate-900 text-white px-6 py-4 flex items-center justify-between print:hidden">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-300">
-                Invoice Statement • {selectedInvoice.invoice_number}
+                Invoice Statement • №: {selectedInvoice.invoice_number}
               </span>
 
               <div className="flex items-center gap-3">
                 <button
-                  onClick={handlePrint}
-                  className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs flex items-center gap-2 transition shadow-sm"
+                  onClick={() => window.print()}
+                  className="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs flex items-center gap-2 transition shadow-sm"
                 >
                   <Printer className="w-4 h-4" />
                   <span>Print / Save as PDF</span>
@@ -474,30 +459,21 @@ export default function InvoicesPage() {
               </div>
             </div>
 
-            {/* PRINTABLE INVOICE BODY */}
+            {/* PRINTABLE INVOICE DOCUMENT */}
             <div
-              ref={invoicePrintRef}
               id="printable-invoice"
-              className="p-8 sm:p-12 text-slate-900 bg-white relative space-y-8"
-              style={{ minHeight: "950px" }}
+              className="p-8 sm:p-14 text-slate-900 bg-white space-y-8 relative"
+              style={{ minHeight: "1050px" }}
             >
-              {/* TOP HEADER: LOGO & INVOICE DETAILS */}
+              {/* 1. TOP HEADER (SND Brand + Tagline & Invoice Number + Date) */}
               <div className="flex items-start justify-between">
                 <div>
-                  {businessProfile.logoUrl ? (
-                    <img
-                      src={businessProfile.logoUrl}
-                      alt={businessProfile.companyName}
-                      className="h-12 object-contain"
-                    />
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <span className="text-4xl font-extrabold tracking-tight text-amber-500 font-mono">
-                        SND
-                      </span>
-                    </div>
-                  )}
-                  <p className="text-sm font-semibold italic text-slate-500 mt-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-4xl sm:text-5xl font-black tracking-tight text-amber-500 font-sans">
+                      SND
+                    </span>
+                  </div>
+                  <p className="text-sm font-semibold italic text-slate-700 mt-1">
                     {businessProfile.tagline || "Build What's Next."}
                   </p>
                 </div>
@@ -510,7 +486,7 @@ export default function InvoicesPage() {
                     №: {selectedInvoice.invoice_number.replace(/^INV-/, "")}
                   </span>
 
-                  <span className="text-xs font-medium text-slate-400 block mt-2">
+                  <span className="text-xs font-medium text-slate-400 block mt-3">
                     Issued:
                   </span>
                   <span className="text-sm font-bold text-slate-900 block mt-0.5">
@@ -519,13 +495,13 @@ export default function InvoicesPage() {
                 </div>
               </div>
 
-              {/* THREE CARDS ROW: BILL TO, BILL FROM, AMOUNT DUE */}
+              {/* 2. THREE CARDS (BILL TO, BILL FROM, AMOUNT DUE) */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                {/* 1. BILL TO CARD */}
-                <div className="bg-slate-50/70 rounded-2xl p-4 sm:p-5 border border-slate-100 flex flex-col justify-between">
+                {/* BILL TO */}
+                <div className="bg-[#f8fafc] rounded-2xl p-5 border border-slate-100 flex flex-col justify-between">
                   <div>
-                    <div className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
-                      <span className="w-4 h-4 rounded-full bg-amber-500 text-white flex items-center justify-center text-[10px]">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
+                      <span className="w-4 h-4 rounded-full bg-amber-500 text-white flex items-center justify-center text-[10px] font-black">
                         ✓
                       </span>
                       <span>BILL TO:</span>
@@ -540,7 +516,7 @@ export default function InvoicesPage() {
                         <p className="text-xs text-slate-500 mt-2">
                           Contact : +91-XXXXXXXXXX
                         </p>
-                        <p className="text-xs text-slate-400 tracking-widest my-1">
+                        <p className="text-xs text-slate-300 tracking-widest my-1">
                           ---------------------
                         </p>
                         <p className="text-xs text-slate-500">
@@ -551,11 +527,11 @@ export default function InvoicesPage() {
                   </div>
                 </div>
 
-                {/* 2. BILL FROM CARD */}
-                <div className="bg-slate-50/70 rounded-2xl p-4 sm:p-5 border border-slate-100 flex flex-col justify-between">
+                {/* BILL FROM */}
+                <div className="bg-[#f8fafc] rounded-2xl p-5 border border-slate-100 flex flex-col justify-between">
                   <div>
-                    <div className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
-                      <span className="w-4 h-4 rounded-full bg-amber-500 text-white flex items-center justify-center text-[10px]">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
+                      <span className="w-4 h-4 rounded-full bg-amber-500 text-white flex items-center justify-center text-[10px] font-black">
                         ✓
                       </span>
                       <span>BILL FROM:</span>
@@ -578,10 +554,10 @@ export default function InvoicesPage() {
                   </div>
                 </div>
 
-                {/* 3. AMOUNT DUE CARD (GOLD COLOR BLOCK LIKE SAMPLE) */}
-                <div className="bg-[#f59e0b] text-white rounded-2xl p-5 shadow-sm flex flex-col justify-between relative overflow-hidden">
-                  <div className="flex items-center gap-2 text-xs font-bold text-white/90 uppercase tracking-wider">
-                    <span className="w-4 h-4 rounded-full bg-white/20 text-white flex items-center justify-center text-[10px]">
+                {/* AMOUNT DUE (BRIGHT GOLD BLOCK MATCHING SCREENSHOT) */}
+                <div className="bg-[#f59e0b] text-white rounded-2xl p-5 shadow-sm flex flex-col justify-between">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-white/95 uppercase tracking-wider">
+                    <span className="w-4 h-4 rounded-full bg-white/20 text-white flex items-center justify-center text-[10px] font-black">
                       ✓
                     </span>
                     <span>AMOUNT DUE</span>
@@ -605,8 +581,8 @@ export default function InvoicesPage() {
                 </div>
               </div>
 
-              {/* DELIVERABLES & LINE ITEMS TABLE */}
-              <div className="space-y-4 pt-2">
+              {/* 3. DELIVERABLES / LINE ITEMS TABLE */}
+              <div className="space-y-4 pt-3">
                 <div className="grid grid-cols-12 text-xs font-bold text-slate-400 uppercase tracking-wider px-4">
                   <div className="col-span-6">DESCRIPTION</div>
                   <div className="col-span-2 text-center">QTY</div>
@@ -614,8 +590,8 @@ export default function InvoicesPage() {
                   <div className="col-span-2 text-right">TOTAL</div>
                 </div>
 
-                <div className="space-y-2">
-                  {invoiceLineItems.map((item, idx) => (
+                <div className="space-y-2.5">
+                  {lineItems.map((item, idx) => (
                     <div
                       key={idx}
                       className="grid grid-cols-12 items-center px-5 py-4 rounded-2xl bg-white border border-slate-200/90 text-sm shadow-xs"
@@ -642,7 +618,7 @@ export default function InvoicesPage() {
                   ))}
                 </div>
 
-                {/* TOTAL AMOUNT LINE */}
+                {/* TOTAL AMOUNT */}
                 <div className="flex flex-col items-end pt-4 pr-4">
                   <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
                     TOTAL AMOUNT:
@@ -656,9 +632,8 @@ export default function InvoicesPage() {
                 </div>
               </div>
 
-              {/* BOTTOM SECTION: TERMS AND BANK TRANSFER DETAILS */}
+              {/* 4. TERMS & BANK DETAILS BOX (GOLD BORDER) */}
               <div className="grid grid-cols-1 md:grid-cols-12 gap-6 pt-6">
-                {/* Terms and conditions */}
                 <div className="md:col-span-6 space-y-2">
                   <h5 className="text-xs font-bold text-slate-700">
                     Terms & Conditions:
@@ -672,7 +647,7 @@ export default function InvoicesPage() {
                   </p>
                 </div>
 
-                {/* Bank details card with Gold Border */}
+                {/* Bank Details Box */}
                 <div className="md:col-span-6 border-2 border-amber-400 rounded-2xl p-5 bg-white space-y-2.5 text-xs">
                   <div className="grid grid-cols-3">
                     <span className="font-bold text-slate-900">Name</span>
@@ -703,7 +678,7 @@ export default function InvoicesPage() {
                 </div>
               </div>
 
-              {/* INVOICE FOOTER WITH SLIGHT BLUE GLOW ACCENT */}
+              {/* 5. FOOTER */}
               <div className="pt-8 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs font-medium text-slate-500">
                 <div>
                   <span className="font-bold text-slate-900 uppercase tracking-wider block">
@@ -728,32 +703,27 @@ export default function InvoicesPage() {
         </div>
       )}
 
-      {/* ========================================================================= */}
-      {/* MODAL TO EDIT BUSINESS & BANK DETAILS (SAVED FOR ALL USERS)              */}
-      {/* ========================================================================= */}
-      {showEditProfileModal && (
+      {/* CUSTOMIZE BRAND & BANK PROFILE MODAL */}
+      {showEditProfile && (
         <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-7 shadow-2xl space-y-4 my-8">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <h3 className="font-bold text-base text-slate-900">
-                Customize Your Invoice Branding & Bank Details
+                Customize Invoice Branding & Bank Details
               </h3>
               <button
-                onClick={() => setShowEditProfileModal(false)}
+                onClick={() => setShowEditProfile(false)}
                 className="text-slate-400 hover:text-slate-600 p-1"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form
-              onSubmit={handleSaveBusinessProfile}
-              className="space-y-4 text-xs"
-            >
+            <form onSubmit={saveProfile} className="space-y-4 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="font-bold text-slate-700 block mb-1">
-                    Company / Freelancer Name *
+                    Company / Brand Name *
                   </label>
                   <input
                     type="text"
@@ -789,7 +759,7 @@ export default function InvoicesPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="font-bold text-slate-700 block mb-1">
-                    Contact Phone Number
+                    Phone Number
                   </label>
                   <input
                     type="text"
@@ -857,7 +827,7 @@ export default function InvoicesPage() {
 
               <div className="pt-2 border-t border-slate-100">
                 <span className="font-bold uppercase tracking-wider text-[11px] text-amber-600 block mb-2">
-                  Bank Transfer Settlement Details
+                  Bank Settlement Details
                 </span>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
@@ -930,7 +900,7 @@ export default function InvoicesPage() {
               <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
                 <button
                   type="button"
-                  onClick={() => setShowEditProfileModal(false)}
+                  onClick={() => setShowEditProfile(false)}
                   className="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 font-semibold"
                 >
                   Cancel
