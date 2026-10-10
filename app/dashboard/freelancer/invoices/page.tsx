@@ -21,6 +21,7 @@ import {
   Globe,
   MapPin,
   Check,
+  UserCheck,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
@@ -28,6 +29,9 @@ export interface InvoiceItem {
   id: string;
   invoice_number: string;
   client: string;
+  client_phone?: string;
+  client_email?: string;
+  client_address?: string;
   amount: number;
   status: "Paid" | "Pending" | "Overdue" | string;
   issue_date: string;
@@ -55,19 +59,19 @@ interface CompanyProfile {
 }
 
 const DEFAULT_COMPANY_PROFILE: CompanyProfile = {
-  companyName: "DESIGN STUDIO",
-  tagline: "YOUR TAGLINE HERE",
+  companyName: "Sky Nova Digitals",
+  tagline: "Build What's Next.",
   logoDataUrl: "",
   phone: "+91 939 252 5043",
-  email: "yourmail0123@gmail.com",
-  website: "www.yourdomain.com",
-  address: "800 Windy Ridge Road, Hyderabad",
-  accountNumber: "012 345 678 900",
-  accountName: "Novada Musimas Bank Details",
-  bankName: "HDFC Bank",
-  ifscCode: "HDFC0001234",
-  signatoryName: "Lauras Smith",
-  signatoryTitle: "Accountant",
+  email: "skynovadigitals@gmail.com",
+  website: "https://skynovadigitals.vercel.app/",
+  address: "Beeramguda, Hyderabad, Telangana",
+  accountNumber: "018391600022849",
+  accountName: "Sandeep Kaveti",
+  bankName: "Yes Bank",
+  ifscCode: "YESB0000183",
+  signatoryName: "Sandeep Kaveti",
+  signatoryTitle: "CEO | Founder",
 };
 
 export default function InvoicesPage() {
@@ -84,6 +88,18 @@ export default function InvoicesPage() {
   );
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [isProfileConfigured, setIsProfileConfigured] = useState(false);
+
+  // Edit Client & Invoice Customization Modal
+  const [showEditClientModal, setShowEditClientModal] = useState(false);
+  const [clientEditData, setClientEditData] = useState({
+    client: "",
+    client_phone: "",
+    client_email: "",
+    client_address: "",
+    tax_percent: 0,
+    due_date: "",
+    notes: "",
+  });
 
   useEffect(() => {
     fetchInvoices();
@@ -114,7 +130,6 @@ export default function InvoicesPage() {
     setShowProfileModal(false);
   };
 
-  // Handle Logo Upload
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -151,7 +166,10 @@ export default function InvoicesPage() {
             inv.invoice_number ||
             inv.invoice_no ||
             `#000${String(inv.id).slice(-4)}`,
-          client: inv.client || inv.client_name || "Decilia Smith",
+          client: inv.client || inv.client_name || "Food & Link",
+          client_phone: inv.client_phone || "",
+          client_email: inv.client_email || "",
+          client_address: inv.client_address || "",
           amount: parseFloat(String(inv.amount || inv.total || 0)),
           status: inv.status || "Pending",
           issue_date:
@@ -163,7 +181,8 @@ export default function InvoicesPage() {
           items:
             typeof inv.items === "string" ? JSON.parse(inv.items) : inv.items,
           notes: inv.notes || "",
-          tax_percent: inv.tax_percent ?? 15,
+          tax_percent:
+            typeof inv.tax_percent === "number" ? inv.tax_percent : 0, // Default 0% tax
           created_at: inv.created_at,
         }));
 
@@ -236,12 +255,60 @@ export default function InvoicesPage() {
 
   // Open invoice with profile verification
   const handleOpenInvoice = (inv: InvoiceItem) => {
+    setSelectedInvoice(inv);
+    setClientEditData({
+      client: inv.client || "",
+      client_phone: inv.client_phone || "",
+      client_email: inv.client_email || "",
+      client_address: inv.client_address || "",
+      tax_percent: inv.tax_percent ?? 0,
+      due_date: inv.due_date || "",
+      notes: inv.notes || "",
+    });
+
     if (!isProfileConfigured) {
-      // Prompt user to fill details before viewing
       setShowProfileModal(true);
-      setSelectedInvoice(inv);
-    } else {
-      setSelectedInvoice(inv);
+    }
+  };
+
+  // Save modified client & tax information
+  const handleSaveClientDetails = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedInvoice) return;
+
+    const updatedInv: InvoiceItem = {
+      ...selectedInvoice,
+      client: clientEditData.client.trim() || selectedInvoice.client,
+      client_phone: clientEditData.client_phone.trim(),
+      client_email: clientEditData.client_email.trim(),
+      client_address: clientEditData.client_address.trim(),
+      tax_percent: Number(clientEditData.tax_percent) || 0,
+      due_date: clientEditData.due_date || selectedInvoice.due_date,
+      notes: clientEditData.notes,
+    };
+
+    setSelectedInvoice(updatedInv);
+    setInvoices((prev) =>
+      prev.map((it) => (it.id === updatedInv.id ? updatedInv : it)),
+    );
+    setShowEditClientModal(false);
+
+    // Save update to Supabase
+    try {
+      await supabase
+        .from("invoices")
+        .update({
+          client: updatedInv.client,
+          client_phone: updatedInv.client_phone,
+          client_email: updatedInv.client_email,
+          client_address: updatedInv.client_address,
+          tax_percent: updatedInv.tax_percent,
+          due_date: updatedInv.due_date,
+          notes: updatedInv.notes,
+        })
+        .eq("id", updatedInv.id);
+    } catch (err) {
+      console.warn("Could not sync client info to database:", err);
     }
   };
 
@@ -253,7 +320,7 @@ export default function InvoicesPage() {
       selectedInvoice.items.length > 0
     ) {
       return selectedInvoice.items.map((it: any) => ({
-        description: it.description || it.name || "Design Work",
+        description: it.description || it.name || "Creative Work",
         qty: it.qty || 1,
         rate: it.rate || selectedInvoice.amount,
         total: (it.qty || 1) * (it.rate || selectedInvoice.amount),
@@ -275,9 +342,13 @@ export default function InvoicesPage() {
     return tableItems.reduce((acc, it) => acc + (it.total || 0), 0);
   }, [tableItems]);
 
+  // Tax calculation: ONLY applies if tax_percent > 0 (Free for freelancers by default)
+  const taxPercent = selectedInvoice?.tax_percent ?? 0;
+
   const taxAmount = useMemo(() => {
-    return subTotal * 0.15; // 15% Tax VAT
-  }, [subTotal]);
+    if (!taxPercent || taxPercent <= 0) return 0;
+    return (subTotal * taxPercent) / 100;
+  }, [subTotal, taxPercent]);
 
   const grandTotal = useMemo(() => {
     return subTotal + taxAmount;
@@ -299,9 +370,9 @@ export default function InvoicesPage() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setShowProfileModal(true)}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 text-xs font-bold shadow-xs transition"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 text-xs font-bold shadow-xs transition"
           >
-            <Edit3 className="w-4 h-4 text-amber-500" />
+            <Edit3 className="w-3.5 h-3.5 text-amber-500" />
             <span>Company & Bank Setup</span>
           </button>
 
@@ -369,7 +440,7 @@ export default function InvoicesPage() {
         </div>
       </div>
 
-      {/* INVOICES LIST TABLE */}
+      {/* INVOICES TABLE */}
       <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden">
         <div className="p-4 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -400,7 +471,7 @@ export default function InvoicesPage() {
               No invoices found
             </h4>
             <p className="text-xs text-slate-400 max-w-sm mx-auto">
-              Create an invoice from your Projects workspace or by clicking
+              Create an invoice from your Projects workspace by clicking
               &quot;Generate from Projects&quot; above.
             </p>
           </div>
@@ -496,24 +567,34 @@ export default function InvoicesPage() {
       </div>
 
       {/* ========================================================================= */}
-      {/* 🌟 NEW TEMPLATE DESIGN MATCHING YOUR SAMPLE IMAGE (BLUE & GOLD STUDIO)    */}
+      {/* 🌟 FULL SCREEN INVOICE VIEW TEMPLATE                                      */}
       {/* ========================================================================= */}
-      {selectedInvoice && isProfileConfigured && (
+      {selectedInvoice && (
         <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-md flex items-center justify-center p-2 sm:p-6 overflow-y-auto print:p-0 print:bg-white">
           <div className="bg-white rounded-3xl max-w-4xl w-full my-auto shadow-2xl overflow-hidden print:shadow-none print:max-w-none print:w-full">
             {/* Top Toolbar (Hidden on Print) */}
-            <div className="bg-[#1c3055] text-white px-6 py-4 flex items-center justify-between print:hidden">
+            <div className="bg-[#1c3055] text-white px-6 py-4 flex flex-wrap items-center justify-between gap-3 print:hidden">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-300">
                 Invoice Preview • {selectedInvoice.invoice_number}
               </span>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3">
+                {/* Edit Client & Tax Settings */}
+                <button
+                  onClick={() => setShowEditClientModal(true)}
+                  className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs flex items-center gap-1.5 transition"
+                >
+                  <UserCheck className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Edit Client &amp; Tax</span>
+                </button>
+
+                {/* Edit Company Brand & Bank Info */}
                 <button
                   onClick={() => setShowProfileModal(true)}
-                  className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium text-xs flex items-center gap-1.5 transition"
+                  className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs flex items-center gap-1.5 transition"
                 >
                   <Edit3 className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Edit Info / Logo</span>
+                  <span>Edit Company Info</span>
                 </button>
 
                 <button
@@ -521,8 +602,9 @@ export default function InvoicesPage() {
                   className="px-5 py-2 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold text-xs flex items-center gap-2 transition shadow-sm"
                 >
                   <Printer className="w-4 h-4" />
-                  <span>Print / Save as PDF</span>
+                  <span>Print / PDF</span>
                 </button>
+
                 <button
                   onClick={() => setSelectedInvoice(null)}
                   className="text-slate-400 hover:text-white p-1 rounded-lg transition"
@@ -536,7 +618,7 @@ export default function InvoicesPage() {
             <div
               id="printable-invoice"
               className="p-0 text-slate-900 bg-white relative font-sans"
-              style={{ minHeight: "1120px" }}
+              style={{ minHeight: "1100px" }}
             >
               {/* 1. ROYAL BLUE HEADER BANNER */}
               <div className="bg-[#29487d] text-white px-8 sm:px-12 pt-10 pb-6 relative overflow-hidden">
@@ -571,7 +653,6 @@ export default function InvoicesPage() {
                     <div className="text-amber-300 font-mono text-sm tracking-widest leading-none">
                       ✦ ✦ ✦<br />✦ ✦ ✦<br />✦ ✦ ✦
                     </div>
-                    {/* Concentric Arch Motif */}
                     <div className="w-16 h-16 border-4 border-amber-300/40 rounded-t-full flex items-center justify-center">
                       <div className="w-10 h-10 border-4 border-amber-300/60 rounded-t-full" />
                     </div>
@@ -588,7 +669,7 @@ export default function InvoicesPage() {
                 />
               </div>
 
-              {/* 2. INVOICE META & CLIENT INFO */}
+              {/* 2. INVOICE META & CUSTOMIZABLE CLIENT INFO */}
               <div className="px-8 sm:px-12 pt-8 pb-6 flex flex-col sm:flex-row sm:items-start justify-between gap-6">
                 {/* Left: Invoice Big Title + Dates */}
                 <div className="flex items-start gap-3">
@@ -614,7 +695,7 @@ export default function InvoicesPage() {
                   </div>
                 </div>
 
-                {/* Right: Invoice To */}
+                {/* Right: Custom Client Details (No fake placeholders!) */}
                 <div className="text-left sm:text-right text-xs">
                   <span className="font-medium text-slate-400 block mb-1">
                     Invoice To.
@@ -622,11 +703,31 @@ export default function InvoicesPage() {
                   <h3 className="text-base font-bold text-slate-900">
                     {selectedInvoice.client}
                   </h3>
-                  <p className="text-slate-600 mt-1">+039 123 456 7890</p>
-                  <p className="text-slate-600">clientbilling@example.com</p>
-                  <p className="text-slate-500 mt-0.5">
-                    4599 Quincy Street, Fort Wayne, New York
-                  </p>
+                  {selectedInvoice.client_phone && (
+                    <p className="text-slate-600 mt-1">
+                      {selectedInvoice.client_phone}
+                    </p>
+                  )}
+                  {selectedInvoice.client_email && (
+                    <p className="text-slate-600">
+                      {selectedInvoice.client_email}
+                    </p>
+                  )}
+                  {selectedInvoice.client_address && (
+                    <p className="text-slate-500 mt-0.5">
+                      {selectedInvoice.client_address}
+                    </p>
+                  )}
+                  {!selectedInvoice.client_phone &&
+                    !selectedInvoice.client_email &&
+                    !selectedInvoice.client_address && (
+                      <p
+                        className="text-amber-600 font-semibold text-[11px] mt-1 print:hidden cursor-pointer"
+                        onClick={() => setShowEditClientModal(true)}
+                      >
+                        + Click to add client phone / address
+                      </p>
+                    )}
                 </div>
               </div>
 
@@ -668,7 +769,7 @@ export default function InvoicesPage() {
                 </div>
               </div>
 
-              {/* 4. TOTALS BLOCK WITH ROYAL BLUE BAR */}
+              {/* 4. TOTALS BLOCK (TAX IS STRICTLY OPTIONAL) */}
               <div className="px-8 sm:px-12 flex flex-col items-end pt-4 space-y-2 text-xs">
                 <div className="w-72 flex justify-between font-semibold text-slate-600">
                   <span>Sub-Total:</span>
@@ -680,15 +781,18 @@ export default function InvoicesPage() {
                   </span>
                 </div>
 
-                <div className="w-72 flex justify-between font-semibold text-slate-600">
-                  <span>Tax Vat (15%):</span>
-                  <span className="tabular-nums font-bold text-slate-900">
-                    ₹{" "}
-                    {taxAmount.toLocaleString("en-IN", {
-                      minimumFractionDigits: 2,
-                    })}
-                  </span>
-                </div>
+                {/* Show Tax line ONLY if user explicitly added a tax percentage */}
+                {taxPercent > 0 && (
+                  <div className="w-72 flex justify-between font-semibold text-slate-600">
+                    <span>Tax Vat ({taxPercent}%):</span>
+                    <span className="tabular-nums font-bold text-slate-900">
+                      ₹{" "}
+                      {taxAmount.toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                      })}
+                    </span>
+                  </div>
+                )}
 
                 {/* SOLID ROYAL BLUE TOTAL HIGHLIGHT */}
                 <div className="w-72 bg-[#29487d] text-white px-5 py-3 rounded-lg flex justify-between items-center text-sm font-black shadow-sm mt-2">
@@ -724,9 +828,8 @@ export default function InvoicesPage() {
                       Terms & Condition.
                     </h4>
                     <p className="text-[11px] text-slate-500 leading-relaxed mt-1">
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                      sed do eiusmod tempor incididunt ut labore et dolore magna
-                      aliqua. Payment terms are due upon receipt as specified.
+                      {selectedInvoice.notes ||
+                        "Payment is due within the terms specified on this invoice. Please send remittance via the bank account method listed above. Thank you for your business!"}
                     </p>
                   </div>
                 </div>
@@ -734,7 +837,7 @@ export default function InvoicesPage() {
                 {/* Right: Signature */}
                 <div className="md:col-span-5 flex flex-col items-center justify-end text-center pb-2">
                   <div className="h-10 text-2xl font-serif italic text-slate-800 tracking-wider">
-                    {profile.signatoryName || "Lauras Smith"}
+                    {profile.signatoryName || "Sandeep Kaveti"}
                   </div>
                   <div className="w-48 border-t border-slate-400 mt-2 pt-1">
                     <p className="font-bold text-slate-900">
@@ -749,18 +852,15 @@ export default function InvoicesPage() {
 
               {/* 6. BOTTOM FOOTER (DECORATIVE ARCHES & 2x2 CONTACT BOX) */}
               <div className="px-8 sm:px-12 pt-10 pb-10 flex flex-col sm:flex-row items-center justify-between gap-6">
-                {/* Left: Geometric Cross Matrix & Arch Motif */}
                 <div className="flex items-center gap-4">
                   <div className="text-blue-900 font-mono text-xs tracking-widest leading-none">
                     ✦ ✦ ✦<br />✦ ✦ ✦<br />✦ ✦ ✦
                   </div>
-                  {/* Gold & Blue Arch */}
                   <div className="w-16 h-8 bg-amber-400 rounded-t-full flex items-end justify-center overflow-hidden">
                     <div className="w-10 h-5 bg-[#29487d] rounded-t-full" />
                   </div>
                 </div>
 
-                {/* Right: 2x2 Bordered Contact Card */}
                 <div className="border border-slate-300 rounded-xl p-3 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-[11px] text-slate-700 font-medium">
                   <div className="flex items-center gap-2">
                     <span className="w-5 h-5 rounded-full bg-[#29487d] text-white flex items-center justify-center shrink-0">
@@ -799,7 +899,177 @@ export default function InvoicesPage() {
       )}
 
       {/* ========================================================================= */}
-      {/* 🌟 SETUP COMPANY & BANK DETAILS MODAL (BEFORE GENERATING INVOICE)         */}
+      {/* 🌟 MODAL: EDIT CLIENT DETAILS & OPTIONAL TAX FOR THIS INVOICE             */}
+      {/* ========================================================================= */}
+      {showEditClientModal && (
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl space-y-4 my-8">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div>
+                <h3 className="font-bold text-base text-slate-900">
+                  Edit Client Information &amp; Tax
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Update client contact info and choose whether to apply tax.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowEditClientModal(false)}
+                className="text-slate-400 hover:text-slate-600 p-1"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form
+              onSubmit={handleSaveClientDetails}
+              className="space-y-3.5 text-xs"
+            >
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">
+                  Client / Company Name *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={clientEditData.client}
+                  onChange={(e) =>
+                    setClientEditData({
+                      ...clientEditData,
+                      client: e.target.value,
+                    })
+                  }
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-[#29487d]"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">
+                    Client Phone Number
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. +91 98765 43210"
+                    value={clientEditData.client_phone}
+                    onChange={(e) =>
+                      setClientEditData({
+                        ...clientEditData,
+                        client_phone: e.target.value,
+                      })
+                    }
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-[#29487d]"
+                  />
+                </div>
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">
+                    Client Email Address
+                  </label>
+                  <input
+                    type="email"
+                    placeholder="e.g. billing@foodlink.com"
+                    value={clientEditData.client_email}
+                    onChange={(e) =>
+                      setClientEditData({
+                        ...clientEditData,
+                        client_email: e.target.value,
+                      })
+                    }
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-[#29487d]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">
+                  Client Billing Address / Location
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Hyderabad, Telangana"
+                  value={clientEditData.client_address}
+                  onChange={(e) =>
+                    setClientEditData({
+                      ...clientEditData,
+                      client_address: e.target.value,
+                    })
+                  }
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-semibold focus:outline-none focus:border-[#29487d]"
+                />
+              </div>
+
+              {/* OPTIONAL TAX SECTION */}
+              <div className="pt-2 border-t border-slate-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="font-bold text-slate-800 block">
+                      Tax (VAT / GST) %
+                    </span>
+                    <span className="text-[11px] text-slate-500">
+                      Set to 0% if you do not charge tax (standard for
+                      freelancers)
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={clientEditData.tax_percent}
+                      onChange={(e) =>
+                        setClientEditData({
+                          ...clientEditData,
+                          tax_percent: parseFloat(e.target.value) || 0,
+                        })
+                      }
+                      className="w-20 text-center bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5 font-bold focus:outline-none focus:border-[#29487d]"
+                    />
+                    <span className="font-bold text-slate-600">%</span>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">
+                  Custom Terms &amp; Conditions
+                </label>
+                <textarea
+                  rows={2}
+                  value={clientEditData.notes}
+                  onChange={(e) =>
+                    setClientEditData({
+                      ...clientEditData,
+                      notes: e.target.value,
+                    })
+                  }
+                  placeholder="Payment is due within specified terms..."
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-medium focus:outline-none focus:border-[#29487d]"
+                />
+              </div>
+
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowEditClientModal(false)}
+                  className="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 font-semibold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-[#29487d] hover:bg-[#1c3055] text-white font-bold transition shadow-sm"
+                >
+                  Save &amp; Update Invoice
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 🌟 SETUP COMPANY & BANK DETAILS MODAL                                     */}
       {/* ========================================================================= */}
       {showProfileModal && (
         <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
@@ -807,11 +1077,11 @@ export default function InvoicesPage() {
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div>
                 <h3 className="font-bold text-base text-slate-900">
-                  Company Branding & Bank Account Setup
+                  Company Branding &amp; Bank Account Setup
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Fill in your details once so every invoice automatically uses
-                  your template.
+                  Customize the company name, logo, and bank account shown on
+                  your invoices.
                 </p>
               </div>
               <button
@@ -823,7 +1093,6 @@ export default function InvoicesPage() {
             </div>
 
             <form onSubmit={handleSaveProfile} className="space-y-4 text-xs">
-              {/* Logo File Upload */}
               <div>
                 <label className="font-bold text-slate-700 block mb-1">
                   Company Logo Image
@@ -853,16 +1122,14 @@ export default function InvoicesPage() {
                 </div>
               </div>
 
-              {/* Company Info */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="font-bold text-slate-700 block mb-1">
-                    Company Name *
+                    Company / Brand Name *
                   </label>
                   <input
                     type="text"
                     required
-                    placeholder="e.g. DESIGN STUDIO"
                     value={profile.companyName}
                     onChange={(e) =>
                       setProfile({ ...profile, companyName: e.target.value })
@@ -876,7 +1143,6 @@ export default function InvoicesPage() {
                   </label>
                   <input
                     type="text"
-                    placeholder="e.g. YOUR TAGLINE HERE"
                     value={profile.tagline}
                     onChange={(e) =>
                       setProfile({ ...profile, tagline: e.target.value })
@@ -886,15 +1152,13 @@ export default function InvoicesPage() {
                 </div>
               </div>
 
-              {/* Contact Information */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="font-bold text-slate-700 block mb-1">
-                    Phone Number
+                    Your Contact Phone Number
                   </label>
                   <input
                     type="text"
-                    placeholder="+91 939 252 5043"
                     value={profile.phone}
                     onChange={(e) =>
                       setProfile({ ...profile, phone: e.target.value })
@@ -904,11 +1168,10 @@ export default function InvoicesPage() {
                 </div>
                 <div>
                   <label className="font-bold text-slate-700 block mb-1">
-                    Email Address
+                    Your Email Address
                   </label>
                   <input
                     type="email"
-                    placeholder="yourmail0123@gmail.com"
                     value={profile.email}
                     onChange={(e) =>
                       setProfile({ ...profile, email: e.target.value })
@@ -925,7 +1188,6 @@ export default function InvoicesPage() {
                   </label>
                   <input
                     type="text"
-                    placeholder="www.yourdomain.com"
                     value={profile.website}
                     onChange={(e) =>
                       setProfile({ ...profile, website: e.target.value })
@@ -935,11 +1197,10 @@ export default function InvoicesPage() {
                 </div>
                 <div>
                   <label className="font-bold text-slate-700 block mb-1">
-                    Office / Street Address
+                    Your Office / Location Address
                   </label>
                   <input
                     type="text"
-                    placeholder="800 Windy Ridge Road, US"
                     value={profile.address}
                     onChange={(e) =>
                       setProfile({ ...profile, address: e.target.value })
@@ -949,7 +1210,7 @@ export default function InvoicesPage() {
                 </div>
               </div>
 
-              {/* Bank Account Details */}
+              {/* Bank Transfer Details */}
               <div className="pt-2 border-t border-slate-100">
                 <span className="font-bold uppercase tracking-wider text-[11px] text-amber-600 block mb-2">
                   Bank Transfer Details (Printed on Invoice)
@@ -962,7 +1223,6 @@ export default function InvoicesPage() {
                     <input
                       type="text"
                       required
-                      placeholder="e.g. Novada Musimas"
                       value={profile.accountName}
                       onChange={(e) =>
                         setProfile({ ...profile, accountName: e.target.value })
@@ -977,7 +1237,6 @@ export default function InvoicesPage() {
                     <input
                       type="text"
                       required
-                      placeholder="012 345 678 900"
                       value={profile.accountNumber}
                       onChange={(e) =>
                         setProfile({
@@ -994,7 +1253,6 @@ export default function InvoicesPage() {
                     </label>
                     <input
                       type="text"
-                      placeholder="HDFC Bank"
                       value={profile.bankName}
                       onChange={(e) =>
                         setProfile({ ...profile, bankName: e.target.value })
@@ -1008,7 +1266,6 @@ export default function InvoicesPage() {
                     </label>
                     <input
                       type="text"
-                      placeholder="HDFC0001234"
                       value={profile.ifscCode}
                       onChange={(e) =>
                         setProfile({ ...profile, ifscCode: e.target.value })
@@ -1027,7 +1284,6 @@ export default function InvoicesPage() {
                   </label>
                   <input
                     type="text"
-                    placeholder="Lauras Smith"
                     value={profile.signatoryName}
                     onChange={(e) =>
                       setProfile({ ...profile, signatoryName: e.target.value })
@@ -1041,7 +1297,6 @@ export default function InvoicesPage() {
                   </label>
                   <input
                     type="text"
-                    placeholder="Accountant / Director"
                     value={profile.signatoryTitle}
                     onChange={(e) =>
                       setProfile({ ...profile, signatoryTitle: e.target.value })
@@ -1063,7 +1318,7 @@ export default function InvoicesPage() {
                   type="submit"
                   className="px-5 py-2 rounded-xl bg-[#29487d] hover:bg-[#1c3055] text-white font-bold transition shadow-sm"
                 >
-                  Save & Apply to Invoices
+                  Save &amp; Apply to Invoices
                 </button>
               </div>
             </form>
