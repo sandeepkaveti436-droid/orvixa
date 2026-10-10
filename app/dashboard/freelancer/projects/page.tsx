@@ -550,6 +550,7 @@ export default function ProjectsPage() {
   };
 
   // Save Invoice and instantly redirect to Invoices
+  // Save Invoice with automatic schema fallbacks (Single & Combined)
   const handleSaveInvoice = async () => {
     setIsSavingInvoice(true);
     try {
@@ -561,37 +562,38 @@ export default function ProjectsPage() {
           rate: it.rate || 0,
         }));
 
-      const newInvoice = {
-        id: `inv-${Date.now()}`,
+      const invoicePayload: any = {
         invoice_number: invoiceData.invoiceNumber,
-        client: invoiceData.clientName || activeFolder || "",
+        client: invoiceData.clientName || activeFolder || "Client",
         amount: invoiceGrandTotal,
-        status: "Pending" as const,
+        status: "Pending",
         issue_date: invoiceData.issueDate,
         due_date: invoiceData.dueDate,
-        items: selectedItems,
+        items: JSON.stringify(selectedItems),
         notes: invoiceData.notes,
-        created_at: new Date().toISOString(),
       };
 
-      const { error } = await supabase.from("invoices").insert([
-        {
-          invoice_number: newInvoice.invoice_number,
-          client: newInvoice.client,
-          amount: newInvoice.amount,
-          status: newInvoice.status,
-          issue_date: newInvoice.issue_date,
-          due_date: newInvoice.due_date,
-          items: JSON.stringify(newInvoice.items),
-          notes: newInvoice.notes,
-        },
-      ]);
-      if (error) throw error;
+      // 1. Try inserting complete payload
+      let result = await supabase.from("invoices").insert([invoicePayload]);
+
+      // 2. Fallback: If 'notes' column does not exist in DB, remove and retry
+      if (result.error && result.error.message?.includes("notes")) {
+        delete invoicePayload.notes;
+        result = await supabase.from("invoices").insert([invoicePayload]);
+      }
+
+      // 3. Fallback: If 'items' column does not exist in DB, remove and retry
+      if (result.error && result.error.message?.includes("items")) {
+        delete invoicePayload.items;
+        result = await supabase.from("invoices").insert([invoicePayload]);
+      }
+
+      if (result.error) throw result.error;
 
       setShowInvoiceModal(false);
       window.location.href = "/dashboard/freelancer/invoices";
     } catch (err: any) {
-      alert(`Save error: ${err.message}`);
+      alert(`Save error: ${err.message || "Failed to save invoice"}`);
     } finally {
       setIsSavingInvoice(false);
     }
